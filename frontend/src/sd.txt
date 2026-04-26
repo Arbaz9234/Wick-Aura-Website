@@ -1,0 +1,182 @@
+/* Text */
+p,
+span {
+  @apply text-[#1d1d20] font-["Satoshi"] font-normal text-[1.8rem] leading-[150%] m-0 mb-4;
+}
+
+/* HTML5 Display Reset */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  @apply block;
+}
+audio,
+canvas,
+progress,
+video {
+  @apply inline-block align-baseline;
+}
+audio:not([controls]) {
+  @apply hidden h-0;
+}
+[hidden],
+template {
+  @apply hidden;
+}
+
+/* Typography */
+abbr[title] {
+  @apply border-b border-dotted;
+}
+b,
+strong {
+  @apply font-bold;
+}
+dfn {
+  @apply italic;
+}
+mark {
+  @apply bg-yellow-300 text-black;
+}
+sub,
+sup {
+  @apply text-[75%] leading-none align-baseline relative;
+}
+sup {
+  @apply -top-2;
+}
+sub {
+  @apply -bottom-1;
+}
+svg:not(:root) {
+  @apply overflow-hidden;
+}
+
+/* HR */
+hr {
+  @apply box-content h-0 my-5 border-0 border-t border-[#eeeeee];
+}
+
+/* Code & Pre */
+pre {
+  @apply overflow-auto;
+}
+code,
+kbd,
+pre,
+samp {
+  @apply font-mono text-base;
+}
+
+/* Forms */
+
+button,
+select {
+  @apply normal-case;
+}
+
+button[disabled],
+input[disabled] {
+  @apply cursor-default;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  @apply border-0 p-0;
+}
+input {
+  @apply leading-normal;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  @apply box-border p-0;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+input[type="search"] {
+  @apply appearance-none box-content;
+}
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+fieldset {
+  @apply border border-[#c0c0c0] mx-0.5 px-[0.625em] pt-[0.35em] pb-[0.75em];
+}
+legend {
+  @apply border-0 p-0;
+}
+textarea {
+  @apply overflow-auto;
+}
+optgroup {
+  @apply font-bold;
+}
+
+/* Tables */
+table {
+  @apply border-collapse;
+}
+td,
+th {
+  @apply p-0;
+}
+
+/* Box-sizing reset */
+*,
+*:before,
+*:after {
+  @apply box-border;
+}
+
+/* Typography inheritance */
+input,
+button,
+select,
+textarea {
+  @apply font-inherit text-inherit leading-inherit;
+}
+
+/* Lists */
+ul {
+  @apply m-0 p-0;
+}
+ul li {
+  @apply block;
+}
+
+/* Links */
+a {
+  @apply no-underline font-["work-sans-regular"] font-normal;
+}
+a:hover,
+a:focus,
+a:active {
+  @apply no-underline outline-none;
+}
+
+/* Figures & Images */
+figure {
+  @apply m-0;
+}
+img {
+  @apply align-middle max-w-full;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  html {
+    @apply text-[8px];
+  }
+}

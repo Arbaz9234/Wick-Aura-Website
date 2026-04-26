@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap");
+@import "tailwindcss";
+
+a.active hr {
+  display: block;
+}
+.prata-regular {
+  font-family: "Prata", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+* {
+  font-family: "Outfit", sans-serif;
+}
+/* Text */
+@layer base {
+  h1 {
+    @apply text-3xl sm:py-3 lg:text-[3.2rem] leading-relaxed text-black;
+  }
+  h2 {
+    @apply text-3xl font-medium leading-relaxed text-gray-500;
+  }
+  h3 {
+    @apply text-[1.875rem] font-medium leading-[150%] text-black mb-4;
+  }
+  h4,
+  h5 {
+    @apply text-[1.5rem] font-medium leading-[150%] text-black mb-3;
+  }
+  p,
+  span {
+    @apply text-[#1d1d20] font-normal m-0;
+  }
+}
+b,
+strong {
+  @apply font-bold;
+}
+
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+  @apply cursor-pointer appearance-none;
+}
+
+/* Custom Subscribe button css */
+/* .custom-bg-transition {
+  transition: background-color 400ms;
+}
+
+.custom-bg-transition:hover {
+  transition-duration: 0s;
+}
+.group:not(:hover) .only-hover-transition {
+  transition: none !important;
+} */
+
+/* Toastify theme */
+.Toastify__toast {
+  background-color: #fffbf3;
+  color: #cf928a;
+  text-align: left;
+  font-family: "Outfit", sans-serif;
+}
+.Toastify__close-button > svg {
+  fill: #000 !important;
+  color: #000 !important;
+}
+.Toastify__close-button {
+  color: #000;
+}
+.Toastify__progress-bar {
+  background: #dd7282;
+}
