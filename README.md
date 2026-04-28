@@ -11,8 +11,7 @@ A full-stack e-commerce web application for a candle selling business. Built wit
 ```
 wick-and-aura-website/
 ├── frontend/          # React + Vite frontend application
-├── backend/           # Backend API (coming soon)
-└── README.md
+└── backend/           # Backend API (coming soon)
 ```
 
 ---
@@ -31,18 +30,18 @@ wick-and-aura-website/
 
 ### Pages
 
-| Route | Page | Description |
-|---|---|---|
-| `/` | Home | Hero banner, latest collection, best sellers, policies, newsletter |
-| `/collection` | Collection | Browse all products |
-| `/product/:productId` | Product | Individual product details |
-| `/cart` | Cart | Shopping cart |
-| `/place-order` | Place Order | Checkout / order placement |
-| `/orders` | Orders | Order history |
-| `/login` | Login | User authentication |
-| `/about` | About | About the brand |
-| `/contact` | Contact | Contact information |
-| `/insta` | Candle Shop | Candle-themed showcase page |
+| Route                 | Page        | Description                                                        |
+| --------------------- | ----------- | ------------------------------------------------------------------ |
+| `/`                   | Home        | Hero banner, latest collection, best sellers, policies, newsletter |
+| `/collection`         | Collection  | Browse all products                                                |
+| `/product/:productId` | Product     | Individual product details                                         |
+| `/cart`               | Cart        | Shopping cart                                                      |
+| `/place-order`        | Place Order | Checkout / order placement                                         |
+| `/orders`             | Orders      | Order history                                                      |
+| `/login`              | Login       | User authentication                                                |
+| `/about`              | About       | About the brand                                                    |
+| `/contact`            | Contact     | Contact information                                                |
+| `/insta`              | Candle Shop | Candle-themed showcase page                                        |
 
 ### Key Components
 
@@ -57,6 +56,7 @@ wick-and-aura-website/
 ### State Management
 
 Global state is managed via React Context (`ShopContext`) providing:
+
 - Product catalog
 - Currency setting (INR)
 - Delivery fee configuration
