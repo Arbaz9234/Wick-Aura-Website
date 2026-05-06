@@ -6,5 +6,5 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig({
   plugins: [react(), tailwindcss(), svgr()],
   base:
-    process.env.VITE_BASE_PATH || "/wick-and-aura" || "/wick-and-aura/" || "/",
+    process.env.VITE_BASE_PATH || "/" || "/wick-and-aura" || "/wick-and-aura/",
 });

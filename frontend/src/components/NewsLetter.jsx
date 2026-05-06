@@ -25,7 +25,7 @@ export default function NewsLetter() {
         quod.
       </p>
       <form
-        className="w-full sm:w-1/2 flex items-stretch mx-auto my-6"
+        className="w-full sm:w-1/2 flex items-stretch mx-auto my-6 sm:flex-row flex-col gap-4"
         onSubmit={handleSubscription}
       >
         <NewsletterInput
