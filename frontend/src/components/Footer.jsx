@@ -16,8 +16,8 @@ export default function Footer() {
           </p>
         </div>
         <div>
-          <p class="text-xl font-medium mb-5">COMPANY</p>
-          <ul class="flex flex-col gap-1 text-gray-600">
+          <p className="text-xl font-medium mb-5">COMPANY</p>
+          <ul className="flex flex-col gap-1 text-gray-600">
             <li>Home</li>
             <li>About us</li>
             <li>Delivery</li>
@@ -25,17 +25,17 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <p class="text-xl font-medium mb-5">GET IN TOUCH</p>
-          <ul class="flex flex-col gap-1 text-gray-600">
+          <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
+          <ul className="flex flex-col gap-1 text-gray-600">
             <li>+1-000-000-0000</li>
             <li>greatstackdev@gmail.com</li>
-            <li class="cursor-pointer">Instagram</li>
+            <li className="cursor-pointer">Instagram</li>
           </ul>
         </div>
       </div>
       <div>
-        <hr class="border-none h-[1px] bg-gray-300" />
-        <p class="py-5 text-sm text-center">
+        <hr className="border-none h-[1px] bg-gray-300" />
+        <p className="py-5 text-sm text-center">
           Copyright 2024@ greatstack.dev - All Right Reserved.
         </p>
       </div>

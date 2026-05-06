@@ -1,11 +1,13 @@
 import React from "react";
 import { assets } from "../assets/assets";
 import { NavLink } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, User } from "lucide-react";
 export default function Navbar() {
   return (
     <div className="flex items-center justify-between py-5 font-medium">
-      <img src={assets.logoHome} alt="Wick & Aura Logo" className="w-36" />
+      <a href="/">
+        <img src={assets.logoHome} alt="Wick & Aura Logo" className="w-36" />
+      </a>
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
         <NavLink to="/" className="flex flex-col items-center gap-1">
           <p>HOME</p>
@@ -24,11 +26,11 @@ export default function Navbar() {
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
       </ul>
-      <div className="flex items-center gap-6 w-5">
+      <div className="flex items-center gap-6 cursor-pointer">
         <Search />
-
-        {/* <Search size={52} color="#723737" strokeWidth={2.25} /> */}
-        <div className="group relative"></div>
+        <div className="group relative">
+          <User />
+        </div>
       </div>
     </div>
   );

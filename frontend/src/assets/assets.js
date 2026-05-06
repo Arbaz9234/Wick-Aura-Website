@@ -39,3 +39,4 @@ export const products = [
     bestseller: true,
   },
 ];
+// npm warn deprecated @mui/base@5.0.0-beta.40-1: This package has been replaced by @base-ui/react
