@@ -38,5 +38,17 @@ export const products = [
     date: 1716634345448,
     bestseller: true,
   },
+  {
+    _id: "ccccc",
+    name: "Women Round Neck Cotton Top",
+    description:
+      "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
+    price: 100,
+    image: [bannerImage],
+    category: "Women",
+    subCategory: "Topwear",
+    sizes: ["S", "M", "L"],
+    date: 1716634345448,
+    bestseller: true,
+  },
 ];
-// npm warn deprecated @mui/base@5.0.0-beta.40-1: This package has been replaced by @base-ui/react
