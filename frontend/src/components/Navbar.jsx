@@ -1,7 +1,7 @@
 import React from "react";
 import { assets } from "../assets/assets";
 import { NavLink } from "react-router-dom";
-import { Search, User } from "lucide-react";
+import { Search, ShoppingCart, User } from "lucide-react";
 export default function Navbar() {
   return (
     <div className="flex items-center justify-between py-5 font-medium">
@@ -29,8 +29,11 @@ export default function Navbar() {
       <div className="flex items-center gap-6 cursor-pointer">
         <Search />
         <div className="group relative">
-          <User />
+          <NavLink to="/login">
+            <User />
+          </NavLink>
         </div>
+        <ShoppingCart />
       </div>
     </div>
   );
