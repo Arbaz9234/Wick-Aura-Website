@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink } from "react-router-dom";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { MenuIcon, Search, ShoppingCart, User } from "lucide-react";
 export default function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
-    <div className="flex items-center justify-between py-5 font-medium">
+    <div className="flex items-center justify-between py-5 font-medium relative">
       <NavLink to="/">
         <img src={assets.logoHome} alt="Wick & Aura Logo" className="w-36" />
       </NavLink>
@@ -39,7 +40,33 @@ export default function Navbar() {
             10
           </p>
         </Link>
+        <MenuIcon
+          className="cursor-pointer sm:hidden"
+          onClick={() => {
+            setIsMenuOpen(!isMenuOpen);
+            console.log(isMenuOpen);
+          }}
+        />
       </div>
+      {isMenuOpen && (
+        <div className="absolute top-full left-0 w-full bg-white shadow-md py-4 flex flex-col items-center gap-4 sm:hidden">
+          <NavLink to="/" className="flex flex-col items-center gap-1">
+            <p>HOME</p>
+          </NavLink>
+          <NavLink
+            to="/collection"
+            className="flex flex-col items-center gap-1"
+          >
+            <p>COLLECTION</p>
+          </NavLink>
+          <NavLink to="/about" className="flex flex-col items-center gap-1">
+            <p>ABOUT</p>
+          </NavLink>
+          <NavLink to="/contact" className="flex flex-col items-center gap-1">
+            <p>CONTACT</p>
+          </NavLink>
+        </div>
+      )}
     </div>
   );
 }
