@@ -1,6 +1,6 @@
 # Wick & Aura - Candle E-Commerce Website
 
-A full-stack e-commerce web application for a candle selling business. Built with a modern React frontend and a backend (coming soon).
+A full-stack e-commerce web application for a candle selling business. Built with a modern React frontend and backend (coming soon).
 
 > **Note:** This project is actively under development. Some components currently use placeholder content from an earlier reference build and will be updated to fully reflect the Wick & Aura candle brand over time.
 
