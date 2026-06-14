@@ -4,7 +4,11 @@ export default function NewsletterInput({ value, onChange }) {
   const id = React.useId();
 
   return (
-    <div className="relative w-full border border-black focus-within:border-[#0B6BCB]">
+    <div
+      className={`relative w-full border ${
+        value ? "border-[#0B6BCB]" : "border-black"
+      } focus-within:border-[#0B6BCB]`}
+    >
       <input
         id={id}
         type="email"
@@ -25,8 +29,18 @@ export default function NewsletterInput({ value, onChange }) {
           "absolute left-3 top-1/2 -translate-y-1/2",
           "text-[#555E68] font-medium text-base",
           "transition-all duration-150 ease-out pointer-events-none",
-          "peer-focus:top-3 peer-focus:translate-y-[-0.3rem] peer-focus:text-xs peer-focus:text-[#0B6BCB]",
-          "peer-not-placeholder-shown:top-3 peer-not-placeholder-shown:translate-y-0 peer-not-placeholder-shown:text-xs",
+
+          // Focus state
+          "peer-focus:top-3",
+          "peer-focus:-translate-y-[0.3rem]",
+          "peer-focus:text-xs",
+          "peer-focus:text-[#0B6BCB]",
+
+          // Has value state
+          "peer-not-placeholder-shown:top-3",
+          "peer-not-placeholder-shown:-translate-y-[0.3rem]",
+          "peer-not-placeholder-shown:text-xs",
+          "peer-not-placeholder-shown:text-[#0B6BCB]",
         ].join(" ")}
       >
         Enter your email
