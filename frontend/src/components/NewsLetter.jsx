@@ -16,7 +16,7 @@ export default function NewsLetter() {
     }
   };
   return (
-    <div className="text-center">
+    <div className="text-center my-10">
       <p className="text-2xl font-medium text-gray-800">
         Subscribe now & get 10% off your next purchase
       </p>
