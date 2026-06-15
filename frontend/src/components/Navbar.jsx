@@ -1,9 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { MenuIcon, Search, ShoppingCart, User } from "lucide-react";
+import { ShopContext } from "../context/ShopContext";
 export default function Navbar() {
+  const { setShowSearch } = React.useContext(ShopContext);
+  const [showSearch, setShowSearchLocal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname.includes("collection")) {
+      setShowSearchLocal(true);
+    } else {
+      setShowSearchLocal(false);
+    }
+  }, [location]);
   return (
     <div className="flex items-center justify-between py-5 font-medium relative">
       <NavLink to="/">
@@ -28,7 +39,10 @@ export default function Navbar() {
         </NavLink>
       </ul>
       <div className="flex items-center gap-6 cursor-pointer">
-        <Search />
+        <Search
+          onClick={() => setShowSearch(true)}
+          className={`${showSearch ? "opacity-100" : "opacity-0"}`}
+        />
         <div className="group relative">
           <NavLink to="/login">
             <User />
