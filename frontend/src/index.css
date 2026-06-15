@@ -43,7 +43,9 @@ input[type="reset"],
 input[type="submit"] {
   @apply cursor-pointer appearance-none;
 }
-
+input[type="checkbox"] {
+  @apply cursor-pointer;
+}
 /* Custom Subscribe button css */
 /* .custom-bg-transition {
   transition: background-color 400ms;

@@ -21,7 +21,7 @@ export default function LatestCollection() {
         ...products,
         ...products,
         ...products,
-      ].slice(0, 10)
+      ].slice(0, 10),
     );
   }, [products]);
 
