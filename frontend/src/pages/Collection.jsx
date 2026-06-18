@@ -199,7 +199,11 @@ export default function Collection() {
             }}
           >
             <button
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => {
+                if (!isOpen) {
+                  setIsOpen(true);
+                }
+              }}
               className="flex items-center justify-between min-w-[180px] border border-gray-300 rounded-md px-4 py-2 text-sm bg-white hover:border-gray-400 transition-colors"
             >
               <span>Sort By: {sort}</span>

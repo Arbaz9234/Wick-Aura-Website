@@ -14,9 +14,9 @@ export const assets = {
 export const products = [
   {
     _id: "aaaaa",
-    name: "Women Round Neck Cotton Top",
+    name: "Tulip Bouquet Candle",
     description:
-      "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
+      "A floral masterpiece inspired by fresh tulips, blended with green notes and morning dew. Elegant, refreshing, and perfect for gifting.",
     price: 100,
     image: [bannerImage],
     category: "Women",
@@ -27,9 +27,9 @@ export const products = [
   },
   {
     _id: "bbbbb",
-    name: "Women Round Neck Cotton Top",
+    name: "Tulip Bouquet Candle",
     description:
-      "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
+      "A floral masterpiece inspired by fresh tulips, blended with green notes and morning dew. Elegant, refreshing, and perfect for gifting.",
     price: 200,
     image: [bannerImage],
     category: "Women",
@@ -40,9 +40,9 @@ export const products = [
   },
   {
     _id: "ccccc",
-    name: "Women Round Neck Cotton Top",
+    name: "Tulip Bouquet Candle",
     description:
-      "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
+      "A floral masterpiece inspired by fresh tulips, blended with green notes and morning dew. Elegant, refreshing, and perfect for gifting.",
     price: 300,
     image: [bannerImage],
     category: "Women",
