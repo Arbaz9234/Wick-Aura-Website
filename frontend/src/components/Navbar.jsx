@@ -4,7 +4,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { MenuIcon, Search, ShoppingCart, User } from "lucide-react";
 import { ShopContext } from "../context/ShopContext";
 export default function Navbar() {
-  const { setShowSearch } = React.useContext(ShopContext);
+  const { setShowSearch, getCartCount } = React.useContext(ShopContext);
   const [showSearch, setShowSearchLocal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -50,9 +50,11 @@ export default function Navbar() {
         </div>
         <Link to="/cart" className="relative">
           <ShoppingCart />
-          <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
-            0
-          </p>
+          {getCartCount() > 0 && (
+            <p className="absolute right-[-5px] bottom-[-5px] min-w-4 h-4 px-1 flex items-center justify-center bg-black text-white rounded-full text-[8px]">
+              {getCartCount()}
+            </p>
+          )}
         </Link>
         <MenuIcon
           className="cursor-pointer sm:hidden"
