@@ -75,3 +75,28 @@ input[type="checkbox"] {
 .Toastify__progress-bar {
   background: #dd7282;
 }
+.fadeIn {
+  animation: fadeIn 500ms ease forwards;
+}
+
+.fadeOut {
+  animation: fadeOut 500ms ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

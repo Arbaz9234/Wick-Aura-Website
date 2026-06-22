@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast, ToastContainer, cssTransition } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 import {
   Star,
@@ -27,7 +27,10 @@ export default function Product() {
   const [activeTab, setActiveTab] = useState("description");
   const [isAdded, setIsAdded] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(true);
-
+  const Fade = cssTransition({
+    enter: "fadeIn",
+    exit: "fadeOut",
+  });
   useEffect(() => {
     const product = products.find((p) => p._id === productId);
     if (product) {
@@ -486,7 +489,11 @@ export default function Product() {
           )}
         </div>
       </div>
-      <ToastContainer />
+      <ToastContainer
+        transition={Fade}
+        collapseToast={false}
+        autoClose={3000}
+      />
     </div>
   );
 }
