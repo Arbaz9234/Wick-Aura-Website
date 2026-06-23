@@ -18,7 +18,7 @@ export const products = [
     description:
       "A floral masterpiece inspired by fresh tulips, blended with green notes and morning dew. Elegant, refreshing, and perfect for gifting.",
     price: 100,
-    image: [bannerImage],
+    image: [bannerImage, bannerImage, bannerImage, bannerImage],
     category: "Women",
     subCategory: "Topwear",
     sizes: ["S", "M", "L"],
