@@ -15,6 +15,7 @@ import {
   Check,
   Share2,
 } from "lucide-react";
+import RelatedProducts from "../components/RelatedProducts";
 
 export default function Product() {
   const { productId } = useParams();
@@ -39,7 +40,14 @@ export default function Product() {
       setSelectedSize("");
       setQuantity(1);
       setIsAdded(false);
-      setIsImageLoading(true);
+
+      const img = new Image();
+      img.src = product.image[0];
+      if (img.complete) {
+        setIsImageLoading(false);
+      } else {
+        setIsImageLoading(true);
+      }
     }
   }, [productId, products]);
 
@@ -69,8 +77,8 @@ export default function Product() {
     );
   }
 
-  return (
-    <div className="max-w-7xl mx-auto pt-6 pb-16">
+  return productData ? (
+    <div className="max-w-7xl mx-auto pt-6 pb-16 transition-opacity duration-500 opacity-100">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
         <Link to="/" className="hover:text-black transition-colors">
@@ -100,7 +108,7 @@ export default function Product() {
             <img
               src={mainImage}
               alt={productData.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${isImageLoading ? "opacity-0" : "opacity-100"}`}
               onLoad={() => setIsImageLoading(false)}
             />
             {/* Share & Wishlist Overlay */}
@@ -488,6 +496,12 @@ export default function Product() {
             </div>
           )}
         </div>
+        {/* Related Products */}
+        <RelatedProducts
+          category={productData.category}
+          subCategory={productData.subCategory}
+          productId={productData._id}
+        />
       </div>
       <ToastContainer
         transition={Fade}
@@ -495,5 +509,7 @@ export default function Product() {
         autoClose={3000}
       />
     </div>
+  ) : (
+    <div className=" opacity-0"></div>
   );
 }
