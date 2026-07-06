@@ -58,7 +58,11 @@ export default function Product() {
     }
     addToCart(productData._id, selectedSize, quantity);
     setIsAdded(true);
-    toast.success(`${productData.name} added to cart!`);
+    toast.success(`${productData.name} added to cart!`, {
+      position: "bottom-right",
+      closeButton: false,
+    });
+
     setTimeout(() => setIsAdded(false), 2000);
   };
 
@@ -249,11 +253,13 @@ export default function Product() {
             {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
-              className={`flex-1 h-14 rounded-xl font-semibold text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
-                isAdded
-                  ? "bg-green-600 text-white"
-                  : "bg-black text-white hover:bg-gray-800 hover:shadow-xl active:scale-[0.98]"
-              }`}
+              className={`outline-none flex-1 h-14 rounded-xl font-semibold text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2
+                 ${
+                   isAdded
+                     ? "bg-green-600 text-white !cursor-default"
+                     : "bg-black text-white hover:bg-gray-800 hover:shadow-xl active:scale-[0.98]"
+                 }`}
+              disabled={isAdded}
             >
               {isAdded ? (
                 <>
@@ -506,7 +512,8 @@ export default function Product() {
       <ToastContainer
         transition={Fade}
         collapseToast={false}
-        autoClose={3000}
+        autoClose={1500}
+        hideProgressBar={true}
       />
     </div>
   ) : (

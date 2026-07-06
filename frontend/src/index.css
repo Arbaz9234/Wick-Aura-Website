@@ -1,6 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap");
 @import "tailwindcss";
-
+.Toastify__toast {
+  font-family: "Outfit", sans-serif !important;
+}
 a.active hr {
   display: block;
 }
