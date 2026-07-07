@@ -51,7 +51,7 @@ export default function Cart() {
   }, []);
 
   const subtotal = getCartAmount();
-  const shipping = subtotal > 500 ? 0 : delivery_fee;
+  const shipping = subtotal >= 500 ? 0 : delivery_fee;
   const total = subtotal + shipping;
 
   if (cartData.length === 0) {
@@ -85,7 +85,7 @@ export default function Cart() {
     <div
       className={`pt-10 border-t border-gray-300 pb-16 transition-opacity duration-500 ${pageReady ? "opacity-100" : "opacity-0"}`}
     >
-      <div className="text-center py-8 text-3xl">
+      <div className="text-center text-3xl">
         <Title text1={"YOUR"} text2={"CART"} />
       </div>
 
