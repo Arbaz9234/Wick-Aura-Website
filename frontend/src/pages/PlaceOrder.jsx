@@ -1,21 +1,19 @@
 import React, { useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
+import OrderSummary from "../components/OrderSummary";
 import {
-  Truck,
-  ShieldCheck,
-  Tag,
   ArrowRight,
   Loader2,
   MapPin,
   Banknote,
+  ShoppingBag,
 } from "lucide-react";
 
 export default function PlaceOrder() {
-  const { products, currency, cartItems, getCartAmount, delivery_fee } =
-    useContext(ShopContext);
+  const { getCartData } = useContext(ShopContext);
   const navigate = useNavigate();
   const [pageReady, setPageReady] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -32,28 +30,13 @@ export default function PlaceOrder() {
     state: "",
   });
 
+  const cartData = getCartData();
+
   useEffect(() => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setPageReady(true));
     });
   }, []);
-
-  const cartData = [];
-  for (const itemId in cartItems) {
-    for (const size in cartItems[itemId]) {
-      if (cartItems[itemId][size] > 0) {
-        cartData.push({
-          _id: itemId,
-          size,
-          quantity: cartItems[itemId][size],
-        });
-      }
-    }
-  }
-
-  const subtotal = getCartAmount();
-  const shipping = subtotal >= 500 ? 0 : delivery_fee;
-  const total = subtotal + shipping;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,6 +74,33 @@ export default function PlaceOrder() {
     e.preventDefault();
   };
 
+  if (cartData.length === 0) {
+    return (
+      <div
+        className={`min-h-[60vh] flex flex-col items-center justify-center gap-6 transition-opacity duration-500 ${pageReady ? "opacity-100" : "opacity-0"}`}
+      >
+        <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center">
+          <ShoppingBag className="w-10 h-10 text-gray-400" />
+        </div>
+        <div className="text-center">
+          <h2 className="text-2xl font-medium text-gray-800 mb-2">
+            Nothing to checkout
+          </h2>
+          <p className="text-gray-500">
+            Your cart is empty. Add some items before placing an order.
+          </p>
+        </div>
+        <Link
+          to="/collection"
+          className="inline-flex items-center gap-2 bg-black text-white px-8 py-3.5 text-sm font-medium hover:bg-gray-800 transition-colors rounded-xl"
+        >
+          Browse Collection
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+    );
+  }
+
   const inputClass =
     "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:border-black transition-colors bg-white placeholder:text-gray-400";
 
@@ -101,12 +111,11 @@ export default function PlaceOrder() {
     >
       <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 justify-between">
         {/* Left — Delivery Information */}
-        <div className="w-1/2">
-          {" "}
-          {/* flex-1 */}
+        <div className="w-full lg:w-1/2">
           <div className="text-xl sm:text-2xl mb-6">
             <Title text1={"DELIVERY"} text2={"INFORMATION"} />
           </div>
+
           <div className="space-y-4">
             <div className="flex gap-4">
               <input
@@ -143,6 +152,7 @@ export default function PlaceOrder() {
               className={inputClass}
               placeholder="Address line 2"
             />
+
             <div className="flex gap-4">
               <input
                 name="landmark"
@@ -221,93 +231,7 @@ export default function PlaceOrder() {
         {/* Right — Summary & Payment */}
         <div className="lg:w-[400px] flex-shrink-0">
           <div className="lg:sticky lg:top-24 space-y-6">
-            {/* Order Summary */}
-            <div className="bg-gray-50 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-black mb-5">
-                Order Summary
-              </h3>
-
-              {cartData.length > 0 && (
-                <div className="max-h-48 overflow-y-auto space-y-3 mb-5 pr-3">
-                  {cartData.map((item) => {
-                    const product = products.find((p) => p._id === item._id);
-                    if (!product) return null;
-                    return (
-                      <div
-                        key={`${item._id}-${item.size}`}
-                        className="flex items-center gap-3"
-                      >
-                        <img
-                          src={product.image[0]}
-                          alt={product.name}
-                          className="w-12 h-12 rounded-lg object-cover bg-gray-100"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-800 truncate">
-                            {product.name}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {item.size} × {item.quantity}
-                          </p>
-                        </div>
-                        <span className="text-sm font-medium text-gray-800">
-                          {currency}
-                          {product.price * item.quantity}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              <div className="space-y-3 text-sm border-t border-gray-200 pt-4">
-                <div className="flex justify-between text-gray-600">
-                  <span>
-                    Subtotal ({cartData.reduce((a, b) => a + b.quantity, 0)}{" "}
-                    items)
-                  </span>
-                  <span className="font-medium text-gray-800">
-                    {currency}
-                    {subtotal}
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
-                  {shipping === 0 ? (
-                    <span className="font-medium text-green-600">Free</span>
-                  ) : (
-                    <span className="font-medium text-gray-800">
-                      {currency}
-                      {shipping}
-                    </span>
-                  )}
-                </div>
-
-                {shipping > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2.5">
-                    <Truck className="w-4 h-4 flex-shrink-0" />
-                    <span>
-                      Add {currency}
-                      {500 - subtotal} more for free shipping
-                    </span>
-                  </div>
-                )}
-
-                <div className="border-t border-gray-200 pt-3 mt-3">
-                  <div className="flex justify-between text-base font-semibold text-black">
-                    <span>Total</span>
-                    <span>
-                      {currency}
-                      {total}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Including all applicable taxes
-                  </p>
-                </div>
-              </div>
-            </div>
+            <OrderSummary showItems />
 
             {/* Payment Method */}
             <div className="bg-gray-50 rounded-2xl p-6">
@@ -371,7 +295,6 @@ export default function PlaceOrder() {
               </div>
             </div>
 
-            {/* Place Order Button */}
             <button
               type="submit"
               className="w-full bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
@@ -379,28 +302,6 @@ export default function PlaceOrder() {
               Place Order
               <ArrowRight className="w-4 h-4" />
             </button>
-
-            {/* Trust Badges */}
-            <div className="flex items-center justify-center gap-6 pt-2">
-              <div className="flex flex-col items-center gap-1">
-                <ShieldCheck className="w-5 h-5 text-gray-400" />
-                <span className="text-[10px] text-gray-400 font-medium">
-                  Secure Payment
-                </span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <Truck className="w-5 h-5 text-gray-400" />
-                <span className="text-[10px] text-gray-400 font-medium">
-                  Fast Delivery
-                </span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <Tag className="w-5 h-5 text-gray-400" />
-                <span className="text-[10px] text-gray-400 font-medium">
-                  Best Price
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
