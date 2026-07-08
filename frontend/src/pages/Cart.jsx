@@ -11,6 +11,7 @@ import {
   Truck,
   ShieldCheck,
   Tag,
+  AlertTriangle,
 } from "lucide-react";
 
 export default function Cart() {
@@ -25,6 +26,22 @@ export default function Cart() {
   const navigate = useNavigate();
   const [cartData, setCartData] = useState([]);
   const [pageReady, setPageReady] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(null);
+
+  const handleQuantityChange = (itemId, size, newQty, productName) => {
+    if (newQty <= 0) {
+      setPendingDelete({ itemId, size, productName });
+    } else {
+      updateQuantity(itemId, size, newQty);
+    }
+  };
+
+  const confirmDelete = () => {
+    if (pendingDelete) {
+      updateQuantity(pendingDelete.itemId, pendingDelete.size, 0);
+      setPendingDelete(null);
+    }
+  };
 
   useEffect(() => {
     const tempData = [];
@@ -139,10 +156,11 @@ export default function Cart() {
                       <div className="flex items-center h-9 rounded-lg border border-gray-200">
                         <button
                           onClick={() =>
-                            updateQuantity(
+                            handleQuantityChange(
                               item._id,
                               item.size,
                               item.quantity - 1,
+                              productData.name,
                             )
                           }
                           className="w-9 h-full flex items-center justify-center text-gray-500 hover:text-black transition-colors"
@@ -172,7 +190,14 @@ export default function Cart() {
                           {productData.price * item.quantity}
                         </span>
                         <button
-                          onClick={() => updateQuantity(item._id, item.size, 0)}
+                          onClick={() =>
+                            handleQuantityChange(
+                              item._id,
+                              item.size,
+                              0,
+                              productData.name,
+                            )
+                          }
                           className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -291,6 +316,48 @@ export default function Cart() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {pendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setPendingDelete(null)}
+          />
+          <div className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                <AlertTriangle className="w-7 h-7 text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Remove Item?
+                </h3>
+                <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                  <span className="font-medium text-gray-700">
+                    {pendingDelete.productName}
+                  </span>{" "}
+                  ({pendingDelete.size}) will be removed from your cart.
+                </p>
+              </div>
+              <div className="flex gap-3 w-full mt-2">
+                <button
+                  onClick={() => setPendingDelete(null)}
+                  className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Keep Item
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-xl hover:bg-red-600 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
