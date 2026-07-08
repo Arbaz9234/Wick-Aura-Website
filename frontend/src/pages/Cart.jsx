@@ -224,7 +224,7 @@ export default function Cart() {
 
         {/* Order Summary */}
         <div className="lg:w-[380px] flex-shrink-0">
-          <div className="bg-gray-50 rounded-2xl p-6 lg:sticky lg:top-10">
+          <div className="bg-gray-50 rounded-2xl p-6 lg:sticky lg:top-24">
             <h3 className="text-lg font-semibold text-black mb-6">
               Order Summary
             </h3>
@@ -294,21 +294,21 @@ export default function Cart() {
 
             {/* Trust Badges */}
             <div className="flex items-center justify-center gap-6 mt-6 pt-5 border-t border-gray-200">
-              <div className="flex flex-col items-center gap-1">
-                <ShieldCheck className="w-5 h-5 text-gray-400" />
-                <span className="text-[10px] text-gray-400 font-medium">
+              <div className="group flex flex-col items-center gap-1">
+                <ShieldCheck className="w-5 h-5 text-gray-400 group-hover:text-gray-800 transition-all ease-in" />
+                <span className="text-[10px] text-gray-400 font-medium group-hover:text-gray-800 transition-all ease-in">
                   Secure Payment
                 </span>
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <Truck className="w-5 h-5 text-gray-400" />
-                <span className="text-[10px] text-gray-400 font-medium">
+              <div className="group flex flex-col items-center gap-1">
+                <Truck className="w-5 h-5 text-gray-400 group-hover:text-gray-800 transition-all ease-in-out" />
+                <span className="text-[10px] text-gray-400 font-medium group-hover:text-gray-800 transition-all ease-in">
                   Fast Delivery
                 </span>
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <Tag className="w-5 h-5 text-gray-400" />
-                <span className="text-[10px] text-gray-400 font-medium">
+              <div className="group flex flex-col items-center gap-1">
+                <Tag className="w-5 h-5 text-gray-400 group-hover:text-gray-800 transition-all ease-in-out" />
+                <span className="text-[10px] text-gray-400 font-medium group-hover:text-gray-800 transition-all ease-in">
                   Best Price
                 </span>
               </div>
