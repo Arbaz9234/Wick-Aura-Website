@@ -9,14 +9,23 @@ import Login from "./pages/Login";
 import PlaceOrder from "./pages/PlaceOrder";
 import Orders from "./pages/Orders";
 import Navbar from "./components/Navbar";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
 import CandleShop from "./pages/CandleShop";
 import SearchBar from "./components/SearchBar";
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+      <ScrollToTop />
       <Navbar />
       <SearchBar />
       <Routes>
