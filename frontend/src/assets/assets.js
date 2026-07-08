@@ -3,12 +3,16 @@ import favicon from "./favicon.png";
 import logoHome from "./logo-homepage.svg";
 import menuIcon from "./menu-icon.svg";
 import bannerImage from "./banner-image.jpg";
+import razorpayLogo from "./razorpay_logo.png";
+import stripeLogo from "./stripe_logo.png";
 export const assets = {
   logo,
   favicon,
   logoHome,
   menuIcon,
   bannerImage,
+  razorpayLogo,
+  stripeLogo,
 };
 
 export const products = [
