@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 
 export default function PlaceOrder() {
-  const { getCartData } = useContext(ShopContext);
-  const navigate = useNavigate();
+  const { getCartData, navigate } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [pincodeLoading, setPincodeLoading] = useState(false);
@@ -72,6 +71,7 @@ export default function PlaceOrder() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    navigate("/orders");
   };
 
   if (cartData.length === 0) {

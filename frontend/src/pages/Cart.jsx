@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import OrderSummary from "../components/OrderSummary";
@@ -13,9 +13,8 @@ import {
 } from "lucide-react";
 
 export default function Cart() {
-  const { products, currency, updateQuantity, getCartData } =
+  const { products, currency, updateQuantity, getCartData, navigate } =
     useContext(ShopContext);
-  const navigate = useNavigate();
   const [pageReady, setPageReady] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null);
 
