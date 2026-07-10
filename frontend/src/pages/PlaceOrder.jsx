@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export default function PlaceOrder() {
-  const { getCartData, navigate } = useContext(ShopContext);
+  const { getCartData, placeOrder, navigate } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [pincodeLoading, setPincodeLoading] = useState(false);
@@ -71,6 +71,7 @@ export default function PlaceOrder() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    placeOrder(form, paymentMethod);
     navigate("/orders");
   };
 

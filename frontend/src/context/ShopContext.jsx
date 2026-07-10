@@ -9,6 +9,7 @@ const ShopContextProvider = (props) => {
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState({});
+  const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
   const addToCart = (itemId, size, quantity = 1) => {
     if (!size || quantity < 1) {
@@ -83,6 +84,43 @@ const ShopContextProvider = (props) => {
     return data;
   };
 
+  const placeOrder = (deliveryInfo, paymentMethod) => {
+    const cartData = getCartData();
+    if (cartData.length === 0) return;
+
+    const subtotal = getCartAmount();
+    const shipping = subtotal >= 500 ? 0 : delivery_fee;
+
+    const orderItems = cartData.map((item) => {
+      const product = products.find((p) => p._id === item._id);
+      return {
+        ...item,
+        name: product.name,
+        price: product.price,
+        image: product.image[0],
+      };
+    });
+
+    const order = {
+      id: Date.now().toString(),
+      date: new Date().toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      items: orderItems,
+      deliveryInfo,
+      paymentMethod,
+      subtotal,
+      shipping,
+      total: subtotal + shipping,
+      status: "Order Placed",
+    };
+
+    setOrders((prev) => [order, ...prev]);
+    setCartItems({});
+  };
+
   const value = {
     products,
     currency,
@@ -97,6 +135,8 @@ const ShopContextProvider = (props) => {
     updateQuantity,
     getCartAmount,
     getCartData,
+    orders,
+    placeOrder,
     navigate,
   };
   return (

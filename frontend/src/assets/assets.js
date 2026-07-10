@@ -3,6 +3,9 @@ import favicon from "./favicon.png";
 import logoHome from "./logo-homepage.svg";
 import menuIcon from "./menu-icon.svg";
 import bannerImage from "./banner-image.jpg";
+import loginImage1 from "./login-image-1.webp";
+import loginImage2 from "./login-image-2.webp";
+import loginImage3 from "./login-image-3.webp";
 import razorpayLogo from "./razorpay_logo.png";
 import stripeLogo from "./stripe_logo.png";
 export const assets = {
@@ -13,6 +16,7 @@ export const assets = {
   bannerImage,
   razorpayLogo,
   stripeLogo,
+  loginImages: [loginImage1, loginImage2, loginImage3],
 };
 
 export const products = [
