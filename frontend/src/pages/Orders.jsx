@@ -117,7 +117,7 @@ export default function Orders() {
                 ))}
               </div>
 
-              <div className="flex items-center gap-4 sm:gap-[100px] flex-shrink-0 sm:pt-2">
+              <div className="flex md:w-1/2 items-center justify-between gap-4 sm:gap-[100px] flex-shrink-0 sm:pt-2">
                 <div className="flex items-center gap-2">
                   <span
                     className={`w-2 h-2 rounded-full flex-shrink-0 ${

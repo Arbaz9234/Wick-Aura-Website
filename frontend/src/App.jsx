@@ -23,11 +23,14 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
+  const isLoginPage = pathname === "/login";
+
   return (
-    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+    <div className={isLoginPage ? "" : "px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]"}>
       <ScrollToTop />
-      <Navbar />
-      <SearchBar />
+      {!isLoginPage && <Navbar />}
+      {!isLoginPage && <SearchBar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/wick-and-aura" element={<Home />} />
@@ -41,7 +44,7 @@ export default function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/insta" element={<CandleShop />} />
       </Routes>
-      <Footer />
+      {!isLoginPage && <Footer />}
     </div>
   );
 }
