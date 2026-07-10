@@ -30,11 +30,21 @@ export default function Login() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
   useEffect(() => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setPageReady(true));
     });
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const switchMode = () => {
@@ -98,15 +108,29 @@ export default function Login() {
     <div
       className={`transition-opacity duration-500 ${pageReady ? "opacity-100" : "opacity-0"}`}
     >
-      <div className="flex min-h-screen">
+      <div className="relative flex min-h-screen lg:h-screen lg:overflow-hidden">
+        {/* Mobile/Tablet — Background Swiper */}
+        {!isDesktop && (
+          <div className="absolute inset-0">
+            <ImageSwiper
+              images={swiperImages}
+              autoplayDelay={4000}
+              className="hide-bullet"
+            />
+            <div className="absolute inset-0 bg-white/20 backdrop-blur-xl" />
+          </div>
+        )}
+
         {/* Left — Image Swiper */}
-        <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
-          <ImageSwiper images={swiperImages} autoplayDelay={4000} />
-        </div>
+        {isDesktop && (
+          <div className="lg:w-1/2 relative overflow-hidden">
+            <ImageSwiper images={swiperImages} autoplayDelay={4000} />
+          </div>
+        )}
 
         {/* Right — Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-10 sm:px-8 lg:px-16">
-          <div className="w-full max-w-md">
+        <div className="relative z-10 w-full lg:w-1/2 flex items-center justify-center px-4 py-10 sm:px-8 lg:px-16">
+          <div className="w-full max-w-md bg-white/95 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none rounded-2xl lg:rounded-none p-6 sm:p-8 lg:p-0">
             <div className="mb-8">
               <h1 className="text-3xl font-semibold text-gray-900">
                 {mode === "login" ? "Welcome back" : "Create account"}
