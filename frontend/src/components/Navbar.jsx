@@ -56,12 +56,21 @@ export default function Navbar() {
             </p>
           )}
         </Link>
-        <MenuIcon
-          className="cursor-pointer sm:hidden"
-          onClick={() => {
-            setIsMenuOpen(!isMenuOpen);
-          }}
-        />
+        {isMenuOpen ? (
+          <X
+            className="cursor-pointer sm:hidden"
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+            }}
+          />
+        ) : (
+          <MenuIcon
+            className="cursor-pointer sm:hidden"
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+            }}
+          />
+        )}
       </div>
       {isMenuOpen && (
         <div className="absolute top-full left-0 w-full bg-white shadow-md py-4 flex flex-col items-center gap-4 sm:hidden">
