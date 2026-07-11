@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { MenuIcon, Search, ShoppingCart, User } from "lucide-react";
+import { MenuIcon, Search, ShoppingCart, User, X } from "lucide-react";
 import { ShopContext } from "../context/ShopContext";
 export default function Navbar() {
   const { setShowSearch, getCartCount } = React.useContext(ShopContext);
@@ -60,7 +60,6 @@ export default function Navbar() {
           className="cursor-pointer sm:hidden"
           onClick={() => {
             setIsMenuOpen(!isMenuOpen);
-            console.log(isMenuOpen);
           }}
         />
       </div>
