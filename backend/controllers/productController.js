@@ -38,13 +38,11 @@ const addProduct = async (req, res) => {
       category,
       price: Number(price),
       subCategory,
-      bestseller: bestseller === "true" ? true : false,
+      bestseller: bestseller === "true",
       sizes: JSON.parse(sizes),
       image: imagesUrl,
       date: Date.now(),
     };
-
-    console.log(productData);
 
     const product = new productModel(productData);
     await product.save();

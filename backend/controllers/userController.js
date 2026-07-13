@@ -111,7 +111,22 @@ const getUserProfile = async (req, res) => {
 
 const adminLogin = async (req, res) => {
   const { email, password } = req.body;
-  // Logic for admin login
+  if (
+    email === process.env.ADMIN_EMAIL &&
+    password === process.env.ADMIN_PASSWORD
+  ) {
+    const token = createToken(`${email + password}`);
+    res.json({
+      success: true,
+      message: "Admin login successful",
+      token,
+    });
+  } else {
+    res.json({
+      success: false,
+      message: "Invalid admin credentials",
+    });
+  }
 };
 
 export { loginUser, registerUser, getUserProfile, adminLogin };
