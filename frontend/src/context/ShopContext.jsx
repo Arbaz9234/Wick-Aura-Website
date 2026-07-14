@@ -11,20 +11,20 @@ const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
-  const addToCart = (itemId, size, quantity = 1) => {
-    if (!size || quantity < 1) {
+  const addToCart = (itemId, color, quantity = 1) => {
+    if (!color || quantity < 1) {
       return;
     }
     const cartData = structuredClone(cartItems);
     if (cartData[itemId]) {
-      if (cartData[itemId][size]) {
-        cartData[itemId][size] += quantity;
+      if (cartData[itemId][color]) {
+        cartData[itemId][color] += quantity;
       } else {
-        cartData[itemId][size] = quantity;
+        cartData[itemId][color] = quantity;
       }
     } else {
       cartData[itemId] = {};
-      cartData[itemId][size] = quantity;
+      cartData[itemId][color] = quantity;
     }
     setCartItems(cartData);
   };
@@ -44,18 +44,18 @@ const ShopContextProvider = (props) => {
     return totalCount;
   };
 
-  const updateQuantity = (itemId, size, quantity) => {
+  const updateQuantity = (itemId, color, quantity) => {
     const cartData = structuredClone(cartItems);
     if (quantity <= 0) {
       if (cartData[itemId]) {
-        delete cartData[itemId][size];
+        delete cartData[itemId][color];
         if (Object.keys(cartData[itemId]).length === 0) {
           delete cartData[itemId];
         }
       }
     } else {
       if (!cartData[itemId]) cartData[itemId] = {};
-      cartData[itemId][size] = quantity;
+      cartData[itemId][color] = quantity;
     }
     setCartItems(cartData);
   };
@@ -65,8 +65,8 @@ const ShopContextProvider = (props) => {
     for (const itemId in cartItems) {
       const product = products.find((p) => p._id === itemId);
       if (!product) continue;
-      for (const size in cartItems[itemId]) {
-        total += product.price * cartItems[itemId][size];
+      for (const color in cartItems[itemId]) {
+        total += product.price * cartItems[itemId][color];
       }
     }
     return total;
@@ -75,9 +75,9 @@ const ShopContextProvider = (props) => {
   const getCartData = () => {
     const data = [];
     for (const itemId in cartItems) {
-      for (const size in cartItems[itemId]) {
-        if (cartItems[itemId][size] > 0) {
-          data.push({ _id: itemId, size, quantity: cartItems[itemId][size] });
+      for (const color in cartItems[itemId]) {
+        if (cartItems[itemId][color] > 0) {
+          data.push({ _id: itemId, color, quantity: cartItems[itemId][color] });
         }
       }
     }

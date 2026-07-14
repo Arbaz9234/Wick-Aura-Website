@@ -2,7 +2,6 @@ import React from "react";
 import NewsletterInput from "./NewsLetterInput";
 import { toast, ToastContainer } from "react-toastify";
 import styled from "@emotion/styled";
-// import SubscribeButton from "./SubscribeButton";
 export default function NewsLetter() {
   const [email, setEmail] = React.useState("");
   const handleSubscription = (e) => {
@@ -20,9 +19,9 @@ export default function NewsLetter() {
       <p className="text-2xl font-medium text-gray-800">
         Subscribe now & get 10% off your next purchase
       </p>
-      <p className="text-gray-400 mt-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem,
-        quod.
+      <p className="text-gray-600 mt-3">
+        Be the first to know about new scents, seasonal collections, and
+        exclusive offers.
       </p>
       <form
         className="w-full sm:w-1/2 flex items-stretch mx-auto my-6 sm:flex-row flex-col gap-4"
@@ -38,9 +37,6 @@ export default function NewsLetter() {
         >
           SUBSCRIBE
         </button>
-        {/* <SubscribeButton type="submit" onClick={() => alert("Clicked")}>
-          SUBSCRIBE
-        </SubscribeButton> */}
       </form>
       <ToastContainer />
     </div>

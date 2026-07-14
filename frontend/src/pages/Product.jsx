@@ -17,12 +17,28 @@ import {
 } from "lucide-react";
 import RelatedProducts from "../components/RelatedProducts";
 
+const COLOR_HEX = {
+  Ivory: "#FFFFF0",
+  White: "#FFFFFF",
+  Pink: "#F8BBD0",
+  "Rose Pink": "#E91E63",
+  Red: "#D32F2F",
+  Purple: "#B39DDB",
+  Green: "#A5D6A7",
+  Orange: "#FFB74D",
+  Blue: "#90CAF9",
+  Yellow: "#FFF176",
+  Blush: "#F4C2C2",
+  Caramel: "#C68E4E",
+  Cream: "#FFFDD0",
+};
+
 export default function Product() {
   const { productId } = useParams();
   const { products, currency, addToCart } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [mainImage, setMainImage] = useState("");
-  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
@@ -37,7 +53,7 @@ export default function Product() {
     if (product) {
       setProductData(product);
       setMainImage(product.image[0]);
-      setSelectedSize("");
+      setSelectedColor("");
       setQuantity(1);
       setIsAdded(false);
 
@@ -52,11 +68,11 @@ export default function Product() {
   }, [productId, products]);
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
-      toast.error("Please select a size");
+    if (!selectedColor) {
+      toast.error("Please select a color");
       return;
     }
-    addToCart(productData._id, selectedSize, quantity);
+    addToCart(productData._id, selectedColor, quantity);
     setIsAdded(true);
     toast.success(`${productData.name} added to cart!`, {
       position: "bottom-right",
@@ -172,14 +188,27 @@ export default function Product() {
           {/* Rating */}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-0.5">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className="w-4 h-4 fill-amber-400 text-amber-400"
-                />
-              ))}
+              {[1, 2, 3, 4, 5].map((star) => {
+                const avg =
+                  productData.reviews?.length > 0
+                    ? productData.reviews.reduce((a, r) => a + r.rating, 0) /
+                      productData.reviews.length
+                    : 0;
+                return (
+                  <Star
+                    key={star}
+                    className={`w-4 h-4 ${
+                      star <= Math.round(avg)
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-gray-300"
+                    }`}
+                  />
+                );
+              })}
             </div>
-            <span className="text-sm text-gray-500">122 Reviews</span>
+            <span className="text-sm text-gray-500">
+              {productData.reviews?.length || 0} Reviews
+            </span>
           </div>
 
           {/* Price */}
@@ -188,13 +217,17 @@ export default function Product() {
               {currency}
               {productData.price}
             </span>
-            <span className="text-lg text-gray-400 line-through">
-              {currency}
-              {Math.round(productData.price * 1.2)}
-            </span>
-            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-md">
-              20% OFF
-            </span>
+            {productData.oldPrice && (
+              <>
+                <span className="text-lg text-gray-400 line-through">
+                  {currency}
+                  {productData.oldPrice}
+                </span>
+                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-md">
+                  {Math.round(((productData.oldPrice - productData.price) / productData.oldPrice) * 100)}% OFF
+                </span>
+              </>
+            )}
           </div>
 
           {/* Description */}
@@ -202,28 +235,35 @@ export default function Product() {
             {productData.description}
           </p>
 
-          {/* Size Selector */}
+          {/* Color Selector */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-medium text-black">
-                Select Size
+                Choose Your Hue
               </span>
               <span className="text-xs text-gray-500">
-                {selectedSize ? `Selected: ${selectedSize}` : "Required"}
+                {selectedColor ? `Selected: ${selectedColor}` : "Required"}
               </span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {productData.sizes.map((item) => (
+            <div className="flex flex-wrap gap-3">
+              {productData.colors.map((item) => (
                 <button
                   key={item}
-                  onClick={() => setSelectedSize(item)}
-                  className={`relative min-w-[3rem] h-12 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
-                    item === selectedSize
-                      ? "border-black bg-black text-white shadow-lg"
-                      : "border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                  onClick={() => setSelectedColor(item)}
+                  title={item}
+                  className={`relative w-11 h-11 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
+                    item === selectedColor
+                      ? "border-black scale-110 shadow-lg"
+                      : "border-gray-200 hover:border-gray-400"
                   }`}
                 >
-                  {item}
+                  <span
+                    className="w-8 h-8 rounded-full border border-black/10"
+                    style={{ backgroundColor: COLOR_HEX[item] || "#D4D4D4" }}
+                  />
+                  {item === selectedColor && (
+                    <Check className="absolute w-4 h-4 text-black bg-white rounded-full p-0.5 -top-1 -right-1 shadow" />
+                  )}
                 </button>
               ))}
             </div>
@@ -320,7 +360,7 @@ export default function Product() {
         <div className="flex border-b border-gray-200">
           {[
             { id: "description", label: "Description" },
-            { id: "reviews", label: `Reviews (122)` },
+            { id: "reviews", label: `Reviews (${productData.reviews?.length || 0})` },
             { id: "shipping", label: "Shipping Info" },
           ].map((tab) => (
             <button
@@ -376,7 +416,7 @@ export default function Product() {
                       Fragrance
                     </span>
                     <p className="font-medium text-black mt-1">
-                      Floral & Fresh
+                      {productData.subCategory}
                     </p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-xl">
@@ -392,74 +432,83 @@ export default function Product() {
 
           {activeTab === "reviews" && (
             <div className="max-w-3xl transition-opacity duration-300">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="text-5xl font-semibold text-black">4.8</div>
-                <div>
-                  <div className="flex items-center gap-1 mb-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className="w-5 h-5 fill-amber-400 text-amber-400"
-                      />
+              {productData.reviews?.length > 0 ? (
+                <>
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="text-5xl font-semibold text-black">
+                      {(
+                        productData.reviews.reduce(
+                          (a, r) => a + r.rating,
+                          0,
+                        ) / productData.reviews.length
+                      ).toFixed(1)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1 mb-1">
+                        {[1, 2, 3, 4, 5].map((star) => {
+                          const avg =
+                            productData.reviews.reduce(
+                              (a, r) => a + r.rating,
+                              0,
+                            ) / productData.reviews.length;
+                          return (
+                            <Star
+                              key={star}
+                              className={`w-5 h-5 ${
+                                star <= Math.round(avg)
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          );
+                        })}
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        Based on {productData.reviews.length} reviews
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    {productData.reviews.map((review, index) => (
+                      <div key={index} className="p-6 bg-gray-50 rounded-xl">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-medium text-sm">
+                              {review.name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-medium text-black text-sm">
+                                {review.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {review.date}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating
+                                    ? "fill-amber-400 text-amber-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          {review.text}
+                        </p>
+                      </div>
                     ))}
                   </div>
-                  <p className="text-sm text-gray-500">Based on 122 reviews</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {[
-                  {
-                    name: "Sarah M.",
-                    rating: 5,
-                    date: "2 days ago",
-                    text: "Absolutely love this candle! The scent is so refreshing and it burns evenly. Will definitely buy again.",
-                  },
-                  {
-                    name: "Priya K.",
-                    rating: 5,
-                    date: "1 week ago",
-                    text: "Bought this as a gift for my friend and she loved it. The packaging was beautiful too.",
-                  },
-                  {
-                    name: "Rahul S.",
-                    rating: 4,
-                    date: "2 weeks ago",
-                    text: "Great quality candle. The fragrance is subtle but fills the room nicely. Fast delivery.",
-                  },
-                ].map((review, index) => (
-                  <div key={index} className="p-6 bg-gray-50 rounded-xl">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-medium text-sm">
-                          {review.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-black text-sm">
-                            {review.name}
-                          </p>
-                          <p className="text-xs text-gray-500">{review.date}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < review.rating
-                                ? "fill-amber-400 text-amber-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {review.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                <p className="text-gray-500">No reviews yet.</p>
+              )}
             </div>
           )}
 

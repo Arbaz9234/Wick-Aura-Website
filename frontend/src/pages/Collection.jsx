@@ -84,40 +84,46 @@ export default function Collection() {
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className="flex gap-2">
               <input
-                id="men"
+                id="jar"
                 className="w-3"
                 type="checkbox"
-                value="Men"
-                onChange={() => toggleFilter("Men", setSelectedCategories)}
+                value="Jar Candles"
+                onChange={() =>
+                  toggleFilter("Jar Candles", setSelectedCategories)
+                }
               />
-              <label htmlFor="men" className="text-gray-600 cursor-pointer">
-                Men
+              <label htmlFor="jar" className="text-gray-600 cursor-pointer">
+                Jar Candles
               </label>
             </p>
 
             <p className="flex gap-2">
               <input
-                id="women"
+                id="bouquet"
                 className="w-3"
                 type="checkbox"
-                value="Women"
-                onChange={() => toggleFilter("Women", setSelectedCategories)}
+                value="Bouquet Candles"
+                onChange={() =>
+                  toggleFilter("Bouquet Candles", setSelectedCategories)
+                }
               />
-              <label htmlFor="women" className="text-gray-600 cursor-pointer">
-                Women
+              <label htmlFor="bouquet" className="text-gray-600 cursor-pointer">
+                Bouquet Candles
               </label>
             </p>
 
             <p className="flex gap-2">
               <input
-                id="kids"
+                id="mini"
                 className="w-3"
                 type="checkbox"
-                value="Kids"
-                onChange={() => toggleFilter("Kids", setSelectedCategories)}
+                value="Mini & Bubble Candles"
+                onChange={() =>
+                  toggleFilter("Mini & Bubble Candles", setSelectedCategories)
+                }
               />
-              <label htmlFor="kids" className="text-gray-600 cursor-pointer">
-                Kids
+              <label htmlFor="mini" className="text-gray-600 cursor-pointer">
+                Mini & Bubble Candles
               </label>
             </p>
           </div>
@@ -126,50 +132,47 @@ export default function Collection() {
         <div
           className={`border border-gray-300 pl-5 py-3 my-5 ${showFilters ? "" : "hidden"} sm:block`}
         >
-          <p className="mb-3 text-sm font-medium">TYPE</p>
+          <p className="mb-3 text-sm font-medium">SCENT TYPE</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className="flex gap-2">
               <input
-                id="topwear"
+                id="floral"
                 className="w-3"
                 type="checkbox"
-                value="Topwear"
-                onChange={() => toggleFilter("Topwear", setSelectedTypes)}
+                value="Floral"
+                onChange={() => toggleFilter("Floral", setSelectedTypes)}
               />
-              <label htmlFor="topwear" className="text-gray-600 cursor-pointer">
-                Topwear
+              <label htmlFor="floral" className="text-gray-600 cursor-pointer">
+                Floral
               </label>
             </p>
 
             <p className="flex gap-2">
               <input
-                id="bottomwear"
+                id="gourmet"
                 className="w-3"
                 type="checkbox"
-                value="Bottomwear"
-                onChange={() => toggleFilter("Bottomwear", setSelectedTypes)}
+                value="Gourmet"
+                onChange={() => toggleFilter("Gourmet", setSelectedTypes)}
               />
-              <label
-                htmlFor="bottomwear"
-                className="text-gray-600 cursor-pointer"
-              >
-                Bottomwear
+              <label htmlFor="gourmet" className="text-gray-600 cursor-pointer">
+                Gourmet
               </label>
             </p>
 
             <p className="flex gap-2">
               <input
-                id="winterwear"
+                id="romantic"
                 className="w-3"
                 type="checkbox"
-                value="Winterwear"
-                onChange={() => toggleFilter("Winterwear", setSelectedTypes)}
+                value="Romantic"
+                onChange={() => toggleFilter("Romantic", setSelectedTypes)}
               />
               <label
-                htmlFor="winterwear"
+                htmlFor="romantic"
                 className="text-gray-600 cursor-pointer"
               >
-                Winterwear
+                Romantic
               </label>
             </p>
           </div>
@@ -244,6 +247,7 @@ export default function Collection() {
               key={index}
               name={item.name}
               price={item.price}
+              oldPrice={item.oldPrice}
               id={item._id}
               image={item.image}
             />

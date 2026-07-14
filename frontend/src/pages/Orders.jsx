@@ -26,7 +26,7 @@ export default function Orders() {
           <h2 className="text-2xl font-medium text-gray-800 mb-2">
             No orders yet
           </h2>
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             When you place an order, it will appear here.
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function Orders() {
                   </span>
                 </span>
               </div>
-              <span className="text-xs text-gray-400">#{order.id}</span>
+              <span className="text-xs text-gray-500">#{order.id}</span>
             </div>
 
             {/* Order Body — Items left, Status + Track right */}
@@ -80,7 +80,7 @@ export default function Orders() {
               <div className="flex-1 min-w-0 space-y-4">
                 {order.items.map((item, idx) => (
                   <div
-                    key={`${item._id}-${item.size}-${idx}`}
+                    key={`${item._id}-${item.color}-${idx}`}
                     className="flex gap-4"
                   >
                     <Link
@@ -106,9 +106,9 @@ export default function Orders() {
                           {item.price * item.quantity}
                         </span>
                         <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-md">
-                          {item.size}
+                          {item.color}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-500">
                           Qty: {item.quantity}
                         </span>
                       </div>
