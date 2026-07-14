@@ -20,17 +20,17 @@ export default function Cart() {
 
   const cartData = getCartData();
 
-  const handleQuantityChange = (itemId, size, newQty, productName) => {
+  const handleQuantityChange = (itemId, color, newQty, productName) => {
     if (newQty <= 0) {
-      setPendingDelete({ itemId, size, productName });
+      setPendingDelete({ itemId, color, productName });
     } else {
-      updateQuantity(itemId, size, newQty);
+      updateQuantity(itemId, color, newQty);
     }
   };
 
   const confirmDelete = () => {
     if (pendingDelete) {
-      updateQuantity(pendingDelete.itemId, pendingDelete.size, 0);
+      updateQuantity(pendingDelete.itemId, pendingDelete.color, 0);
       setPendingDelete(null);
     }
   };
@@ -53,7 +53,7 @@ export default function Cart() {
           <h2 className="text-2xl font-medium text-gray-800 mb-2">
             Your cart is empty
           </h2>
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             Looks like you haven't added anything to your cart yet.
           </p>
         </div>
@@ -86,7 +86,7 @@ export default function Cart() {
 
               return (
                 <div
-                  key={`${item._id}-${item.size}`}
+                  key={`${item._id}-${item.color}`}
                   className="flex gap-4 sm:gap-6 py-6 first:pt-0"
                 >
                   <Link
@@ -114,7 +114,7 @@ export default function Cart() {
                           {productData.price}
                         </span>
                         <span className="px-2.5 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-md">
-                          {item.size}
+                          {item.color}
                         </span>
                       </div>
                     </div>
@@ -125,7 +125,7 @@ export default function Cart() {
                           onClick={() =>
                             handleQuantityChange(
                               item._id,
-                              item.size,
+                              item.color,
                               item.quantity - 1,
                               productData.name,
                             )
@@ -141,7 +141,7 @@ export default function Cart() {
                           onClick={() =>
                             updateQuantity(
                               item._id,
-                              item.size,
+                              item.color,
                               Math.min(10, item.quantity + 1),
                             )
                           }
@@ -160,7 +160,7 @@ export default function Cart() {
                           onClick={() =>
                             handleQuantityChange(
                               item._id,
-                              item.size,
+                              item.color,
                               0,
                               productData.name,
                             )
@@ -224,7 +224,7 @@ export default function Cart() {
                   <span className="font-medium text-gray-700">
                     {pendingDelete.productName}
                   </span>{" "}
-                  ({pendingDelete.size}) will be removed from your cart.
+                  ({pendingDelete.color}) will be removed from your cart.
                 </p>
               </div>
               <div className="flex gap-3 w-full mt-2">

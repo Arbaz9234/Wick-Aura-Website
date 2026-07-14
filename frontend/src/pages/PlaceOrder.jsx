@@ -87,7 +87,7 @@ export default function PlaceOrder() {
           <h2 className="text-2xl font-medium text-gray-800 mb-2">
             Nothing to checkout
           </h2>
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             Your cart is empty. Add some items before placing an order.
           </p>
         </div>

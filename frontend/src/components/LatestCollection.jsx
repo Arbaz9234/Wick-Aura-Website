@@ -30,8 +30,8 @@ export default function LatestCollection() {
       <div className="text-center py-8 text-3xl">
         <Title text1={"LATEST"} text2={"COLLECTION"} />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos,
-          porro.
+          Discover our latest hand-crafted candles, made with care to fill your
+          space with comforting light and unforgettable fragrances.
         </p>
       </div>
       {/* Rendering Products */}
@@ -43,6 +43,7 @@ export default function LatestCollection() {
             image={item.image}
             name={item.name}
             price={item.price}
+            oldPrice={item.oldPrice}
           />
         ))}
       </div>

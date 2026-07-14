@@ -11,7 +11,6 @@ import Orders from "./pages/Orders";
 import Navbar from "./components/Navbar";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
-import CandleShop from "./pages/CandleShop";
 import SearchBar from "./components/SearchBar";
 
 function ScrollToTop() {
@@ -27,7 +26,9 @@ export default function App() {
   const isLoginPage = pathname === "/login";
 
   return (
-    <div className={isLoginPage ? "" : "px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]"}>
+    <div
+      className={isLoginPage ? "" : "px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]"}
+    >
       <ScrollToTop />
       {!isLoginPage && <Navbar />}
       {!isLoginPage && <SearchBar />}
@@ -42,7 +43,6 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/orders" element={<Orders />} />
-        <Route path="/insta" element={<CandleShop />} />
       </Routes>
       {!isLoginPage && <Footer />}
     </div>

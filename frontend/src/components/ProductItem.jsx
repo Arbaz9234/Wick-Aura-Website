@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 
-export default function ProductItem({ id, image, name, price }) {
+export default function ProductItem({ id, image, name, price, oldPrice }) {
   const { currency } = React.useContext(ShopContext);
   return (
     <Link
@@ -19,10 +19,23 @@ export default function ProductItem({ id, image, name, price }) {
       </div>
 
       <p className="pt-3 pb-1 text-sm md:text-base"> {name} </p>
-      <p className="text-sm font-medium">
-        {currency}
-        {price}
-      </p>
+      <div className="flex items-center gap-2">
+        <p className="text-sm font-medium">
+          {currency}
+          {price}
+        </p>
+        {oldPrice && (
+          <>
+            <p className="text-xs text-gray-400 line-through">
+              {currency}
+              {oldPrice}
+            </p>
+            <span className="text-xs text-green-600 font-medium">
+              {Math.round(((oldPrice - price) / oldPrice) * 100)}% off
+            </span>
+          </>
+        )}
+      </div>
     </Link>
   );
 }

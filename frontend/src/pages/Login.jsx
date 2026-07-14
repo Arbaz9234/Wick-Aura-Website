@@ -224,13 +224,13 @@ export default function Login() {
                 <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-4 text-xs text-gray-400 uppercase tracking-wider">
+                <span className="bg-white px-4 text-xs text-gray-500 uppercase tracking-wider">
                   or
                 </span>
               </div>
             </div>
 
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm text-gray-600">
               {mode === "login"
                 ? "Don't have an account? "
                 : "Already have an account? "}

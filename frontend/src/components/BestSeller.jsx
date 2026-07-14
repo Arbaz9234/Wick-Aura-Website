@@ -17,8 +17,8 @@ export default function BestSeller() {
       <div className="text-center py-8 text-3xl">
         <Title text1={"BEST"} text2={"SELLERS"} />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos,
-          porro.
+          The fragrances our customers keep coming back for... tried, loved, and
+          lit again and again."
         </p>
       </div>
       {/* Rendering Products */}
@@ -30,6 +30,7 @@ export default function BestSeller() {
             image={item.image}
             name={item.name}
             price={item.price}
+            oldPrice={item.oldPrice}
           />
         ))}
       </div>

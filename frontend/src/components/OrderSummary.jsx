@@ -23,7 +23,7 @@ export default function OrderSummary({ showItems, children }) {
             if (!product) return null;
             return (
               <div
-                key={`${item._id}-${item.size}`}
+                key={`${item._id}-${item.color}`}
                 className="flex items-center gap-3"
               >
                 <img
@@ -36,7 +36,7 @@ export default function OrderSummary({ showItems, children }) {
                     {product.name}
                   </p>
                   <p className="text-xs text-gray-400">
-                    {item.size} × {item.quantity}
+                    {item.color} × {item.quantity}
                   </p>
                 </div>
                 <span className="text-sm font-medium text-gray-800">
