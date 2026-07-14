@@ -8,9 +8,10 @@ const addProduct = async (req, res) => {
       name,
       description,
       price,
+      oldPrice,
       category,
       subCategory,
-      sizes,
+      colors,
       bestseller,
     } = req.body;
 
@@ -37,9 +38,10 @@ const addProduct = async (req, res) => {
       description,
       category,
       price: Number(price),
+      oldPrice: Number(oldPrice),
       subCategory,
       bestseller: bestseller === "true",
-      sizes: JSON.parse(sizes),
+      colors: JSON.parse(colors),
       image: imagesUrl,
       date: Date.now(),
     };
@@ -88,4 +90,39 @@ const singleProduct = async (req, res) => {
   }
 };
 
-export { listProducts, addProduct, removeProduct, singleProduct };
+// function for adding a review to a product
+const addReview = async (req, res) => {
+  try {
+    const { productId, name, rating, text } = req.body;
+
+    if (!productId || !name || !rating || !text) {
+      return res.json({
+        success: false,
+        message: "Missing required fields when adding review",
+      });
+    }
+
+    const ratingNum = Number(rating);
+    if (ratingNum < 1 || ratingNum > 5) {
+      return res.json({
+        success: false,
+        message: "Rating must be between 1 and 5",
+      });
+    }
+
+    const product = await productModel.findById(productId);
+    if (!product) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    product.reviews.push({ name, rating: ratingNum, text });
+    await product.save();
+
+    res.json({ success: true, message: "Review Added", product });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { listProducts, addProduct, removeProduct, singleProduct, addReview };
