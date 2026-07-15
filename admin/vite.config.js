@@ -5,8 +5,7 @@ import svgr from "vite-plugin-svgr";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), svgr()],
-  base: process.env.VITE_BASE_PATH || "/",
   server: {
-    port: 5173,
+    port: 5174,
   },
 });
