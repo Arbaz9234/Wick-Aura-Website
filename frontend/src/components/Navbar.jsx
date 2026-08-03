@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router";
 import { MenuIcon, Search, ShoppingCart, User, X } from "lucide-react";
 import { ShopContext } from "../context/ShopContext";
 export default function Navbar() {

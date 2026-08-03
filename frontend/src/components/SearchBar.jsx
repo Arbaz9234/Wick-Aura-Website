@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { Search, X } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 
 export default function SearchBar() {
   const { search, setSearch, showSearch, setShowSearch } =

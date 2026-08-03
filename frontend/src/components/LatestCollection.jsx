@@ -9,20 +9,7 @@ export default function LatestCollection() {
 
   React.useEffect(() => {
     // Creating duplicate items as array contains only 1 item
-    setLatestProducts(
-      [
-        ...products,
-        ...products,
-        ...products,
-        ...products,
-        ...products,
-        ...products,
-        ...products,
-        ...products,
-        ...products,
-        ...products,
-      ].slice(0, 10),
-    );
+    setLatestProducts([...products].slice(0, 10));
   }, [products]);
 
   return (

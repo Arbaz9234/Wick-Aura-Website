@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { Package, ArrowRight, ShoppingBag } from "lucide-react";
