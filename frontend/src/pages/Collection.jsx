@@ -59,7 +59,7 @@ export default function Collection() {
 
   useEffect(() => {
     applyFilters();
-  }, [selectedCategories, selectedTypes, search, showSearch]);
+  }, [products, selectedCategories, selectedTypes, search, showSearch]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t border-gray-300">

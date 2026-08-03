@@ -32,6 +32,7 @@ export default function AddProduct({ token }) {
   const [subCategory, setSubCategory] = useState("Floral");
   const [bestseller, setBestseller] = useState(false);
   const [colors, setColors] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const toggleColor = (color) => {
     setColors((prev) =>
@@ -47,6 +48,7 @@ export default function AddProduct({ token }) {
       return;
     }
 
+    setLoading(true);
     try {
       const formData = new FormData();
 
@@ -86,6 +88,8 @@ export default function AddProduct({ token }) {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -275,8 +279,16 @@ export default function AddProduct({ token }) {
         </label>
       </div>
 
-      <button type="submit" className="w-28 py-3 mt-4 bg-black text-white">
-        ADD
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-28 py-3 mt-4 bg-black text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+      >
+        {loading ? (
+          <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        ) : (
+          "ADD"
+        )}
       </button>
 
       {previewSrc && (

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router";
 import { toast, ToastContainer, cssTransition } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 import {
@@ -224,7 +224,12 @@ export default function Product() {
                   {productData.oldPrice}
                 </span>
                 <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-md">
-                  {Math.round(((productData.oldPrice - productData.price) / productData.oldPrice) * 100)}% OFF
+                  {Math.round(
+                    ((productData.oldPrice - productData.price) /
+                      productData.oldPrice) *
+                      100,
+                  )}
+                  % OFF
                 </span>
               </>
             )}
@@ -360,7 +365,10 @@ export default function Product() {
         <div className="flex border-b border-gray-200">
           {[
             { id: "description", label: "Description" },
-            { id: "reviews", label: `Reviews (${productData.reviews?.length || 0})` },
+            {
+              id: "reviews",
+              label: `Reviews (${productData.reviews?.length || 0})`,
+            },
             { id: "shipping", label: "Shipping Info" },
           ].map((tab) => (
             <button
@@ -437,10 +445,8 @@ export default function Product() {
                   <div className="flex items-center gap-4 mb-8">
                     <div className="text-5xl font-semibold text-black">
                       {(
-                        productData.reviews.reduce(
-                          (a, r) => a + r.rating,
-                          0,
-                        ) / productData.reviews.length
+                        productData.reviews.reduce((a, r) => a + r.rating, 0) /
+                        productData.reviews.length
                       ).toFixed(1)}
                     </div>
                     <div>

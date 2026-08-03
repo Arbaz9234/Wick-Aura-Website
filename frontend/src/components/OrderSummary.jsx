@@ -89,8 +89,8 @@ export default function OrderSummary({ showItems, children }) {
 
         <div className="border-t border-gray-200 pt-4 mt-4">
           <div className="flex justify-between text-base font-semibold text-black">
-            <span>Total</span>
-            <span>
+            <span className="font-medium text-gray-800">Total</span>
+            <span className="font-medium text-gray-800">
               {currency}
               {total}
             </span>
