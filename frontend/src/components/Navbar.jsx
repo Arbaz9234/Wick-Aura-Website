@@ -43,10 +43,26 @@ export default function Navbar() {
           onClick={() => setShowSearch(true)}
           className={`${showSearch ? "opacity-100" : "opacity-0"}`}
         />
-        <div className="group relative">
+        {/* <div className="group relative">
           <NavLink to="/login">
             <User />
           </NavLink>
+        </div> */}
+        <div className="group relative">
+          {localStorage.getItem("token") ? (
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                window.location.href = "/login"; // or "/" if preferred
+              }}
+            >
+              <User />
+            </button>
+          ) : (
+            <NavLink to="/login">
+              <User />
+            </NavLink>
+          )}
         </div>
         <Link to="/cart" className="relative">
           <ShoppingCart />

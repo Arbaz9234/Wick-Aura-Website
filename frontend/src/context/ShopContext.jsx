@@ -14,6 +14,7 @@ const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
   const navigate = useNavigate();
   const addToCart = (itemId, color, quantity = 1) => {
     if (!color || quantity < 1) {
@@ -159,6 +160,8 @@ const ShopContextProvider = (props) => {
     placeOrder,
     navigate,
     backendUrl,
+    token,
+    setToken,
   };
   return (
     <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>

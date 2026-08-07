@@ -10,6 +10,7 @@ const createToken = (id) => {
 
 // Route for user login
 const loginUser = async (req, res) => {
+  console.log("Request Body:", req.body);
   const { email, password } = req.body;
 
   try {
@@ -56,7 +57,7 @@ const registerUser = async (req, res) => {
     if (exists) {
       return res.json({
         success: false,
-        message: "User already exists",
+        message: "User already exists, Please Login",
       });
     }
 
