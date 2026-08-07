@@ -1,21 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { assets } from "../assets/assets";
 import ImageSwiper from "../components/ImageSwiper";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const VALIDATORS = {
-  name: {
-    regex: /^[a-zA-Z\s]{2,}$/,
-    message: "Name must be at least 2 characters and contain only letters",
-  },
-  email: {
-    regex: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-    message: "Please enter a valid email address",
-  },
-  password: {
-    regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-    message: "Must be 8+ characters with uppercase, lowercase, and a number",
-  },
+  name: [
+    {
+      regex: /^.{2,}$/,
+      message: "Name must be at least 2 characters long",
+    },
+    {
+      regex: /^[a-zA-Z\s]+$/,
+      message: "Name can contain only letters and spaces",
+    },
+  ],
+
+  email: [
+    {
+      regex: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+      message: "Please enter a valid email address",
+    },
+  ],
+
+  password: [
+    {
+      regex: /^.{8,}$/,
+      message: "Password must be at least 8 characters long",
+    },
+    {
+      regex: /[A-Z]/,
+      message: "Password must contain at least one uppercase letter",
+    },
+    {
+      regex: /[a-z]/,
+      message: "Password must contain at least one lowercase letter",
+    },
+    {
+      regex: /\d/,
+      message: "Password must contain at least one number",
+    },
+  ],
 };
 
 const swiperImages = assets.loginImages.map((src, i) => ({
@@ -24,13 +51,21 @@ const swiperImages = assets.loginImages.map((src, i) => ({
 }));
 
 export default function Login() {
+  const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
   const [mode, setMode] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -56,11 +91,19 @@ export default function Login() {
   };
 
   const validate = (field, value) => {
-    const v = VALIDATORS[field];
-    if (!v) return "";
-    if (!value.trim())
+    const rules = VALIDATORS[field];
+    if (!rules) return "";
+
+    if (!value.trim()) {
       return `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
-    if (!v.regex.test(value)) return v.message;
+    }
+
+    for (const rule of rules) {
+      if (!rule.regex.test(value)) {
+        return rule.message;
+      }
+    }
+
     return "";
   };
 
@@ -72,17 +115,48 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
+
     const fields =
       mode === "signup" ? ["name", "email", "password"] : ["email", "password"];
+
     const newErrors = {};
+
     fields.forEach((f) => {
       newErrors[f] = validate(f, form[f]);
     });
+
     setErrors(newErrors);
-    if (Object.values(newErrors).some((e) => e)) return;
+
+    if (Object.values(newErrors).some(Boolean)) return;
+
+    setLoading(true);
+    try {
+      const url =
+        mode === "signup"
+          ? backendUrl + "/api/user/register"
+          : backendUrl + "/api/user/login";
+
+      const payload =
+        mode === "signup"
+          ? { name: form.name, email: form.email, password: form.password }
+          : { email: form.email, password: form.password };
+
+      const response = await axios.post(url, payload);
+
+      if (response.data.success) {
+        setToken(response.data.token);
+        localStorage.setItem("token", response.data.token);
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass = (field) =>
@@ -213,9 +287,16 @@ export default function Login() {
 
               <button
                 type="submit"
-                className="w-full bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors active:scale-[0.98]"
+                disabled={loading}
+                className="w-full bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                {mode === "login" ? "Sign In" : "Create Account"}
+                {loading ? (
+                  <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : mode === "login" ? (
+                  "Sign In"
+                ) : (
+                  "Create Account"
+                )}
               </button>
             </form>
 
@@ -244,6 +325,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }
