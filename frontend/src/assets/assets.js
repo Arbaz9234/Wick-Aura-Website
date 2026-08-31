@@ -10,6 +10,10 @@ import razorpayLogo from "./razorpay_logo.png";
 import stripeLogo from "./stripe_logo.png";
 import InstagramIcon from "./instagram-icon.svg?react";
 import MailIcon from "./mail-icon.svg?react";
+import GrayFlower from "./gray-flower.svg?react";
+import ColoredFlower from "./colored-flower.svg?react";
+import Circle from "./circle.svg?react";
+
 export const assets = {
   logo,
   favicon,
@@ -21,6 +25,9 @@ export const assets = {
   loginImages: [loginImage1, loginImage2, loginImage3],
   InstagramIcon,
   MailIcon,
+  GrayFlower,
+  ColoredFlower,
+  Circle,
 };
 
 export const products = [
@@ -38,9 +45,24 @@ export const products = [
     date: 1716634345448,
     bestseller: true,
     reviews: [
-      { name: "Sarah M.", rating: 5, date: "2 days ago", text: "Absolutely love this candle! The scent is so refreshing and it burns evenly. Will definitely buy again." },
-      { name: "Priya K.", rating: 5, date: "1 week ago", text: "Bought this as a gift for my friend and she loved it. The packaging was beautiful too." },
-      { name: "Rahul S.", rating: 4, date: "2 weeks ago", text: "Great quality candle. The fragrance is subtle but fills the room nicely. Fast delivery." },
+      {
+        name: "Sarah M.",
+        rating: 5,
+        date: "2 days ago",
+        text: "Absolutely love this candle! The scent is so refreshing and it burns evenly. Will definitely buy again.",
+      },
+      {
+        name: "Priya K.",
+        rating: 5,
+        date: "1 week ago",
+        text: "Bought this as a gift for my friend and she loved it. The packaging was beautiful too.",
+      },
+      {
+        name: "Rahul S.",
+        rating: 4,
+        date: "2 weeks ago",
+        text: "Great quality candle. The fragrance is subtle but fills the room nicely. Fast delivery.",
+      },
     ],
   },
   {
@@ -57,9 +79,24 @@ export const products = [
     date: 1716634345448,
     bestseller: true,
     reviews: [
-      { name: "Ananya R.", rating: 5, date: "3 days ago", text: "The jar is so pretty and the wax burns cleanly. No soot at all! Amazing quality for the price." },
-      { name: "Meera D.", rating: 4, date: "1 week ago", text: "Beautiful candle, the fragrance lasts long. Only wish it came in more color options." },
-      { name: "Vikram P.", rating: 5, date: "3 weeks ago", text: "Ordered two for my living room. They look stunning and the scent is calming without being overpowering." },
+      {
+        name: "Ananya R.",
+        rating: 5,
+        date: "3 days ago",
+        text: "The jar is so pretty and the wax burns cleanly. No soot at all! Amazing quality for the price.",
+      },
+      {
+        name: "Meera D.",
+        rating: 4,
+        date: "1 week ago",
+        text: "Beautiful candle, the fragrance lasts long. Only wish it came in more color options.",
+      },
+      {
+        name: "Vikram P.",
+        rating: 5,
+        date: "3 weeks ago",
+        text: "Ordered two for my living room. They look stunning and the scent is calming without being overpowering.",
+      },
     ],
   },
   {
@@ -76,9 +113,24 @@ export const products = [
     date: 1716634345448,
     bestseller: true,
     reviews: [
-      { name: "Nisha T.", rating: 5, date: "1 day ago", text: "The rose detailing is incredible! Looks like a real bouquet. My room smells heavenly." },
-      { name: "Arjun M.", rating: 5, date: "5 days ago", text: "Got this for my wife on our anniversary. She absolutely loved it. Worth every rupee." },
-      { name: "Kavita S.", rating: 4, date: "2 weeks ago", text: "Beautiful candle but the rose scent is a bit mild. Still looks gorgeous as a decor piece." },
+      {
+        name: "Nisha T.",
+        rating: 5,
+        date: "1 day ago",
+        text: "The rose detailing is incredible! Looks like a real bouquet. My room smells heavenly.",
+      },
+      {
+        name: "Arjun M.",
+        rating: 5,
+        date: "5 days ago",
+        text: "Got this for my wife on our anniversary. She absolutely loved it. Worth every rupee.",
+      },
+      {
+        name: "Kavita S.",
+        rating: 4,
+        date: "2 weeks ago",
+        text: "Beautiful candle but the rose scent is a bit mild. Still looks gorgeous as a decor piece.",
+      },
     ],
   },
   {
@@ -95,8 +147,18 @@ export const products = [
     date: 1716634345448,
     bestseller: false,
     reviews: [
-      { name: "Deepa G.", rating: 5, date: "4 days ago", text: "Such a calming fragrance. I light it every evening during my reading time. Pure bliss." },
-      { name: "Rohan K.", rating: 4, date: "1 week ago", text: "Clean burn and lovely scent. The jar looks elegant on my shelf even when not lit." },
+      {
+        name: "Deepa G.",
+        rating: 5,
+        date: "4 days ago",
+        text: "Such a calming fragrance. I light it every evening during my reading time. Pure bliss.",
+      },
+      {
+        name: "Rohan K.",
+        rating: 4,
+        date: "1 week ago",
+        text: "Clean burn and lovely scent. The jar looks elegant on my shelf even when not lit.",
+      },
     ],
   },
   {
@@ -113,9 +175,24 @@ export const products = [
     date: 1716634345448,
     bestseller: false,
     reviews: [
-      { name: "Sneha L.", rating: 5, date: "3 days ago", text: "Perfect for date night! The heart shape is so cute and the warm glow sets the mood beautifully." },
-      { name: "Amit B.", rating: 4, date: "1 week ago", text: "Lovely little candle. Burns well and the glass jar is reusable. Good value for money." },
-      { name: "Pooja N.", rating: 5, date: "2 weeks ago", text: "Gifted this to my best friend and she was thrilled. The scent is warm and comforting." },
+      {
+        name: "Sneha L.",
+        rating: 5,
+        date: "3 days ago",
+        text: "Perfect for date night! The heart shape is so cute and the warm glow sets the mood beautifully.",
+      },
+      {
+        name: "Amit B.",
+        rating: 4,
+        date: "1 week ago",
+        text: "Lovely little candle. Burns well and the glass jar is reusable. Good value for money.",
+      },
+      {
+        name: "Pooja N.",
+        rating: 5,
+        date: "2 weeks ago",
+        text: "Gifted this to my best friend and she was thrilled. The scent is warm and comforting.",
+      },
     ],
   },
   {
@@ -132,8 +209,18 @@ export const products = [
     date: 1716634345448,
     bestseller: false,
     reviews: [
-      { name: "Isha V.", rating: 5, date: "2 days ago", text: "Smells like a spring garden! So fresh and uplifting. My new favorite candle." },
-      { name: "Karan J.", rating: 4, date: "10 days ago", text: "Nice floral scent, not too sweet. Burns evenly and the jar is sturdy." },
+      {
+        name: "Isha V.",
+        rating: 5,
+        date: "2 days ago",
+        text: "Smells like a spring garden! So fresh and uplifting. My new favorite candle.",
+      },
+      {
+        name: "Karan J.",
+        rating: 4,
+        date: "10 days ago",
+        text: "Nice floral scent, not too sweet. Burns evenly and the jar is sturdy.",
+      },
     ],
   },
   {
@@ -150,9 +237,24 @@ export const products = [
     date: 1716634345448,
     bestseller: true,
     reviews: [
-      { name: "Aditya R.", rating: 5, date: "1 day ago", text: "Coffee lover's dream! The caramel undertone is perfect. My whole apartment smells like a café." },
-      { name: "Simran P.", rating: 5, date: "4 days ago", text: "I'm obsessed with this candle. The scent throw is amazing and it looks beautiful too." },
-      { name: "Mohit G.", rating: 4, date: "2 weeks ago", text: "Great concept and execution. The coffee scent is authentic and not artificial at all." },
+      {
+        name: "Aditya R.",
+        rating: 5,
+        date: "1 day ago",
+        text: "Coffee lover's dream! The caramel undertone is perfect. My whole apartment smells like a café.",
+      },
+      {
+        name: "Simran P.",
+        rating: 5,
+        date: "4 days ago",
+        text: "I'm obsessed with this candle. The scent throw is amazing and it looks beautiful too.",
+      },
+      {
+        name: "Mohit G.",
+        rating: 4,
+        date: "2 weeks ago",
+        text: "Great concept and execution. The coffee scent is authentic and not artificial at all.",
+      },
     ],
   },
   {
@@ -169,8 +271,18 @@ export const products = [
     date: 1716634345448,
     bestseller: false,
     reviews: [
-      { name: "Riya S.", rating: 5, date: "3 days ago", text: "The bubble design is so unique! Gets compliments every time someone visits. Clean burn too." },
-      { name: "Tanvi M.", rating: 4, date: "1 week ago", text: "Cute design and eco-friendly. The soy wax really does burn without any black smoke." },
+      {
+        name: "Riya S.",
+        rating: 5,
+        date: "3 days ago",
+        text: "The bubble design is so unique! Gets compliments every time someone visits. Clean burn too.",
+      },
+      {
+        name: "Tanvi M.",
+        rating: 4,
+        date: "1 week ago",
+        text: "Cute design and eco-friendly. The soy wax really does burn without any black smoke.",
+      },
     ],
   },
   {
@@ -187,8 +299,18 @@ export const products = [
     date: 1716634345448,
     bestseller: false,
     reviews: [
-      { name: "Divya A.", rating: 5, date: "5 days ago", text: "So adorable! Bought one in every color. They make the cutest desk accessories." },
-      { name: "Neha K.", rating: 4, date: "2 weeks ago", text: "Tiny but the fragrance is surprisingly good. Perfect little gifts for friends." },
+      {
+        name: "Divya A.",
+        rating: 5,
+        date: "5 days ago",
+        text: "So adorable! Bought one in every color. They make the cutest desk accessories.",
+      },
+      {
+        name: "Neha K.",
+        rating: 4,
+        date: "2 weeks ago",
+        text: "Tiny but the fragrance is surprisingly good. Perfect little gifts for friends.",
+      },
     ],
   },
   {
@@ -205,9 +327,24 @@ export const products = [
     date: 1716634345448,
     bestseller: true,
     reviews: [
-      { name: "Lakshmi R.", rating: 5, date: "2 days ago", text: "So pretty and affordable! The essential oil scent is natural and not overwhelming. Love it." },
-      { name: "Raj P.", rating: 5, date: "1 week ago", text: "Bought a set for my mom. She loves the daisy shape and the gentle fragrance. Great quality." },
-      { name: "Sanya M.", rating: 4, date: "3 weeks ago", text: "Lovely candle for the price. Burns well and the flower shape holds up nicely." },
+      {
+        name: "Lakshmi R.",
+        rating: 5,
+        date: "2 days ago",
+        text: "So pretty and affordable! The essential oil scent is natural and not overwhelming. Love it.",
+      },
+      {
+        name: "Raj P.",
+        rating: 5,
+        date: "1 week ago",
+        text: "Bought a set for my mom. She loves the daisy shape and the gentle fragrance. Great quality.",
+      },
+      {
+        name: "Sanya M.",
+        rating: 4,
+        date: "3 weeks ago",
+        text: "Lovely candle for the price. Burns well and the flower shape holds up nicely.",
+      },
     ],
   },
 ];
