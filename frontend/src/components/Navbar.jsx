@@ -49,20 +49,9 @@ export default function Navbar() {
           </NavLink>
         </div> */}
         <div className="group relative">
-          {localStorage.getItem("token") ? (
-            <button
-              onClick={() => {
-                localStorage.removeItem("token");
-                window.location.href = "/login"; // or "/" if preferred
-              }}
-            >
-              <User />
-            </button>
-          ) : (
-            <NavLink to="/login">
-              <User />
-            </NavLink>
-          )}
+          <NavLink to={localStorage.getItem("token") ? "/account" : "/login"}>
+            <User />
+          </NavLink>
         </div>
         <Link to="/cart" className="relative">
           <ShoppingCart />

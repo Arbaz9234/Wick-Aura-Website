@@ -8,6 +8,7 @@ import Product from "./pages/Product";
 import Login from "./pages/Login";
 import PlaceOrder from "./pages/PlaceOrder";
 import Orders from "./pages/Orders";
+import Account from "./pages/Account";
 import Navbar from "./components/Navbar";
 import { Route, Routes, useLocation } from "react-router";
 import Footer from "./components/Footer";
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/account" element={<Account />} />
       </Routes>
       {!isLoginPage && <Footer />}
     </div>
