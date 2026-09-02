@@ -31,7 +31,6 @@ export default function Account() {
   useEffect(() => {
     if (!token) {
       navigate("/");
-      // navigate("/login");
       return;
     }
 
