@@ -11,8 +11,6 @@ const createToken = (id) => {
 // Route for user login
 const loginUser = async (req, res) => {
   console.log("Request Body:", req.body);
-  const { email, password } = req.body;
-
   try {
     const { email, password } = req.body;
 
@@ -106,6 +104,27 @@ const registerUser = async (req, res) => {
 // Route for getting user profile
 const getUserProfile = async (req, res) => {
   // Logic for getting user profile
+
+  try {
+    const user = await userModel.findById(req.body.userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 // Route for admin login

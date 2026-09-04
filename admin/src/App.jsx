@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import { Routes, Route } from "react-router";
+import { Route, Routes } from "react-router";
 import AddProduct from "./pages/AddProduct";
 import Orders from "./pages/Orders";
 import ListProducts from "./pages/ListProducts";
@@ -35,7 +35,7 @@ function App() {
               <Routes>
                 <Route path="/add" element={<AddProduct token={token} />} />
                 <Route path="/list" element={<ListProducts token={token} />} />
-                {/* <Route path="/orders" element={<Orders token={token} />} /> */}
+                <Route path="/orders" element={<Orders token={token} />} />
               </Routes>
             </div>
           </div>

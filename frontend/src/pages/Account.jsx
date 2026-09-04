@@ -12,9 +12,10 @@ import {
   MapPin,
   ChevronRight,
 } from "lucide-react";
+import axios from "axios";
 
 export default function Account() {
-  const { token, setToken } = useContext(ShopContext);
+  const { token, setToken, orders, backendUrl } = useContext(ShopContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [pageReady, setPageReady] = useState(false);
@@ -28,21 +29,23 @@ export default function Account() {
     pincode: "",
   });
 
+  // Pre-fill profile fields from most recent order's address
   useEffect(() => {
-    if (!token) {
-      navigate("/");
-      return;
-    }
-
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
+    if (orders.length > 0) {
+      const latestOrder = orders[0]; // orders are sorted newest first
+      const addr = latestOrder.address;
       setProfile((prev) => ({
         ...prev,
-        name: payload.name || "",
-        email: payload.email || "",
+        phone: addr.mobile || prev.phone,
+        address:
+          [addr.address1, addr.address2, addr.landmark]
+            .filter(Boolean)
+            .join(", ") || prev.address,
+        city: addr.city || prev.city,
+        pincode: addr.pincode || prev.pincode,
       }));
-    } catch {}
-  }, [token, navigate]);
+    }
+  }, [orders]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -67,8 +70,34 @@ export default function Account() {
   ];
 
   const inputClass =
-    "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none transition-colors bg-white placeholder:text-gray-400 focus:border-black";
+    "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none transition-colors placeholder:text-gray-400 focus:border-black";
 
+  const hasOrderData = orders.length > 0;
+
+  const getProfile = async () => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/profile",
+        {},
+        { headers: { token } },
+      );
+
+      if (response.data.success) {
+        console.log(response.data);
+        setProfile((prev) => ({
+          ...prev,
+          name: response.data?.user?.name || prev.name,
+          email: response.data?.user?.email || prev.email,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getProfile();
+  }, []);
   return (
     <div
       className={`pt-10 border-t border-gray-300 pb-16 transition-opacity duration-500 ${pageReady ? "opacity-100" : "opacity-0"}`}
@@ -132,7 +161,8 @@ export default function Account() {
                       name="name"
                       value={profile.name}
                       onChange={handleChange}
-                      className={`${inputClass} pl-11`}
+                      disabled={hasOrderData}
+                      className={`${inputClass} pl-11 ${hasOrderData ? "bg-gray-50 text-gray-700 cursor-not-allowed" : "bg-white"}`}
                       placeholder="Your full name"
                     />
                   </div>
@@ -149,7 +179,8 @@ export default function Account() {
                       type="email"
                       value={profile.email}
                       onChange={handleChange}
-                      className={`${inputClass} pl-11`}
+                      disabled={hasOrderData}
+                      className={`${inputClass} pl-11 ${hasOrderData ? "bg-gray-50 text-gray-700 cursor-not-allowed" : "bg-white"}`}
                       placeholder="Your email"
                     />
                   </div>
@@ -166,7 +197,8 @@ export default function Account() {
                       type="tel"
                       value={profile.phone}
                       onChange={handleChange}
-                      className={`${inputClass} pl-11`}
+                      disabled={hasOrderData}
+                      className={`${inputClass} pl-11 ${hasOrderData ? "bg-gray-50 text-gray-700 cursor-not-allowed" : "bg-white"}`}
                       placeholder="Your phone number"
                     />
                   </div>
@@ -182,7 +214,8 @@ export default function Account() {
                       name="address"
                       value={profile.address}
                       onChange={handleChange}
-                      className={`${inputClass} pl-11`}
+                      disabled={hasOrderData}
+                      className={`${inputClass} pl-11 ${hasOrderData ? "bg-gray-50 text-gray-700 cursor-not-allowed" : "bg-white"}`}
                       placeholder="Street address"
                     />
                   </div>
@@ -197,7 +230,8 @@ export default function Account() {
                       name="city"
                       value={profile.city}
                       onChange={handleChange}
-                      className={inputClass}
+                      disabled={hasOrderData}
+                      className={`${inputClass} ${hasOrderData ? "bg-gray-50 text-gray-700 cursor-not-allowed" : "bg-white"}`}
                       placeholder="City"
                     />
                   </div>
@@ -209,13 +243,21 @@ export default function Account() {
                       name="pincode"
                       value={profile.pincode}
                       onChange={handleChange}
-                      className={inputClass}
+                      disabled={hasOrderData}
+                      className={`${inputClass} ${hasOrderData ? "bg-gray-50 text-gray-700 cursor-not-allowed" : "bg-white"}`}
                       placeholder="Pincode"
                     />
                   </div>
                 </div>
 
-                <button className="bg-black text-white px-8 py-3.5 text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-colors rounded-xl mt-2">
+                <button
+                  disabled={hasOrderData}
+                  className={`px-8 py-3.5 text-sm font-medium uppercase tracking-wider rounded-xl mt-2 transition-colors ${
+                    hasOrderData
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-black text-white hover:bg-gray-800"
+                  }`}
+                >
                   Save Changes
                 </button>
               </div>

@@ -114,12 +114,9 @@ const ShopContextProvider = (props) => {
     return data;
   };
 
-  const placeOrder = (deliveryInfo, paymentMethod) => {
+  const placeOrder = async (deliveryInfo, paymentMethod) => {
     const cartData = getCartData();
     if (cartData.length === 0) return;
-
-    const subtotal = getCartAmount();
-    const shipping = subtotal >= 500 ? 0 : delivery_fee;
 
     const orderItems = cartData.map((item) => {
       const product = products.find((p) => p._id === item._id);
@@ -131,24 +128,49 @@ const ShopContextProvider = (props) => {
       };
     });
 
-    const order = {
-      id: Date.now().toString(),
-      date: new Date().toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-      items: orderItems,
-      deliveryInfo,
-      paymentMethod,
-      subtotal,
-      shipping,
-      total: subtotal + shipping,
-      status: "Order Placed",
-    };
+    const subtotal = getCartAmount();
+    const shipping = subtotal >= 500 ? 0 : delivery_fee;
+    const amount = subtotal + shipping;
 
-    setOrders((prev) => [order, ...prev]);
-    setCartItems({});
+    try {
+      let response;
+      switch (paymentMethod) {
+        case "cod":
+          response = await axios.post(
+            backendUrl + "/api/order/place",
+            { items: orderItems, amount, address: deliveryInfo },
+            { headers: { token } },
+          );
+          break;
+        case "stripe":
+          response = await axios.post(
+            backendUrl + "/api/order/stripe",
+            { items: orderItems, amount, address: deliveryInfo },
+            { headers: { token } },
+          );
+          break;
+        case "razorpay":
+          response = await axios.post(
+            backendUrl + "/api/order/razorpay",
+            { items: orderItems, amount, address: deliveryInfo },
+            { headers: { token } },
+          );
+          break;
+        default:
+          break;
+      }
+
+      if (response.data.success) {
+        setCartItems({});
+        await getUserOrders(token);
+        navigate("/orders");
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message || "Failed to place order");
+    }
   };
 
   const getProductsData = async () => {
@@ -182,14 +204,34 @@ const ShopContextProvider = (props) => {
       toast.error(error.message);
     }
   };
+
+  const getUserOrders = async (token) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/order/userorders",
+        {},
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setOrders(response.data.orders);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message || "Failed to fetch orders");
+    }
+  };
+
   useEffect(() => {
     if (!token && localStorage.getItem("token")) {
       setToken(localStorage.getItem("token"));
       getUserCart(localStorage.getItem("token"));
+      getUserOrders(localStorage.getItem("token"));
     } else if (token) {
       getUserCart(token);
+      getUserOrders(token);
     } else {
       setCartItems({});
+      setOrders([]);
     }
   }, [token]);
 
