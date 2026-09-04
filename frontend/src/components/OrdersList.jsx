@@ -31,11 +31,19 @@ export default function OrdersList() {
     );
   }
 
+  const formatDate = (timestamp) => {
+    return new Date(timestamp).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
   return (
     <div className="space-y-6">
       {orders.map((order) => (
         <div
-          key={order.id}
+          key={order._id}
           className="border border-gray-200 rounded-2xl overflow-hidden"
         >
           <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 bg-gray-50 text-sm">
@@ -43,18 +51,20 @@ export default function OrdersList() {
               <span>
                 Order placed:{" "}
                 <span className="font-medium text-gray-700">
-                  {order.date}
+                  {formatDate(order.date)}
                 </span>
               </span>
               <span>
                 Total:{" "}
                 <span className="font-medium text-gray-700">
                   {currency}
-                  {order.total}
+                  {order.amount}
                 </span>
               </span>
             </div>
-            <span className="text-xs text-gray-500">#{order.id}</span>
+            <span className="text-xs text-gray-500 font-mono">
+              #{order._id.slice(-8).toUpperCase()}
+            </span>
           </div>
 
           <div className="flex items-start justify-between gap-4 px-5 py-5">

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export default function PlaceOrder() {
-  const { getCartData, placeOrder, navigate } = useContext(ShopContext);
+  const { getCartData, placeOrder } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [pincodeLoading, setPincodeLoading] = useState(false);
@@ -42,6 +42,7 @@ export default function PlaceOrder() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // PinCode fetch details
   useEffect(() => {
     const pincode = form.pincode.trim();
     if (pincode.length !== 6 || !/^\d{6}$/.test(pincode)) return;
@@ -69,10 +70,9 @@ export default function PlaceOrder() {
     return () => controller.abort();
   }, [form.pincode]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    placeOrder(form, paymentMethod);
-    navigate("/orders");
+    await placeOrder(form, paymentMethod);
   };
 
   if (cartData.length === 0) {
