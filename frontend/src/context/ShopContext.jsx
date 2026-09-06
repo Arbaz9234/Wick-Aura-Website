@@ -142,19 +142,15 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           break;
-        case "stripe":
-          response = await axios.post(
-            backendUrl + "/api/order/stripe",
-            { items: orderItems, amount, address: deliveryInfo },
-            { headers: { token } },
-          );
-          break;
         case "razorpay":
           response = await axios.post(
             backendUrl + "/api/order/razorpay",
             { items: orderItems, amount, address: deliveryInfo },
             { headers: { token } },
           );
+          if (response.data.success) {
+            initPay(response.data.order);
+          }
           break;
         default:
           break;
@@ -171,6 +167,36 @@ const ShopContextProvider = (props) => {
       console.log(error);
       toast.error(error.message || "Failed to place order");
     }
+  };
+  const initPay = (order) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Order Payment",
+      description: "Order Payment",
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        console.log(response);
+        try {
+          const { data } = await axios.post(
+            backendUrl + "/api/order/verifyRazorpay",
+            response,
+            { headers: { token } },
+          );
+          if (data.success) {
+            navigate("/orders");
+            setCartItems({});
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error(error);
+        }
+      },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
 
   const getProductsData = async () => {
@@ -233,6 +259,21 @@ const ShopContextProvider = (props) => {
       setCartItems({});
       setOrders([]);
     }
+  }, [token]);
+
+  // Poll for order status updates & refetch on window focus
+  useEffect(() => {
+    if (!token) return;
+
+    const poll = setInterval(() => getUserOrders(token), 30000);
+
+    const onFocus = () => getUserOrders(token);
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      clearInterval(poll);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [token]);
 
   const value = {
