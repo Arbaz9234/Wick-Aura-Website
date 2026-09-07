@@ -1,19 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Link } from "react-router";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import OrderSummary from "../components/OrderSummary";
-import {
-  ArrowRight,
-  Loader2,
-  MapPin,
-  Banknote,
-  ShoppingBag,
-} from "lucide-react";
+import { ArrowRight, Loader2, MapPin, Banknote } from "lucide-react";
 
 export default function PlaceOrder() {
-  const { getCartData, placeOrder } = useContext(ShopContext);
+  const { getCartData, placeOrder, token, navigate } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [pincodeLoading, setPincodeLoading] = useState(false);
@@ -30,6 +23,17 @@ export default function PlaceOrder() {
   });
 
   const cartData = getCartData();
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    if (cartData.length === 0) {
+      navigate("/cart");
+      return;
+    }
+  }, [token, cartData.length]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -74,33 +78,6 @@ export default function PlaceOrder() {
     e.preventDefault();
     await placeOrder(form, paymentMethod);
   };
-
-  if (cartData.length === 0) {
-    return (
-      <div
-        className={`min-h-[60vh] flex flex-col items-center justify-center gap-6 transition-opacity duration-500 ${pageReady ? "opacity-100" : "opacity-0"}`}
-      >
-        <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center">
-          <ShoppingBag className="w-10 h-10 text-gray-400" />
-        </div>
-        <div className="text-center">
-          <h2 className="text-2xl font-medium text-gray-800 mb-2">
-            Nothing to checkout
-          </h2>
-          <p className="text-gray-600">
-            Your cart is empty. Add some items before placing an order.
-          </p>
-        </div>
-        <Link
-          to="/collection"
-          className="inline-flex items-center gap-2 bg-black text-white px-8 py-3.5 text-sm font-medium hover:bg-gray-800 transition-colors rounded-xl"
-        >
-          Browse Collection
-          <ArrowRight className="w-4 h-4" />
-        </Link>
-      </div>
-    );
-  }
 
   const inputClass =
     "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:border-black transition-colors bg-white placeholder:text-gray-400";
@@ -241,24 +218,6 @@ export default function PlaceOrder() {
               </h3>
 
               <div className="space-y-3">
-                <label
-                  onClick={() => setPaymentMethod("stripe")}
-                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "stripe" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
-                >
-                  <span
-                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "stripe" ? "border-black" : "border-gray-300"}`}
-                  >
-                    {paymentMethod === "stripe" && (
-                      <span className="w-2 h-2 rounded-full bg-black" />
-                    )}
-                  </span>
-                  <img
-                    src={assets.stripeLogo}
-                    alt="Stripe"
-                    className="h-6 object-contain"
-                  />
-                </label>
-
                 <label
                   onClick={() => setPaymentMethod("razorpay")}
                   className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}

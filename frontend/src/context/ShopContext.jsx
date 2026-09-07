@@ -150,8 +150,10 @@ const ShopContextProvider = (props) => {
           );
           if (response.data.success) {
             initPay(response.data.order);
+          } else {
+            toast.error(response.data.message);
           }
-          break;
+          return;
         default:
           break;
       }
@@ -178,7 +180,6 @@ const ShopContextProvider = (props) => {
       order_id: order.id,
       receipt: order.receipt,
       handler: async (response) => {
-        console.log(response);
         try {
           const { data } = await axios.post(
             backendUrl + "/api/order/verifyRazorpay",
@@ -186,12 +187,16 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (data.success) {
-            navigate("/orders");
             setCartItems({});
+            await getUserOrders(token);
+            navigate("/orders");
+            toast.success("Payment successful!");
+          } else {
+            toast.error(data.message || "Payment verification failed");
           }
         } catch (error) {
           console.log(error);
-          toast.error(error);
+          toast.error(error.message || "Payment verification failed");
         }
       },
     };
@@ -240,10 +245,13 @@ const ShopContextProvider = (props) => {
       );
       if (response.data.success) {
         setOrders(response.data.orders);
+        return { success: true };
+      } else {
+        return { success: false, message: response.data.message };
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message || "Failed to fetch orders");
+      return { success: false, message: error.message || "Failed to fetch orders" };
     }
   };
 
@@ -259,21 +267,6 @@ const ShopContextProvider = (props) => {
       setCartItems({});
       setOrders([]);
     }
-  }, [token]);
-
-  // Poll for order status updates & refetch on window focus
-  useEffect(() => {
-    if (!token) return;
-
-    const poll = setInterval(() => getUserOrders(token), 30000);
-
-    const onFocus = () => getUserOrders(token);
-    window.addEventListener("focus", onFocus);
-
-    return () => {
-      clearInterval(poll);
-      window.removeEventListener("focus", onFocus);
-    };
   }, [token]);
 
   const value = {
@@ -292,6 +285,7 @@ const ShopContextProvider = (props) => {
     getCartData,
     orders,
     placeOrder,
+    getUserOrders,
     navigate,
     backendUrl,
     token,

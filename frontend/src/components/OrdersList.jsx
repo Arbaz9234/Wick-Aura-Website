@@ -1,10 +1,47 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { ShopContext } from "../context/ShopContext";
-import { Package, ArrowRight } from "lucide-react";
+import { Package, ArrowRight, RefreshCw } from "lucide-react";
+import { toast } from "react-toastify";
 
-export default function OrdersList() {
+export default function OrdersList({ onRefresh }) {
   const { orders, currency } = useContext(ShopContext);
+  const [refreshing, setRefreshing] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  const handleRefresh = async () => {
+    if (!onRefresh || refreshing || cooldown > 0) return;
+    setRefreshing(true);
+    try {
+      const result = await onRefresh();
+      if (result?.success) {
+        toast.success("Orders refreshed successfully");
+      } else {
+        toast.error(result?.message || "Failed to refresh orders");
+      }
+    } catch (error) {
+      toast.error("Failed to refresh orders");
+    } finally {
+      setRefreshing(false);
+      setCooldown(30);
+      timerRef.current = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+  };
+
+  const disabled = refreshing || cooldown > 0;
 
   if (orders.length === 0) {
     return (
@@ -41,6 +78,25 @@ export default function OrdersList() {
 
   return (
     <div className="space-y-6">
+      {onRefresh && (
+        <div className="flex justify-end">
+          <button
+            onClick={handleRefresh}
+            disabled={disabled}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-medium border border-gray-200 rounded-xl hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-700 disabled:hover:border-gray-200"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`}
+            />
+            {refreshing
+              ? "Refreshing…"
+              : cooldown > 0
+                ? `Wait ${cooldown}s`
+                : "Refresh Status"}
+          </button>
+        </div>
+      )}
+
       {orders.map((order) => (
         <div
           key={order._id}
@@ -121,12 +177,6 @@ export default function OrdersList() {
                   {order.status}
                 </span>
               </div>
-              <button
-                onClick={() => {}}
-                className="px-5 py-2.5 text-xs font-medium border border-gray-200 hover:bg-black hover:text-white hover:border-black transition-all"
-              >
-                Track Order
-              </button>
             </div>
           </div>
         </div>

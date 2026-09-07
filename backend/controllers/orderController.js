@@ -53,6 +53,7 @@ const placeOrderRazorpay = async (req, res) => {
       payment: false,
       date: Date.now(),
     };
+    console.log("Order Data:", orderData);
     const newOrder = new orderModel(orderData);
     await newOrder.save();
     const options = {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { assets } from "../assets/assets";
 import ImageSwiper from "../components/ImageSwiper";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Home } from "lucide-react";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -208,6 +208,14 @@ export default function Login() {
 
         {/* Right — Form */}
         <div className="relative z-10 w-full lg:w-1/2 flex items-center justify-center px-4 py-10 sm:px-8 lg:px-16">
+          <button
+            onClick={() => navigate("/")}
+            className="absolute top-6 left-6 inline-flex items-center gap-2 px-4 py-2.5 text-xs font-medium border border-gray-200 rounded-xl hover:bg-black hover:text-white hover:border-black transition-all bg-white/90 backdrop-blur-sm"
+          >
+            <Home className="w-3.5 h-3.5" />
+            Back to Home
+          </button>
+
           <div className="w-full max-w-md bg-white/95 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none rounded-2xl lg:rounded-none p-6 sm:p-8 lg:p-0">
             <div className="mb-8">
               <h1 className="text-3xl font-semibold text-gray-900">

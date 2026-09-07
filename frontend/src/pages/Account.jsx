@@ -15,7 +15,8 @@ import {
 import axios from "axios";
 
 export default function Account() {
-  const { token, setToken, orders, backendUrl } = useContext(ShopContext);
+  const { token, setToken, orders, getUserOrders, backendUrl } =
+    useContext(ShopContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [pageReady, setPageReady] = useState(false);
@@ -46,6 +47,17 @@ export default function Account() {
       }));
     }
   }, [orders]);
+
+  // Fetch orders when switching to orders tab
+  useEffect(() => {
+    if (activeTab === "orders" && token) {
+      getUserOrders(token);
+    }
+  }, [activeTab]);
+
+  const handleRefreshOrders = async () => {
+    if (token) return await getUserOrders(token);
+  };
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -96,8 +108,12 @@ export default function Account() {
   };
 
   useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     getProfile();
-  }, []);
+  }, [token]);
   return (
     <div
       className={`pt-10 border-t border-gray-300 pb-16 transition-opacity duration-500 ${pageReady ? "opacity-100" : "opacity-0"}`}
@@ -269,7 +285,7 @@ export default function Account() {
               <h4 className="text-lg font-medium text-gray-900 mb-6">
                 Your Orders
               </h4>
-              <OrdersList />
+              <OrdersList onRefresh={handleRefreshOrders} />
             </div>
           )}
         </div>
