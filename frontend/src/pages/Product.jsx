@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   Check,
   Share2,
+  Zap,
 } from "lucide-react";
 import RelatedProducts from "../components/RelatedProducts";
 
@@ -35,7 +36,7 @@ const COLOR_HEX = {
 
 export default function Product() {
   const { productId } = useParams();
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const { products, currency, addToCart, setBuyNowItem, navigate } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [mainImage, setMainImage] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -80,6 +81,19 @@ export default function Product() {
     });
 
     setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    if (!selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
+    setBuyNowItem({
+      _id: productData._id,
+      color: selectedColor,
+      quantity,
+    });
+    navigate("/place-order");
   };
 
   const handleQuantityChange = (delta) => {
@@ -275,7 +289,7 @@ export default function Product() {
           </div>
 
           {/* Quantity & Add to Cart */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             {/* Quantity Selector */}
             <div className="flex items-center h-14 rounded-xl border-2 border-gray-200">
               <button
@@ -319,6 +333,15 @@ export default function Product() {
               )}
             </button>
           </div>
+
+          {/* Buy Now */}
+          <button
+            onClick={handleBuyNow}
+            className="w-full h-14 rounded-xl font-semibold text-sm uppercase tracking-wider border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] mb-6"
+          >
+            <Zap className="w-5 h-5" />
+            Buy Now
+          </button>
 
           {/* Trust Badges */}
           <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-xl mb-6">

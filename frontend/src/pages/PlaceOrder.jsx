@@ -6,7 +6,7 @@ import OrderSummary from "../components/OrderSummary";
 import { ArrowRight, Loader2, MapPin, Banknote } from "lucide-react";
 
 export default function PlaceOrder() {
-  const { getCartData, placeOrder, token, navigate } = useContext(ShopContext);
+  const { getCartData, placeOrder, token, navigate, buyNowItem, setBuyNowItem } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [pincodeLoading, setPincodeLoading] = useState(false);
@@ -23,17 +23,23 @@ export default function PlaceOrder() {
   });
 
   const cartData = getCartData();
+  const isBuyNow = !!buyNowItem;
 
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
-    if (cartData.length === 0) {
+    if (!isBuyNow && cartData.length === 0) {
       navigate("/cart");
       return;
     }
-  }, [token, cartData.length]);
+  }, [token, cartData.length, isBuyNow]);
+
+  // Clear buy-now item if user navigates away
+  useEffect(() => {
+    return () => setBuyNowItem(null);
+  }, []);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -209,7 +215,7 @@ export default function PlaceOrder() {
         {/* Right — Summary & Payment */}
         <div className="lg:w-[400px] flex-shrink-0">
           <div className="lg:sticky lg:top-24 space-y-6">
-            <OrderSummary showItems />
+            <OrderSummary showItems buyNowItem={buyNowItem} setBuyNowItem={setBuyNowItem} />
 
             {/* Payment Method */}
             <div className="bg-gray-50 rounded-2xl p-6">

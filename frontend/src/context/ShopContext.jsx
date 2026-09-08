@@ -14,6 +14,7 @@ const ShopContextProvider = (props) => {
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [buyNowItem, setBuyNowItem] = useState(null);
   const navigate = useNavigate();
   const addToCart = async (itemId, color, quantity = 1) => {
     if (!color || quantity < 1) {
@@ -115,20 +116,40 @@ const ShopContextProvider = (props) => {
   };
 
   const placeOrder = async (deliveryInfo, paymentMethod) => {
-    const cartData = getCartData();
-    if (cartData.length === 0) return;
+    const isBuyNow = !!buyNowItem;
 
-    const orderItems = cartData.map((item) => {
-      const product = products.find((p) => p._id === item._id);
-      return {
-        ...item,
-        name: product.name,
-        price: product.price,
-        image: product.image[0],
-      };
-    });
+    let orderItems;
+    let subtotal;
 
-    const subtotal = getCartAmount();
+    if (isBuyNow) {
+      const product = products.find((p) => p._id === buyNowItem._id);
+      if (!product) return;
+      orderItems = [
+        {
+          _id: buyNowItem._id,
+          color: buyNowItem.color,
+          quantity: buyNowItem.quantity,
+          name: product.name,
+          price: product.price,
+          image: product.image[0],
+        },
+      ];
+      subtotal = product.price * buyNowItem.quantity;
+    } else {
+      const cartData = getCartData();
+      if (cartData.length === 0) return;
+      orderItems = cartData.map((item) => {
+        const product = products.find((p) => p._id === item._id);
+        return {
+          ...item,
+          name: product.name,
+          price: product.price,
+          image: product.image[0],
+        };
+      });
+      subtotal = getCartAmount();
+    }
+
     const shipping = subtotal >= 500 ? 0 : delivery_fee;
     const amount = subtotal + shipping;
 
@@ -149,7 +170,7 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (response.data.success) {
-            initPay(response.data.order);
+            initPay(response.data.order, isBuyNow);
           } else {
             toast.error(response.data.message);
           }
@@ -159,7 +180,13 @@ const ShopContextProvider = (props) => {
       }
 
       if (response.data.success) {
-        setCartItems({});
+        if (isBuyNow) {
+          setBuyNowItem(null);
+          // Refetch cart since backend clears it
+          await getUserCart(token);
+        } else {
+          setCartItems({});
+        }
         await getUserOrders(token);
         navigate("/orders");
       } else {
@@ -170,7 +197,7 @@ const ShopContextProvider = (props) => {
       toast.error(error.message || "Failed to place order");
     }
   };
-  const initPay = (order) => {
+  const initPay = (order, isBuyNow = false) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
@@ -187,7 +214,12 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (data.success) {
-            setCartItems({});
+            if (isBuyNow) {
+              setBuyNowItem(null);
+              await getUserCart(token);
+            } else {
+              setCartItems({});
+            }
             await getUserOrders(token);
             navigate("/orders");
             toast.success("Payment successful!");
@@ -286,6 +318,8 @@ const ShopContextProvider = (props) => {
     orders,
     placeOrder,
     getUserOrders,
+    buyNowItem,
+    setBuyNowItem,
     navigate,
     backendUrl,
     token,
