@@ -9,7 +9,7 @@ export default function Orders() {
 
   useEffect(() => {
     if (!token) {
-      navigate("/login");
+      navigate("/login", { replace: true });
       return;
     }
     getUserOrders(token);

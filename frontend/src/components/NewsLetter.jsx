@@ -1,7 +1,6 @@
 import React from "react";
 import NewsletterInput from "./NewsLetterInput";
 import { toast, ToastContainer } from "react-toastify";
-import styled from "@emotion/styled";
 export default function NewsLetter() {
   const [email, setEmail] = React.useState("");
   const handleSubscription = (e) => {

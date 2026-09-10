@@ -15,6 +15,7 @@ const ShopContextProvider = (props) => {
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [buyNowItem, setBuyNowItem] = useState(null);
+  const [addresses, setAddresses] = useState([]);
   const navigate = useNavigate();
   const addToCart = async (itemId, color, quantity = 1) => {
     if (!color || quantity < 1) {
@@ -115,7 +116,7 @@ const ShopContextProvider = (props) => {
     return data;
   };
 
-  const placeOrder = async (deliveryInfo, paymentMethod) => {
+  const placeOrder = async (deliveryInfo, paymentMethod, selectedAddressId = null) => {
     const isBuyNow = !!buyNowItem;
 
     let orderItems;
@@ -170,7 +171,7 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (response.data.success) {
-            initPay(response.data.order, isBuyNow);
+            initPay(response.data.order, isBuyNow, deliveryInfo, selectedAddressId);
           } else {
             toast.error(response.data.message);
           }
@@ -180,6 +181,11 @@ const ShopContextProvider = (props) => {
       }
 
       if (response.data.success) {
+        // Auto-save new address silently
+        if (selectedAddressId === "new" || selectedAddressId === null) {
+          await addAddress(deliveryInfo).catch(() => {}); // Silent fail
+        }
+
         if (isBuyNow) {
           setBuyNowItem(null);
           // Refetch cart since backend clears it
@@ -197,7 +203,7 @@ const ShopContextProvider = (props) => {
       toast.error(error.message || "Failed to place order");
     }
   };
-  const initPay = (order, isBuyNow = false) => {
+  const initPay = (order, isBuyNow = false, deliveryInfo = null, selectedAddressId = null) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
@@ -214,6 +220,11 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (data.success) {
+            // Auto-save new address silently
+            if (deliveryInfo && (selectedAddressId === "new" || selectedAddressId === null)) {
+              await addAddress(deliveryInfo).catch(() => {}); // Silent fail
+            }
+
             if (isBuyNow) {
               setBuyNowItem(null);
               await getUserCart(token);
@@ -287,17 +298,122 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  const fetchAddresses = async (token) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/addresses",
+        {},
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setAddresses(response.data.addresses);
+        return { success: true };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: error.message || "Failed to fetch addresses" };
+    }
+  };
+
+  const addAddress = async (addressData) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/address/add",
+        addressData,
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setAddresses(response.data.addresses);
+        return { success: true, addresses: response.data.addresses };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: error.message || "Failed to add address" };
+    }
+  };
+
+  const updateAddress = async (addressId, addressData) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/address/update",
+        { addressId, ...addressData },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setAddresses(response.data.addresses);
+        return { success: true, addresses: response.data.addresses };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: error.message || "Failed to update address" };
+    }
+  };
+
+  const deleteAddress = async (addressId) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/address/delete",
+        { addressId },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setAddresses(response.data.addresses);
+        return { success: true, addresses: response.data.addresses };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: error.message || "Failed to delete address" };
+    }
+  };
+
   useEffect(() => {
+    const syncUserData = async (t) => {
+      // Merge guest cart if user had items before logging in
+      const guestCart = cartItems;
+      const hasGuestItems = Object.keys(guestCart).length > 0;
+
+      if (hasGuestItems) {
+        try {
+          const { data } = await axios.post(
+            backendUrl + "/api/cart/merge",
+            { guestCart },
+            { headers: { token: t } },
+          );
+          if (data.success) {
+            setCartItems(data.cartData);
+          } else {
+            await getUserCart(t);
+          }
+        } catch {
+          await getUserCart(t);
+        }
+      } else {
+        await getUserCart(t);
+      }
+
+      getUserOrders(t);
+      fetchAddresses(t);
+    };
+
     if (!token && localStorage.getItem("token")) {
       setToken(localStorage.getItem("token"));
       getUserCart(localStorage.getItem("token"));
       getUserOrders(localStorage.getItem("token"));
+      fetchAddresses(localStorage.getItem("token"));
     } else if (token) {
-      getUserCart(token);
-      getUserOrders(token);
+      syncUserData(token);
     } else {
       setCartItems({});
       setOrders([]);
+      setAddresses([]);
     }
   }, [token]);
 
@@ -324,6 +440,11 @@ const ShopContextProvider = (props) => {
     backendUrl,
     token,
     setToken,
+    addresses,
+    fetchAddresses,
+    addAddress,
+    updateAddress,
+    deleteAddress,
   };
   return (
     <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
