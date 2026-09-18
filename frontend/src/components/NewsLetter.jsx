@@ -1,5 +1,5 @@
 import React from "react";
-import NewsletterInput from "./NewsLetterInput";
+import NewsletterInput from "./NewsletterInput";
 import { toast, ToastContainer } from "react-toastify";
 export default function NewsLetter() {
   const [email, setEmail] = React.useState("");
