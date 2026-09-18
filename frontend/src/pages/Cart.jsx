@@ -11,6 +11,7 @@ import {
   ArrowRight,
   AlertTriangle,
 } from "lucide-react";
+import { ToastContainer } from "react-toastify";
 
 export default function Cart() {
   const { products, currency, updateQuantity, getCartData, navigate } =
@@ -245,6 +246,7 @@ export default function Cart() {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }

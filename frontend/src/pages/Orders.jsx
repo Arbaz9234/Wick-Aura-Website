@@ -1,15 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Title from "../components/Title";
 import OrdersList from "../components/OrdersList";
+import { ShopContext } from "../context/ShopContext";
+import { ToastContainer } from "react-toastify";
 
 export default function Orders() {
+  const { token, getUserOrders, navigate } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
+    getUserOrders(token);
+  }, [token]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setPageReady(true));
     });
   }, []);
+
+  const handleRefresh = async () => {
+    if (token) return await getUserOrders(token);
+  };
 
   return (
     <div
@@ -20,8 +35,9 @@ export default function Orders() {
       </div>
 
       <div className="pt-6">
-        <OrdersList />
+        <OrdersList onRefresh={handleRefresh} />
       </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -19,6 +19,24 @@ const userSchema = new mongoose.Schema(
       type: Object,
       default: {},
     },
+    addresses: [
+      {
+        firstName: String,
+        lastName: String,
+        mobile: String,
+        address1: String,
+        address2: String,
+        landmark: String,
+        pincode: String,
+        city: String,
+        state: String,
+        isDefault: { type: Boolean, default: false },
+      },
+    ],
+    wishlist: {
+      type: [String],
+      default: [],
+    },
   },
   { minimize: false, versionKey: false },
 );

@@ -39,7 +39,7 @@ export default function ListProducts({ token }) {
       );
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        toast(response.data.message);
         await fetchList();
       } else {
         toast.error(response.data.message);
@@ -64,9 +64,7 @@ export default function ListProducts({ token }) {
           <h2 className="text-2xl font-medium text-gray-800 mb-2">
             No products yet
           </h2>
-          <p className="text-gray-600">
-            Products you add will appear here.
-          </p>
+          <p className="text-gray-600">Products you add will appear here.</p>
         </div>
       </div>
     );

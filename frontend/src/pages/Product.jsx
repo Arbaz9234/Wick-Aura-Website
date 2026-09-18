@@ -1,7 +1,8 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router";
 import { toast, ToastContainer, cssTransition } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
 import {
   Star,
   Heart,
@@ -14,6 +15,11 @@ import {
   ShoppingBag,
   Check,
   Share2,
+  Zap,
+  Mail,
+  Link as LinkIcon,
+  X,
+  ImagePlus,
 } from "lucide-react";
 import RelatedProducts from "../components/RelatedProducts";
 
@@ -35,15 +41,35 @@ const COLOR_HEX = {
 
 export default function Product() {
   const { productId } = useParams();
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const {
+    products,
+    currency,
+    addToCart,
+    setBuyNowItem,
+    navigate,
+    token,
+    backendUrl,
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
+  } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [mainImage, setMainImage] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
   const [isAdded, setIsAdded] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewText, setReviewText] = useState("");
+  const [reviewImages, setReviewImages] = useState([]);
+  const [reviewImagePreviews, setReviewImagePreviews] = useState([]);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [expandedReviews, setExpandedReviews] = useState({});
+  const shareRef = useRef(null);
   const Fade = cssTransition({
     enter: "fadeIn",
     exit: "fadeOut",
@@ -67,6 +93,123 @@ export default function Product() {
     }
   }, [productId, products]);
 
+  // Close share menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (shareRef.current && !shareRef.current.contains(e.target)) {
+        setShowShareMenu(false);
+      }
+    };
+    if (showShareMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showShareMenu]);
+
+  const productUrl = productData
+    ? `${window.location.origin}/product/${productData._id}`
+    : "";
+
+  const handleShareEmail = () => {
+    const subject = encodeURIComponent(
+      `Check out ${productData.name} – Wick & Aura`,
+    );
+    const body = encodeURIComponent(
+      `Hey, I found this amazing candle!\n\n${productData.name}\n${currency}${productData.price}\n\n${productUrl}`,
+    );
+    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+    setShowShareMenu(false);
+  };
+
+  const handleShareWhatsApp = () => {
+    const text = encodeURIComponent(
+      `Check out ${productData.name} on Wick & Aura store\n${productUrl}`,
+    );
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+    setShowShareMenu(false);
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(productUrl).then(() => {
+      toast("Link copied!", {
+        position: "bottom-right",
+        closeButton: false,
+      });
+    });
+    setShowShareMenu(false);
+  };
+
+  const TEXT_TRUNCATE_LENGTH = 100;
+
+  const getRelativeTime = (dateStr) => {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 365)} years ago`;
+  };
+
+  const handleReviewImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const remaining = 5 - reviewImages.length;
+    const newFiles = files.slice(0, remaining);
+    setReviewImages((prev) => [...prev, ...newFiles]);
+    newFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setReviewImagePreviews((prev) => [...prev, ev.target.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeReviewImage = (index) => {
+    setReviewImages((prev) => prev.filter((_, i) => i !== index));
+    setReviewImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewRating) return toast.error("Please select a rating");
+    if (!reviewTitle.trim()) return toast.error("Please add a title");
+    if (!reviewText.trim()) return toast.error("Please write a review");
+
+    setSubmittingReview(true);
+    try {
+      const formData = new FormData();
+      formData.append("productId", productData._id);
+      formData.append("rating", reviewRating);
+      formData.append("title", reviewTitle);
+      formData.append("text", reviewText);
+      reviewImages.forEach((file) => formData.append("images", file));
+
+      const response = await axios.post(
+        backendUrl + "/api/product/review",
+        formData,
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        toast("Review submitted!");
+        setProductData(response.data.product);
+        setShowReviewModal(false);
+        setReviewRating(0);
+        setReviewTitle("");
+        setReviewText("");
+        setReviewImages([]);
+        setReviewImagePreviews([]);
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error("Failed to submit review");
+    }
+    setSubmittingReview(false);
+  };
+
   const handleAddToCart = () => {
     if (!selectedColor) {
       toast.error("Please select a color");
@@ -74,12 +217,25 @@ export default function Product() {
     }
     addToCart(productData._id, selectedColor, quantity);
     setIsAdded(true);
-    toast.success(`${productData.name} added to cart!`, {
+    toast(`${productData.name} added to cart!`, {
       position: "bottom-right",
       closeButton: false,
     });
 
     setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    if (!selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
+    setBuyNowItem({
+      _id: productData._id,
+      color: selectedColor,
+      quantity,
+    });
+    navigate("/place-order");
   };
 
   const handleQuantityChange = (delta) => {
@@ -133,19 +289,78 @@ export default function Product() {
             />
             {/* Share & Wishlist Overlay */}
             <div className="absolute top-4 right-4 flex flex-col gap-2">
-              <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center transition-all hover:scale-110 hover:shadow-xl"
-              >
-                <Heart
-                  className={`w-5 h-5 transition-colors ${
-                    isWishlisted ? "fill-red-500 text-red-500" : "text-gray-700"
-                  }`}
-                />
-              </button>
-              <button className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center transition-all hover:scale-110 hover:shadow-xl">
-                <Share2 className="w-5 h-5 text-gray-700" />
-              </button>
+              {token && (
+                <button
+                  onClick={() => {
+                    if (isInWishlist(productData._id)) {
+                      removeFromWishlist(productData._id);
+                    } else {
+                      addToWishlist(productData._id);
+                    }
+                  }}
+                  className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center transition-all hover:scale-110 hover:shadow-xl"
+                >
+                  <Heart
+                    className={`w-5 h-5 transition-colors ${
+                      isInWishlist(productData._id)
+                        ? "fill-red-500 text-red-500"
+                        : "text-gray-700"
+                    }`}
+                  />
+                </button>
+              )}
+              <div className="relative" ref={shareRef}>
+                <button
+                  onClick={() => setShowShareMenu(!showShareMenu)}
+                  className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center transition-all hover:scale-110 hover:shadow-xl"
+                >
+                  <Share2 className="w-5 h-5 text-gray-700" />
+                </button>
+                {showShareMenu && (
+                  <div className="absolute right-0 top-12 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-20 animate-in fade-in">
+                    {/* Caret */}
+                    <div className="absolute -top-2 right-4 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45" />
+                    {/* Close */}
+                    <button
+                      onClick={() => setShowShareMenu(false)}
+                      className="absolute top-2 right-2 w-6 h-6 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5 text-gray-400" />
+                    </button>
+                    <p className="px-4 pt-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Share via
+                    </p>
+                    <button
+                      onClick={handleShareEmail}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                    >
+                      <Mail className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm text-gray-700">Email</span>
+                    </button>
+                    <button
+                      onClick={handleShareWhatsApp}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                    >
+                      <svg
+                        className="w-4 h-4 text-gray-600"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                      </svg>
+                      <span className="text-sm text-gray-700">WhatsApp</span>
+                    </button>
+                    <div className="mx-3 my-1 border-t border-gray-100" />
+                    <button
+                      onClick={handleCopyLink}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                    >
+                      <LinkIcon className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm text-gray-700">Copy Link</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -275,7 +490,7 @@ export default function Product() {
           </div>
 
           {/* Quantity & Add to Cart */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             {/* Quantity Selector */}
             <div className="flex items-center h-14 rounded-xl border-2 border-gray-200">
               <button
@@ -319,6 +534,15 @@ export default function Product() {
               )}
             </button>
           </div>
+
+          {/* Buy Now */}
+          <button
+            onClick={handleBuyNow}
+            className="w-full h-14 rounded-xl font-semibold text-sm uppercase tracking-wider border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] mb-6"
+          >
+            <Zap className="w-5 h-5" />
+            Buy Now
+          </button>
 
           {/* Trust Badges */}
           <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-xl mb-6">
@@ -440,6 +664,15 @@ export default function Product() {
 
           {activeTab === "reviews" && (
             <div className="max-w-3xl transition-opacity duration-300">
+              {token && (
+                <button
+                  onClick={() => setShowReviewModal(true)}
+                  className="mb-6 px-6 py-3 bg-black text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors cursor-pointer"
+                >
+                  Add a Review
+                </button>
+              )}
+
               {productData.reviews?.length > 0 ? (
                 <>
                   <div className="flex items-center gap-4 mb-8">
@@ -488,7 +721,7 @@ export default function Product() {
                                 {review.name}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {review.date}
+                                {getRelativeTime(review.createdAt)}
                               </p>
                             </div>
                           </div>
@@ -505,9 +738,45 @@ export default function Product() {
                             ))}
                           </div>
                         </div>
+                        {review.title && (
+                          <p className="font-medium text-black text-sm mb-1">
+                            {review.title}
+                          </p>
+                        )}
                         <p className="text-gray-600 text-sm leading-relaxed">
-                          {review.text}
+                          {review.text.length > TEXT_TRUNCATE_LENGTH &&
+                          !expandedReviews[index] ? (
+                            <>
+                              {review.text.slice(0, TEXT_TRUNCATE_LENGTH)}...
+                              <button
+                                onClick={() =>
+                                  setExpandedReviews((prev) => ({
+                                    ...prev,
+                                    [index]: true,
+                                  }))
+                                }
+                                className="text-black font-medium ml-1 cursor-pointer"
+                              >
+                                read more
+                              </button>
+                            </>
+                          ) : (
+                            review.text
+                          )}
                         </p>
+                        {review.images?.length > 0 && (
+                          <div className="flex gap-2 mt-3">
+                            {review.images.map((img, i) => (
+                              <img
+                                key={i}
+                                src={img}
+                                alt=""
+                                className="w-16 h-16 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => window.open(img, "_blank")}
+                              />
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -564,11 +833,146 @@ export default function Product() {
           productId={productData._id}
         />
       </div>
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowReviewModal(false)}
+          />
+          <div
+            className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-xl"
+            style={{ animation: "scaleIn 0.2s ease-out" }}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowReviewModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="text-lg font-semibold text-black mb-6">
+              Write a Review
+            </h3>
+
+            {/* Star rating */}
+            <div className="mb-5">
+              <label className="text-sm font-medium text-gray-700 block mb-2">
+                Rating
+              </label>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    onClick={() => setReviewRating(star)}
+                    className={`w-7 h-7 cursor-pointer transition-colors ${
+                      star <= reviewRating
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-gray-300 hover:text-amber-200"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="mb-5">
+              <label className="text-sm font-medium text-gray-700 block mb-1">
+                Title your review
+              </label>
+              <input
+                maxLength={50}
+                value={reviewTitle}
+                onChange={(e) => setReviewTitle(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-gray-400 transition-colors"
+                placeholder="Summarize your experience"
+              />
+              <p className="text-xs text-gray-400 text-right mt-1">
+                {reviewTitle.length}/50
+              </p>
+            </div>
+
+            {/* Description */}
+            <div className="mb-5">
+              <label className="text-sm font-medium text-gray-700 block mb-1">
+                Your review
+              </label>
+              <textarea
+                maxLength={200}
+                rows={3}
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:border-gray-400 transition-colors"
+                placeholder="What did you like or dislike?"
+              />
+              <p className="text-xs text-gray-400 text-right mt-1">
+                {reviewText.length}/200
+              </p>
+            </div>
+
+            {/* Image/video upload */}
+            <div className="mb-6">
+              <label className="text-sm font-medium text-gray-700 block mb-2">
+                Share a photo or video
+              </label>
+              <div className="flex gap-2 flex-wrap">
+                {reviewImagePreviews.map((src, i) => (
+                  <div
+                    key={i}
+                    className="relative w-16 h-16 rounded-lg overflow-hidden"
+                  >
+                    <img
+                      src={src}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => removeReviewImage(i)}
+                      className="absolute top-0 right-0 bg-black/60 text-white rounded-bl-lg p-0.5 cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                {reviewImages.length < 5 && (
+                  <label className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
+                    <ImagePlus className="w-5 h-5 text-gray-400" />
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*,video/*"
+                      onChange={handleReviewImageUpload}
+                      multiple
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Submit button */}
+            <button
+              onClick={handleSubmitReview}
+              disabled={submittingReview}
+              className="w-full py-3 bg-black text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {submittingReview ? "Submitting..." : "Submit Review"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
+
       <ToastContainer
         transition={Fade}
         collapseToast={false}
         autoClose={1500}
-        hideProgressBar={true}
       />
     </div>
   ) : (

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink, useLocation } from "react-router";
-import { MenuIcon, Search, ShoppingCart, User, X } from "lucide-react";
+import { MenuIcon, Search, ShoppingCart, User, X, Heart } from "lucide-react";
 import { ShopContext } from "../context/ShopContext";
 export default function Navbar() {
-  const { setShowSearch, getCartCount } = React.useContext(ShopContext);
+  const { setShowSearch, getCartCount, wishlist, token } = React.useContext(ShopContext);
   const [showSearch, setShowSearchLocal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -53,6 +53,16 @@ export default function Navbar() {
             <User />
           </NavLink>
         </div>
+        {token && (
+          <Link to="/wishlist" className="relative">
+            <Heart />
+            {wishlist.length > 0 && (
+              <p className="absolute right-[-5px] bottom-[-5px] min-w-4 h-4 px-1 flex items-center justify-center bg-black text-white rounded-full text-[8px]">
+                {wishlist.length}
+              </p>
+            )}
+          </Link>
+        )}
         <Link to="/cart" className="relative">
           <ShoppingCart />
           {getCartCount() > 0 && (

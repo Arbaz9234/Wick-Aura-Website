@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
+import userModel from "../models/userModel.js";
 
 // function for add product
 const addProduct = async (req, res) => {
@@ -93,9 +94,18 @@ const singleProduct = async (req, res) => {
 // function for adding a review to a product
 const addReview = async (req, res) => {
   try {
-    const { productId, name, rating, text } = req.body;
+    console.clear();
+    console.log("Req.Body:", req.body);
 
-    if (!productId || !name || !rating || !text) {
+    const { userId, productId, rating, title, text } = req.body;
+    console.log("Received review data:", {
+      userId,
+      productId,
+      rating,
+      title,
+      text,
+    });
+    if (!productId || !rating || !title || !text) {
       return res.json({
         success: false,
         message: "Missing required fields when adding review",
@@ -110,12 +120,37 @@ const addReview = async (req, res) => {
       });
     }
 
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
     const product = await productModel.findById(productId);
     if (!product) {
       return res.json({ success: false, message: "Product not found" });
     }
 
-    product.reviews.push({ name, rating: ratingNum, text });
+    // Upload images to Cloudinary
+    let imageUrls = [];
+    if (req.files && req.files.length > 0) {
+      imageUrls = await Promise.all(
+        req.files.map(async (file) => {
+          let result = await cloudinary.uploader.upload(file.path, {
+            resource_type: "auto",
+          });
+          return result.secure_url;
+        }),
+      );
+    }
+
+    product.reviews.push({
+      userId,
+      name: user.name,
+      rating: ratingNum,
+      title,
+      text,
+      images: imageUrls,
+    });
     await product.save();
 
     res.json({ success: true, message: "Review Added", product });

@@ -1,51 +1,114 @@
 import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
-import { Truck, ShieldCheck, Tag } from "lucide-react";
+import { Truck, ShieldCheck, Tag, Minus, Plus } from "lucide-react";
 
-export default function OrderSummary({ showItems, children }) {
+export default function OrderSummary({ showItems, buyNowItem, setBuyNowItem, children }) {
   const { products, currency, getCartAmount, getCartData, delivery_fee } =
     useContext(ShopContext);
 
-  const cartData = getCartData();
-  const subtotal = getCartAmount();
+  const isBuyNow = !!buyNowItem;
+
+  // Resolve data based on mode
+  let displayItems = [];
+  let subtotal = 0;
+  let itemCount = 0;
+
+  if (isBuyNow) {
+    const product = products.find((p) => p._id === buyNowItem._id);
+    if (product) {
+      displayItems = [
+        {
+          _id: buyNowItem._id,
+          color: buyNowItem.color,
+          quantity: buyNowItem.quantity,
+          name: product.name,
+          price: product.price,
+          image: product.image[0],
+        },
+      ];
+      subtotal = product.price * buyNowItem.quantity;
+      itemCount = buyNowItem.quantity;
+    }
+  } else {
+    const cartData = getCartData();
+    displayItems = cartData.map((item) => {
+      const product = products.find((p) => p._id === item._id);
+      return product
+        ? { ...item, name: product.name, price: product.price, image: product.image[0] }
+        : null;
+    }).filter(Boolean);
+    subtotal = getCartAmount();
+    itemCount = cartData.reduce((a, b) => a + b.quantity, 0);
+  }
+
   const shipping = subtotal >= 500 ? 0 : delivery_fee;
   const total = subtotal + shipping;
-  const itemCount = cartData.reduce((a, b) => a + b.quantity, 0);
 
   return (
     <div className="bg-gray-50 rounded-2xl p-6">
       <h3 className="text-lg font-semibold text-black mb-5">Order Summary</h3>
 
-      {showItems && cartData.length > 0 && (
+      {showItems && displayItems.length > 0 && (
         <div className="max-h-48 overflow-y-auto space-y-3 mb-5 pr-3">
-          {cartData.map((item) => {
-            const product = products.find((p) => p._id === item._id);
-            if (!product) return null;
-            return (
-              <div
-                key={`${item._id}-${item.color}`}
-                className="flex items-center gap-3"
-              >
-                <img
-                  src={product.image[0]}
-                  alt={product.name}
-                  className="w-12 h-12 rounded-lg object-cover bg-gray-100"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 truncate">
-                    {product.name}
-                  </p>
+          {displayItems.map((item) => (
+            <div
+              key={`${item._id}-${item.color}`}
+              className="flex items-center gap-3"
+            >
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-12 h-12 rounded-lg object-cover bg-gray-100"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-gray-800 truncate">
+                  {item.name}
+                </p>
+                {isBuyNow && setBuyNowItem ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-gray-400">{item.color}</span>
+                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setBuyNowItem((prev) => ({
+                            ...prev,
+                            quantity: Math.max(1, prev.quantity - 1),
+                          }))
+                        }
+                        className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100 transition-colors"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="w-7 text-center text-xs font-medium text-gray-800">
+                        {item.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setBuyNowItem((prev) => ({
+                            ...prev,
+                            quantity: Math.min(10, prev.quantity + 1),
+                          }))
+                        }
+                        className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100 transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
                   <p className="text-xs text-gray-400">
                     {item.color} × {item.quantity}
                   </p>
-                </div>
-                <span className="text-sm font-medium text-gray-800">
-                  {currency}
-                  {product.price * item.quantity}
-                </span>
+                )}
               </div>
-            );
-          })}
+              <span className="text-sm font-medium text-gray-800">
+                {currency}
+                {item.price * item.quantity}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 

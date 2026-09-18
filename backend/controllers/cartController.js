@@ -71,4 +71,42 @@ const getUserCart = async (req, res) => {
   }
 };
 
-export { addToCart, updateCart, getUserCart };
+// merge guest cart into user cart (additive)
+const mergeCart = async (req, res) => {
+  try {
+    const { userId, guestCart } = req.body;
+
+    if (!guestCart || typeof guestCart !== "object" || Object.keys(guestCart).length === 0) {
+      return res.json({ success: true, message: "Nothing to merge" });
+    }
+
+    const userData = await userModel.findById(userId);
+    let cartData = await userData.cartData;
+
+    for (const itemId in guestCart) {
+      for (const color in guestCart[itemId]) {
+        const qty = guestCart[itemId][color];
+        if (qty <= 0) continue;
+
+        if (cartData[itemId]) {
+          if (cartData[itemId][color]) {
+            cartData[itemId][color] += qty;
+          } else {
+            cartData[itemId][color] = qty;
+          }
+        } else {
+          cartData[itemId] = {};
+          cartData[itemId][color] = qty;
+        }
+      }
+    }
+
+    await userModel.findByIdAndUpdate(userId, { cartData });
+    res.json({ success: true, cartData, message: "Cart merged" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { addToCart, updateCart, getUserCart, mergeCart };

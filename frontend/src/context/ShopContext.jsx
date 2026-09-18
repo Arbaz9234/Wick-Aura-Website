@@ -14,6 +14,9 @@ const ShopContextProvider = (props) => {
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [buyNowItem, setBuyNowItem] = useState(null);
+  const [addresses, setAddresses] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
   const addToCart = async (itemId, color, quantity = 1) => {
     if (!color || quantity < 1) {
@@ -114,21 +117,45 @@ const ShopContextProvider = (props) => {
     return data;
   };
 
-  const placeOrder = async (deliveryInfo, paymentMethod) => {
-    const cartData = getCartData();
-    if (cartData.length === 0) return;
+  const placeOrder = async (
+    deliveryInfo,
+    paymentMethod,
+    selectedAddressId = null,
+  ) => {
+    const isBuyNow = !!buyNowItem;
 
-    const orderItems = cartData.map((item) => {
-      const product = products.find((p) => p._id === item._id);
-      return {
-        ...item,
-        name: product.name,
-        price: product.price,
-        image: product.image[0],
-      };
-    });
+    let orderItems;
+    let subtotal;
 
-    const subtotal = getCartAmount();
+    if (isBuyNow) {
+      const product = products.find((p) => p._id === buyNowItem._id);
+      if (!product) return;
+      orderItems = [
+        {
+          _id: buyNowItem._id,
+          color: buyNowItem.color,
+          quantity: buyNowItem.quantity,
+          name: product.name,
+          price: product.price,
+          image: product.image[0],
+        },
+      ];
+      subtotal = product.price * buyNowItem.quantity;
+    } else {
+      const cartData = getCartData();
+      if (cartData.length === 0) return;
+      orderItems = cartData.map((item) => {
+        const product = products.find((p) => p._id === item._id);
+        return {
+          ...item,
+          name: product.name,
+          price: product.price,
+          image: product.image[0],
+        };
+      });
+      subtotal = getCartAmount();
+    }
+
     const shipping = subtotal >= 500 ? 0 : delivery_fee;
     const amount = subtotal + shipping;
 
@@ -149,15 +176,33 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (response.data.success) {
-            initPay(response.data.order);
+            initPay(
+              response.data.order,
+              isBuyNow,
+              deliveryInfo,
+              selectedAddressId,
+            );
+          } else {
+            toast.error(response.data.message);
           }
-          break;
+          return;
         default:
           break;
       }
 
       if (response.data.success) {
-        setCartItems({});
+        // Auto-save new address silently
+        if (selectedAddressId === "new" || selectedAddressId === null) {
+          await addAddress(deliveryInfo).catch(() => {}); // Silent fail
+        }
+
+        if (isBuyNow) {
+          setBuyNowItem(null);
+          // Refetch cart since backend clears it
+          await getUserCart(token);
+        } else {
+          setCartItems({});
+        }
         await getUserOrders(token);
         navigate("/orders");
       } else {
@@ -168,7 +213,12 @@ const ShopContextProvider = (props) => {
       toast.error(error.message || "Failed to place order");
     }
   };
-  const initPay = (order) => {
+  const initPay = (
+    order,
+    isBuyNow = false,
+    deliveryInfo = null,
+    selectedAddressId = null,
+  ) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
@@ -178,7 +228,6 @@ const ShopContextProvider = (props) => {
       order_id: order.id,
       receipt: order.receipt,
       handler: async (response) => {
-        console.log(response);
         try {
           const { data } = await axios.post(
             backendUrl + "/api/order/verifyRazorpay",
@@ -186,12 +235,29 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (data.success) {
+            // Auto-save new address silently
+            if (
+              deliveryInfo &&
+              (selectedAddressId === "new" || selectedAddressId === null)
+            ) {
+              await addAddress(deliveryInfo).catch(() => {}); // Silent fail
+            }
+
+            if (isBuyNow) {
+              setBuyNowItem(null);
+              await getUserCart(token);
+            } else {
+              setCartItems({});
+            }
+            await getUserOrders(token);
             navigate("/orders");
-            setCartItems({});
+            toast("Payment successful!");
+          } else {
+            toast.error(data.message || "Payment verification failed");
           }
         } catch (error) {
           console.log(error);
-          toast.error(error);
+          toast.error(error.message || "Payment verification failed");
         }
       },
     };
@@ -240,40 +306,228 @@ const ShopContextProvider = (props) => {
       );
       if (response.data.success) {
         setOrders(response.data.orders);
+        return { success: true };
+      } else {
+        return { success: false, message: response.data.message };
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message || "Failed to fetch orders");
+      return {
+        success: false,
+        message: error.message || "Failed to fetch orders",
+      };
     }
   };
 
+  const fetchAddresses = async (token) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/addresses",
+        {},
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setAddresses(response.data.addresses);
+        return { success: true };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: error.message || "Failed to fetch addresses",
+      };
+    }
+  };
+
+  const addAddress = async (addressData) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/address/add",
+        addressData,
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setAddresses(response.data.addresses);
+        return { success: true, addresses: response.data.addresses };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: error.message || "Failed to add address",
+      };
+    }
+  };
+
+  const updateAddress = async (addressId, addressData) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/address/update",
+        { addressId, ...addressData },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setAddresses(response.data.addresses);
+        return { success: true, addresses: response.data.addresses };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: error.message || "Failed to update address",
+      };
+    }
+  };
+
+  const deleteAddress = async (addressId) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/address/delete",
+        { addressId },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setAddresses(response.data.addresses);
+        return { success: true, addresses: response.data.addresses };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: error.message || "Failed to delete address",
+      };
+    }
+  };
+
+  const fetchWishlist = async (t) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/wishlist",
+        {},
+        { headers: { token: t || token } },
+      );
+      if (response.data.success) {
+        setWishlist(response.data.wishlist);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addToWishlist = async (productId) => {
+    if (!token) return { success: false, message: "Please login" };
+    // Optimistic update
+    setWishlist((prev) =>
+      prev.includes(productId) ? prev : [...prev, productId],
+    );
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/wishlist/add",
+        { productId },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setWishlist(response.data.wishlist);
+        return { success: true };
+      } else {
+        // Revert on failure
+        setWishlist((prev) => prev.filter((id) => id !== productId));
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      setWishlist((prev) => prev.filter((id) => id !== productId));
+      console.log(error);
+      return {
+        success: false,
+        message: error.message || "Failed to add to wishlist",
+      };
+    }
+  };
+
+  const removeFromWishlist = async (productId) => {
+    if (!token) return { success: false, message: "Please login" };
+    // Optimistic update
+    setWishlist((prev) => prev.filter((id) => id !== productId));
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/wishlist/remove",
+        { productId },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setWishlist(response.data.wishlist);
+        return { success: true };
+      } else {
+        // Revert on failure
+        setWishlist((prev) => [...prev, productId]);
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      setWishlist((prev) => [...prev, productId]);
+      console.log(error);
+      return {
+        success: false,
+        message: error.message || "Failed to remove from wishlist",
+      };
+    }
+  };
+
+  const isInWishlist = (productId) => {
+    return wishlist.includes(productId);
+  };
+
   useEffect(() => {
+    const syncUserData = async (t) => {
+      // Merge guest cart if user had items before logging in
+      const guestCart = cartItems;
+      const hasGuestItems = Object.keys(guestCart).length > 0;
+
+      if (hasGuestItems) {
+        try {
+          const { data } = await axios.post(
+            backendUrl + "/api/cart/merge",
+            { guestCart },
+            { headers: { token: t } },
+          );
+          if (data.success) {
+            setCartItems(data.cartData);
+          } else {
+            await getUserCart(t);
+          }
+        } catch {
+          await getUserCart(t);
+        }
+      } else {
+        await getUserCart(t);
+      }
+
+      getUserOrders(t);
+      fetchAddresses(t);
+      fetchWishlist(t);
+    };
+
     if (!token && localStorage.getItem("token")) {
       setToken(localStorage.getItem("token"));
       getUserCart(localStorage.getItem("token"));
       getUserOrders(localStorage.getItem("token"));
+      fetchAddresses(localStorage.getItem("token"));
+      fetchWishlist(localStorage.getItem("token"));
     } else if (token) {
-      getUserCart(token);
-      getUserOrders(token);
+      syncUserData(token);
     } else {
       setCartItems({});
       setOrders([]);
+      setAddresses([]);
+      setWishlist([]);
     }
-  }, [token]);
-
-  // Poll for order status updates & refetch on window focus
-  useEffect(() => {
-    if (!token) return;
-
-    const poll = setInterval(() => getUserOrders(token), 30000);
-
-    const onFocus = () => getUserOrders(token);
-    window.addEventListener("focus", onFocus);
-
-    return () => {
-      clearInterval(poll);
-      window.removeEventListener("focus", onFocus);
-    };
   }, [token]);
 
   const value = {
@@ -292,10 +546,23 @@ const ShopContextProvider = (props) => {
     getCartData,
     orders,
     placeOrder,
+    getUserOrders,
+    buyNowItem,
+    setBuyNowItem,
     navigate,
     backendUrl,
     token,
     setToken,
+    addresses,
+    fetchAddresses,
+    addAddress,
+    updateAddress,
+    deleteAddress,
+    wishlist,
+    fetchWishlist,
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
   };
   return (
     <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>

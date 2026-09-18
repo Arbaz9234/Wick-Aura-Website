@@ -75,7 +75,7 @@ export default function AddProduct({ token }) {
       );
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        toast(response.data.message);
         setName("");
         setDescription("");
         setImages([]);
@@ -102,9 +102,7 @@ export default function AddProduct({ token }) {
 
   return (
     <div>
-      <h3 className="text-2xl font-semibold text-gray-800 mb-6">
-        Add Product
-      </h3>
+      <h3 className="text-2xl font-semibold text-gray-800 mb-6">Add Product</h3>
 
       <form onSubmit={onSubmitHandler} className="space-y-6 max-w-2xl">
         {/* Image Upload */}
