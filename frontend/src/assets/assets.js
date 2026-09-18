@@ -1,4 +1,4 @@
-import logo from "./logo.png";
+import logo from "./Logo.png";
 import favicon from "./favicon.png";
 import logoHome from "./logo-homepage.svg";
 import menuIcon from "./menu-icon.svg";
