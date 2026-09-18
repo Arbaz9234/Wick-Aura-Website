@@ -20,7 +20,7 @@ export default function OrdersList({ onRefresh }) {
     try {
       const result = await onRefresh();
       if (result?.success) {
-        toast.success("Orders refreshed successfully");
+        toast("Orders refreshed successfully");
       } else {
         toast.error(result?.message || "Failed to refresh orders");
       }

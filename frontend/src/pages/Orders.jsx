@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import Title from "../components/Title";
 import OrdersList from "../components/OrdersList";
 import { ShopContext } from "../context/ShopContext";
+import { ToastContainer } from "react-toastify";
 
 export default function Orders() {
   const { token, getUserOrders, navigate } = useContext(ShopContext);
@@ -36,6 +37,7 @@ export default function Orders() {
       <div className="pt-6">
         <OrdersList onRefresh={handleRefresh} />
       </div>
+      <ToastContainer />
     </div>
   );
 }

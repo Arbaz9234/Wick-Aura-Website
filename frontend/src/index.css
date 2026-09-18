@@ -62,20 +62,20 @@ input[type="checkbox"] {
 
 /* Toastify theme */
 .Toastify__toast {
-  background-color: #fffbf3;
-  color: #cf928a;
-  text-align: left;
-  font-family: "Outfit", sans-serif;
+  background-color: #fffbf3 !important;
+  color: #cf928a !important;
+  text-align: left !important;
+  font-family: "Outfit", sans-serif !important;
 }
 .Toastify__close-button > svg {
   fill: #000 !important;
   color: #000 !important;
 }
 .Toastify__close-button {
-  color: #000;
+  color: #000 !important;
 }
 .Toastify__progress-bar {
-  background: #dd7282;
+  background: #dd7282 !important;
 }
 .fadeIn {
   animation: fadeIn 500ms ease forwards;

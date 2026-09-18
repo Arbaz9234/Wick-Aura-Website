@@ -37,7 +37,7 @@ export default function Orders({ token }) {
       );
       if (response.data.success) {
         await fetchAllOrders();
-        toast.success("Status updated");
+        toast("Status updated");
       }
     } catch (error) {
       console.log(error);
@@ -67,7 +67,9 @@ export default function Orders({ token }) {
           <h2 className="text-2xl font-medium text-gray-800 mb-2">
             No orders yet
           </h2>
-          <p className="text-gray-600">Orders from customers will appear here.</p>
+          <p className="text-gray-600">
+            Orders from customers will appear here.
+          </p>
         </div>
       </div>
     );
@@ -126,7 +128,10 @@ export default function Orders({ token }) {
                   Items ({order.items.length})
                 </h4>
                 {order.items.map((item, idx) => (
-                  <div key={`${item._id}-${item.color}-${idx}`} className="flex gap-4">
+                  <div
+                    key={`${item._id}-${item.color}-${idx}`}
+                    className="flex gap-4"
+                  >
                     <div className="flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-gray-50">
                       <img
                         src={item.image}

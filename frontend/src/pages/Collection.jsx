@@ -3,6 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import { ChevronDown } from "lucide-react";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import { ToastContainer } from "react-toastify";
 
 export default function Collection() {
   const { products, search, showSearch } = useContext(ShopContext);
@@ -254,6 +255,7 @@ export default function Collection() {
           ))}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

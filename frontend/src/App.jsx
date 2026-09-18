@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import PlaceOrder from "./pages/PlaceOrder";
 import Orders from "./pages/Orders";
 import Account from "./pages/Account";
+import Wishlist from "./pages/Wishlist";
 import Navbar from "./components/Navbar";
 import { Route, Routes, useLocation } from "react-router";
 import Footer from "./components/Footer";
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/wishlist" element={<Wishlist />} />
       </Routes>
       {!isLoginPage && <Footer />}
     </div>

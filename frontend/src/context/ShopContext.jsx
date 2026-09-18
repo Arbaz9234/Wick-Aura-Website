@@ -16,6 +16,7 @@ const ShopContextProvider = (props) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [buyNowItem, setBuyNowItem] = useState(null);
   const [addresses, setAddresses] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
   const addToCart = async (itemId, color, quantity = 1) => {
     if (!color || quantity < 1) {
@@ -116,7 +117,11 @@ const ShopContextProvider = (props) => {
     return data;
   };
 
-  const placeOrder = async (deliveryInfo, paymentMethod, selectedAddressId = null) => {
+  const placeOrder = async (
+    deliveryInfo,
+    paymentMethod,
+    selectedAddressId = null,
+  ) => {
     const isBuyNow = !!buyNowItem;
 
     let orderItems;
@@ -171,7 +176,12 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (response.data.success) {
-            initPay(response.data.order, isBuyNow, deliveryInfo, selectedAddressId);
+            initPay(
+              response.data.order,
+              isBuyNow,
+              deliveryInfo,
+              selectedAddressId,
+            );
           } else {
             toast.error(response.data.message);
           }
@@ -203,7 +213,12 @@ const ShopContextProvider = (props) => {
       toast.error(error.message || "Failed to place order");
     }
   };
-  const initPay = (order, isBuyNow = false, deliveryInfo = null, selectedAddressId = null) => {
+  const initPay = (
+    order,
+    isBuyNow = false,
+    deliveryInfo = null,
+    selectedAddressId = null,
+  ) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
@@ -221,7 +236,10 @@ const ShopContextProvider = (props) => {
           );
           if (data.success) {
             // Auto-save new address silently
-            if (deliveryInfo && (selectedAddressId === "new" || selectedAddressId === null)) {
+            if (
+              deliveryInfo &&
+              (selectedAddressId === "new" || selectedAddressId === null)
+            ) {
               await addAddress(deliveryInfo).catch(() => {}); // Silent fail
             }
 
@@ -233,7 +251,7 @@ const ShopContextProvider = (props) => {
             }
             await getUserOrders(token);
             navigate("/orders");
-            toast.success("Payment successful!");
+            toast("Payment successful!");
           } else {
             toast.error(data.message || "Payment verification failed");
           }
@@ -294,7 +312,10 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log(error);
-      return { success: false, message: error.message || "Failed to fetch orders" };
+      return {
+        success: false,
+        message: error.message || "Failed to fetch orders",
+      };
     }
   };
 
@@ -313,7 +334,10 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log(error);
-      return { success: false, message: error.message || "Failed to fetch addresses" };
+      return {
+        success: false,
+        message: error.message || "Failed to fetch addresses",
+      };
     }
   };
 
@@ -332,7 +356,10 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log(error);
-      return { success: false, message: error.message || "Failed to add address" };
+      return {
+        success: false,
+        message: error.message || "Failed to add address",
+      };
     }
   };
 
@@ -351,7 +378,10 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log(error);
-      return { success: false, message: error.message || "Failed to update address" };
+      return {
+        success: false,
+        message: error.message || "Failed to update address",
+      };
     }
   };
 
@@ -370,8 +400,88 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log(error);
-      return { success: false, message: error.message || "Failed to delete address" };
+      return {
+        success: false,
+        message: error.message || "Failed to delete address",
+      };
     }
+  };
+
+  const fetchWishlist = async (t) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/wishlist",
+        {},
+        { headers: { token: t || token } },
+      );
+      if (response.data.success) {
+        setWishlist(response.data.wishlist);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addToWishlist = async (productId) => {
+    if (!token) return { success: false, message: "Please login" };
+    // Optimistic update
+    setWishlist((prev) =>
+      prev.includes(productId) ? prev : [...prev, productId],
+    );
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/wishlist/add",
+        { productId },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setWishlist(response.data.wishlist);
+        return { success: true };
+      } else {
+        // Revert on failure
+        setWishlist((prev) => prev.filter((id) => id !== productId));
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      setWishlist((prev) => prev.filter((id) => id !== productId));
+      console.log(error);
+      return {
+        success: false,
+        message: error.message || "Failed to add to wishlist",
+      };
+    }
+  };
+
+  const removeFromWishlist = async (productId) => {
+    if (!token) return { success: false, message: "Please login" };
+    // Optimistic update
+    setWishlist((prev) => prev.filter((id) => id !== productId));
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/wishlist/remove",
+        { productId },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setWishlist(response.data.wishlist);
+        return { success: true };
+      } else {
+        // Revert on failure
+        setWishlist((prev) => [...prev, productId]);
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      setWishlist((prev) => [...prev, productId]);
+      console.log(error);
+      return {
+        success: false,
+        message: error.message || "Failed to remove from wishlist",
+      };
+    }
+  };
+
+  const isInWishlist = (productId) => {
+    return wishlist.includes(productId);
   };
 
   useEffect(() => {
@@ -401,6 +511,7 @@ const ShopContextProvider = (props) => {
 
       getUserOrders(t);
       fetchAddresses(t);
+      fetchWishlist(t);
     };
 
     if (!token && localStorage.getItem("token")) {
@@ -408,12 +519,14 @@ const ShopContextProvider = (props) => {
       getUserCart(localStorage.getItem("token"));
       getUserOrders(localStorage.getItem("token"));
       fetchAddresses(localStorage.getItem("token"));
+      fetchWishlist(localStorage.getItem("token"));
     } else if (token) {
       syncUserData(token);
     } else {
       setCartItems({});
       setOrders([]);
       setAddresses([]);
+      setWishlist([]);
     }
   }, [token]);
 
@@ -445,6 +558,11 @@ const ShopContextProvider = (props) => {
     addAddress,
     updateAddress,
     deleteAddress,
+    wishlist,
+    fetchWishlist,
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
   };
   return (
     <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>

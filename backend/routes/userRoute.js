@@ -11,6 +11,11 @@ import {
   updateAddress,
   deleteAddress,
 } from "../controllers/addressController.js";
+import {
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist,
+} from "../controllers/wishlistController.js";
 import authUser from "../middleware/auth.js";
 
 const userRouter = express.Router();
@@ -25,5 +30,10 @@ userRouter.post("/addresses", authUser, getAddresses);
 userRouter.post("/address/add", authUser, addAddress);
 userRouter.post("/address/update", authUser, updateAddress);
 userRouter.post("/address/delete", authUser, deleteAddress);
+
+// Wishlist routes
+userRouter.post("/wishlist", authUser, getWishlist);
+userRouter.post("/wishlist/add", authUser, addToWishlist);
+userRouter.post("/wishlist/remove", authUser, removeFromWishlist);
 
 export default userRouter;

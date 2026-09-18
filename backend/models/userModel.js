@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema(
         isDefault: { type: Boolean, default: false },
       },
     ],
+    wishlist: {
+      type: [String],
+      default: [],
+    },
   },
   { minimize: false, versionKey: false },
 );

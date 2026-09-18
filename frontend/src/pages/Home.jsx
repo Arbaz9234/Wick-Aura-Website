@@ -4,6 +4,7 @@ import LatestCollection from "../components/LatestCollection";
 import BestSeller from "../components/BestSeller";
 import OurPolicy from "../components/OurPolicy";
 import NewsLetter from "../components/NewsLetter";
+import { ToastContainer } from "react-toastify";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <BestSeller />
       <OurPolicy />
       <NewsLetter />
+      <ToastContainer />
     </div>
   );
 }
