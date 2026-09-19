@@ -173,3 +173,39 @@ input[type="checkbox"] {
     transform: rotate(360deg);
   }
 }
+.loading-dots {
+  --dot-size: 4px;
+
+  @apply inline-flex items-center;
+  gap: calc(var(--dot-size) * 0.75);
+  height: var(--dot-size);
+}
+
+.loading-dots > span {
+  width: var(--dot-size);
+  height: var(--dot-size);
+  @apply rounded-full bg-current;
+  animation: loading-dot 1.2s infinite ease-in-out;
+}
+
+.loading-dots > span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.loading-dots > span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes loading-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.75);
+  }
+
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import LoadingDots from "../components/LoadingDots";
 
 export default function Account() {
   const {
@@ -334,36 +335,46 @@ export default function Account() {
                   <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
               ) : (
-              <div className="space-y-5 max-w-lg">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                    <input
-                      value={profile.name}
-                      disabled
-                      className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
-                    />
+                <div className="space-y-5 max-w-lg">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1.5">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <User className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
+                      <input
+                        value={profile.name || ""}
+                        disabled
+                        className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
+                      />
+                      {!profile.name && (
+                        <div className="absolute inset-0 flex items-center pl-11 z-10">
+                          <LoadingDots className="text-gray-400" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      value={profile.email}
-                      disabled
-                      className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
-                    />
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1.5">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
+                      <input
+                        type="email"
+                        value={profile.email || ""}
+                        disabled
+                        className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
+                      />
+                      {!profile.email && (
+                        <div className="absolute inset-0 flex items-center pl-11 z-10">
+                          <LoadingDots className="text-gray-400" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
               )}
             </div>
           )}
@@ -386,21 +397,26 @@ export default function Account() {
                 )}
               </div>
 
-              {addressesLoading && addresses.length === 0 && editingAddressId === null ? (
+              {addressesLoading &&
+              addresses.length === 0 &&
+              editingAddressId === null ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
-              ) : addresses.length === 0 && editingAddressId === null && (
-                <div className="text-center py-12 text-gray-400">
-                  <MapPin className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                  <p className="text-sm">No saved addresses yet</p>
-                  <button
-                    onClick={startAddAddress}
-                    className="mt-4 text-sm font-medium text-black underline underline-offset-4"
-                  >
-                    Add your first address
-                  </button>
-                </div>
+              ) : (
+                addresses.length === 0 &&
+                editingAddressId === null && (
+                  <div className="text-center py-12 text-gray-400">
+                    <MapPin className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                    <p className="text-sm">No saved addresses yet</p>
+                    <button
+                      onClick={startAddAddress}
+                      className="mt-4 text-sm font-medium text-black underline underline-offset-4"
+                    >
+                      Add your first address
+                    </button>
+                  </div>
+                )
               )}
 
               {addresses.length >= 5 && editingAddressId === null && (
