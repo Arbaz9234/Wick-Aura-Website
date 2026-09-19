@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
@@ -17,11 +17,18 @@ const ShopContextProvider = (props) => {
   const [buyNowItem, setBuyNowItem] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [userName, setUserName] = useState("");
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [cartLoading, setCartLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [addressesLoading, setAddressesLoading] = useState(true);
+  const [wishlistLoading, setWishlistLoading] = useState(true);
   const navigate = useNavigate();
   const addToCart = async (itemId, color, quantity = 1) => {
     if (!color || quantity < 1) {
       return;
     }
+    const prevCart = structuredClone(cartItems);
     const cartData = structuredClone(cartItems);
     if (cartData[itemId]) {
       if (cartData[itemId][color]) {
@@ -37,13 +44,17 @@ const ShopContextProvider = (props) => {
 
     if (token) {
       try {
-        await axios.post(
+        const response = await axios.post(
           backendUrl + "/api/cart/add",
           { itemId, color, quantity },
           { headers: { token } },
         );
+        if (!response.data.success) {
+          setCartItems(prevCart);
+          toast.error(response.data.message || "Failed to add item to cart");
+        }
       } catch (error) {
-        console.error("Error adding item to cart:", error);
+        setCartItems(prevCart);
         toast.error(error.message || "Failed to add item to cart");
       }
     }
@@ -266,15 +277,18 @@ const ShopContextProvider = (props) => {
   };
 
   const getProductsData = async () => {
+    setProductsLoading(true);
     try {
       const response = await axios.get(backendUrl + "/api/product/list");
       if (response.status === 200) {
         setProducts(response.data.products);
       } else {
-        console.error("Error fetching products data:", error);
+        toast.error("Failed to load products. Please refresh the page");
       }
     } catch (error) {
-      console.error("Error fetching products data:", error);
+      toast.error("Failed to load products. Please refresh the page");
+    } finally {
+      setProductsLoading(false);
     }
   };
   useEffect(() => {
@@ -282,6 +296,7 @@ const ShopContextProvider = (props) => {
   }, []);
 
   const getUserCart = async (token) => {
+    setCartLoading(true);
     try {
       const response = await axios.post(
         backendUrl + "/api/cart/get",
@@ -293,11 +308,14 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      toast.error("Failed to load cart. Please try again");
+    } finally {
+      setCartLoading(false);
     }
   };
 
   const getUserOrders = async (token) => {
+    setOrdersLoading(true);
     try {
       const response = await axios.post(
         backendUrl + "/api/order/userorders",
@@ -311,15 +329,33 @@ const ShopContextProvider = (props) => {
         return { success: false, message: response.data.message };
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to load orders. Please try again");
       return {
         success: false,
         message: error.message || "Failed to fetch orders",
       };
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  const fetchUserProfile = async (t) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/profile",
+        {},
+        { headers: { token: t } },
+      );
+      if (response.data.success) {
+        setUserName(response.data.user?.name || "");
+      }
+    } catch (error) {
+      // Non-critical — navbar just won't show the name
     }
   };
 
   const fetchAddresses = async (token) => {
+    setAddressesLoading(true);
     try {
       const response = await axios.post(
         backendUrl + "/api/user/addresses",
@@ -333,11 +369,13 @@ const ShopContextProvider = (props) => {
         return { success: false, message: response.data.message };
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to load addresses. Please try again");
       return {
         success: false,
         message: error.message || "Failed to fetch addresses",
       };
+    } finally {
+      setAddressesLoading(false);
     }
   };
 
@@ -408,6 +446,7 @@ const ShopContextProvider = (props) => {
   };
 
   const fetchWishlist = async (t) => {
+    setWishlistLoading(true);
     try {
       const response = await axios.post(
         backendUrl + "/api/user/wishlist",
@@ -418,7 +457,9 @@ const ShopContextProvider = (props) => {
         setWishlist(response.data.wishlist);
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to load wishlist. Please try again");
+    } finally {
+      setWishlistLoading(false);
     }
   };
 
@@ -512,6 +553,7 @@ const ShopContextProvider = (props) => {
       getUserOrders(t);
       fetchAddresses(t);
       fetchWishlist(t);
+      fetchUserProfile(t);
     };
 
     if (!token && localStorage.getItem("token")) {
@@ -520,6 +562,7 @@ const ShopContextProvider = (props) => {
       getUserOrders(localStorage.getItem("token"));
       fetchAddresses(localStorage.getItem("token"));
       fetchWishlist(localStorage.getItem("token"));
+      fetchUserProfile(localStorage.getItem("token"));
     } else if (token) {
       syncUserData(token);
     } else {
@@ -527,6 +570,11 @@ const ShopContextProvider = (props) => {
       setOrders([]);
       setAddresses([]);
       setWishlist([]);
+      setUserName("");
+      setCartLoading(false);
+      setOrdersLoading(false);
+      setAddressesLoading(false);
+      setWishlistLoading(false);
     }
   }, [token]);
 
@@ -563,9 +611,18 @@ const ShopContextProvider = (props) => {
     addToWishlist,
     removeFromWishlist,
     isInWishlist,
+    productsLoading,
+    cartLoading,
+    ordersLoading,
+    addressesLoading,
+    wishlistLoading,
+    userName,
   };
   return (
-    <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
+    <ShopContext.Provider value={value}>
+      {props.children}
+      <ToastContainer />
+    </ShopContext.Provider>
   );
 };
 export default ShopContextProvider;

@@ -1,0 +1,818 @@
+<title>API Audit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface-alt: #f5f5f4;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --text: #1c1917;
+    --text-secondary: #78716c;
+    --text-muted: #a8a29e;
+    --accent: #0c0a09;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --red-text: #991b1b;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --amber-border: #fde68a;
+    --amber-text: #92400e;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --green-text: #166534;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --blue-border: #bfdbfe;
+    --blue-text: #1e40af;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0a09;
+      --surface: #1c1917;
+      --surface-alt: #292524;
+      --border: #44403c;
+      --border-strong: #57534e;
+      --text: #fafaf9;
+      --text-secondary: #a8a29e;
+      --text-muted: #78716c;
+      --accent: #fafaf9;
+      --red: #f87171;
+      --red-bg: #1f0a0a;
+      --red-border: #7f1d1d;
+      --red-text: #fca5a5;
+      --amber: #fbbf24;
+      --amber-bg: #1a1505;
+      --amber-border: #78350f;
+      --amber-text: #fde68a;
+      --green: #4ade80;
+      --green-bg: #052e16;
+      --green-border: #166534;
+      --green-text: #bbf7d0;
+      --blue: #60a5fa;
+      --blue-bg: #0c1929;
+      --blue-border: #1e40af;
+      --blue-text: #bfdbfe;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0a09;
+    --surface: #1c1917;
+    --surface-alt: #292524;
+    --border: #44403c;
+    --border-strong: #57534e;
+    --text: #fafaf9;
+    --text-secondary: #a8a29e;
+    --text-muted: #78716c;
+    --accent: #fafaf9;
+    --red: #f87171;
+    --red-bg: #1f0a0a;
+    --red-border: #7f1d1d;
+    --red-text: #fca5a5;
+    --amber: #fbbf24;
+    --amber-bg: #1a1505;
+    --amber-border: #78350f;
+    --amber-text: #fde68a;
+    --green: #4ade80;
+    --green-bg: #052e16;
+    --green-border: #166534;
+    --green-text: #bbf7d0;
+    --blue: #60a5fa;
+    --blue-bg: #0c1929;
+    --blue-border: #1e40af;
+    --blue-text: #bfdbfe;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    padding-inline: 16px;
+    padding-block: 0;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  .page { max-width: 1100px; margin: 0 auto; padding-block: 32px 64px; }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-red { background: var(--red); }
+  .dot-amber { background: var(--amber); }
+  .dot-green { background: var(--green); }
+  .dot-blue { background: var(--blue); }
+
+  /* Section */
+  .section {
+    margin-top: 36px;
+  }
+  .section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .section-desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    min-width: 780px;
+  }
+  thead th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  thead th:first-child { border-radius: 9px 0 0 0; }
+  thead th:last-child { border-radius: 0 9px 0 0; }
+  tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-alt); }
+
+  .file-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--blue-text);
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    padding: 2px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+    display: inline-block;
+    margin-bottom: 3px;
+  }
+  .api-endpoint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    word-break: break-all;
+  }
+
+  /* Status pills */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+  .pill-red { background: var(--red-bg); color: var(--red-text); border: 1px solid var(--red-border); }
+  .pill-amber { background: var(--amber-bg); color: var(--amber-text); border: 1px solid var(--amber-border); }
+  .pill-green { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+
+  .issue-text {
+    font-size: 0.8125rem;
+    color: var(--text);
+    line-height: 1.45;
+  }
+
+  /* Checklist section */
+  .checklist-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .checklist-group + .checklist-group { margin-top: 14px; }
+  .checklist-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .checklist-header .pill { font-size: 0.625rem; }
+  .checklist-items { list-style: none; padding: 0; }
+  .checklist-items li {
+    display: flex;
+    gap: 12px;
+    padding: 10px 16px;
+    font-size: 0.8125rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+    align-items: flex-start;
+  }
+  .checklist-items li:last-child { border-bottom: none; }
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-strong);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    background: var(--surface);
+    position: relative;
+  }
+  .check-box:hover { border-color: var(--accent); }
+  .check-box.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check-box.checked::after {
+    content: '';
+    position: absolute;
+    left: 3px; top: 0px;
+    width: 5px; height: 9px;
+    border: solid var(--surface);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .check-label { flex: 1; }
+  .check-label small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 2px;
+  }
+  .check-label .where {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    flex: 1;
+    min-width: 140px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 1.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .stat-num.red { color: var(--red); }
+  .stat-num.amber { color: var(--amber); }
+  .stat-num.green { color: var(--green); }
+  .stat-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-block: 36px;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.375rem; }
+    .stat-card { min-width: 100px; padding: 12px; }
+    .stat-num { font-size: 1.375rem; }
+  }
+</style>
+
+<div class="page">
+  <h1>Wick &amp; Aura — Frontend API Audit</h1>
+  <p class="subtitle">Every API interaction point: what happens during loading, on error, and on empty data.</p>
+
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-num red">14</div><div class="stat-label">Need Fix</div></div>
+    <div class="stat-card"><div class="stat-num amber">4</div><div class="stat-label">Acceptable</div></div>
+    <div class="stat-card"><div class="stat-num green">7</div><div class="stat-label">Already Good</div></div>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"><span class="dot dot-red"></span>Needs fix — bad UX</span>
+    <span class="legend-item"><span class="dot dot-amber"></span>Acceptable — optimistic update</span>
+    <span class="legend-item"><span class="dot dot-green"></span>Good — already handled</span>
+  </div>
+
+  <!-- ====== TABLE 1: Context-level data fetches ====== -->
+  <div class="section">
+    <div class="section-label">Table 1</div>
+    <h2>Context-Level Data Fetches</h2>
+    <p class="section-desc">These run on app mount or token change in ShopContext.jsx — affect every page that reads the data.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>API Call</th>
+            <th>Trigger</th>
+            <th>During Loading (1-3s)</th>
+            <th>If API Fails</th>
+            <th>If Empty Data</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="file-tag">ShopContext</span><br>
+              <span class="api-endpoint">GET /api/product/list</span>
+            </td>
+            <td>On mount</td>
+            <td class="issue-text"><span class="pill pill-red">⚠ Blank</span><br>products = [] → Home, Collection, Cart, Product all render empty grids / blank space</td>
+            <td class="issue-text"><span class="pill pill-red">Silent</span><br>console.error only — user sees nothing, products stay empty forever</td>
+            <td class="issue-text"><span class="pill pill-amber">OK</span><br>Empty grids — rare scenario (no products in DB)</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="file-tag">ShopContext</span><br>
+              <span class="api-endpoint">POST /api/cart/get</span>
+            </td>
+            <td>On token set</td>
+            <td class="issue-text"><span class="pill pill-red">Flash</span><br>cartItems = {} → Cart.jsx shows "Your cart is empty" for 1-3s then real items appear</td>
+            <td class="issue-text"><span class="pill pill-amber">Toast</span><br>toast.error shown</td>
+            <td class="issue-text"><span class="pill pill-green">Good</span><br>"Your cart is empty" with shopping bag icon — correct for truly empty cart</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="file-tag">ShopContext</span><br>
+              <span class="api-endpoint">POST /api/order/userorders</span>
+            </td>
+            <td>On token set / tab switch</td>
+            <td class="issue-text"><span class="pill pill-red">Flash</span><br>orders = [] → Orders page and Account "Orders" tab show "No orders yet" then data pops in</td>
+            <td class="issue-text"><span class="pill pill-red">Silent</span><br>console.log only — no user feedback</td>
+            <td class="issue-text"><span class="pill pill-green">Good</span><br>"No orders yet" with Package icon + "Start Shopping" link</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="file-tag">ShopContext</span><br>
+              <span class="api-endpoint">POST /api/user/addresses</span>
+            </td>
+            <td>On token set</td>
+            <td class="issue-text"><span class="pill pill-red">Flash</span><br>addresses = [] → Account shows "No saved addresses yet" + PlaceOrder shows the new-address form instead of the saved-address picker</td>
+            <td class="issue-text"><span class="pill pill-red">Silent</span><br>console.log only — no user feedback</td>
+            <td class="issue-text"><span class="pill pill-green">Good</span><br>"No saved addresses yet" + "Add Address" button</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="file-tag">ShopContext</span><br>
+              <span class="api-endpoint">POST /api/user/wishlist</span>
+            </td>
+            <td>On token set</td>
+            <td class="issue-text"><span class="pill pill-red">Flash</span><br>wishlist = [] → Wishlist page shows "Your wishlist is empty" for 1-3s</td>
+            <td class="issue-text"><span class="pill pill-red">Silent</span><br>console.log only — no toast, nothing shown</td>
+            <td class="issue-text"><span class="pill pill-green">Good</span><br>"Your wishlist is empty" with heart icon + "Explore Collection" link</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ====== TABLE 2: Page-level data fetches ====== -->
+  <div class="section">
+    <div class="section-label">Table 2</div>
+    <h2>Page-Level Data Fetches</h2>
+    <p class="section-desc">API calls triggered when a specific page mounts or a tab switches.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th>API Call</th>
+            <th>Trigger</th>
+            <th>During Loading</th>
+            <th>If API Fails</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="file-tag">Account.jsx</span></td>
+            <td><span class="api-endpoint">POST /api/user/profile</span></td>
+            <td>On mount</td>
+            <td class="issue-text"><span class="pill pill-red">Blank inputs</span><br>Profile name and email show as empty strings until response arrives — blank flash on name + email</td>
+            <td class="issue-text"><span class="pill pill-red">Silent</span><br>console.log only — profile stays blank forever</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Account.jsx</span><br>Orders tab</td>
+            <td><span class="api-endpoint">POST /api/order/userorders</span></td>
+            <td>Tab switch to "Orders"</td>
+            <td class="issue-text"><span class="pill pill-red">Flash</span><br>"No orders yet" message shows for 1-3s while orders load</td>
+            <td class="issue-text"><span class="pill pill-red">Silent</span><br>Same context call — console.log only</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Collection.jsx</span></td>
+            <td>Reads <code>products</code> from context</td>
+            <td>On mount</td>
+            <td class="issue-text"><span class="pill pill-red">Empty grid</span><br>No products, no loading indicator — just a blank grid area with heading</td>
+            <td class="issue-text">N/A — context-level</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Home.jsx</span><br>LatestCollection</td>
+            <td>Reads <code>products</code> from context</td>
+            <td>On mount</td>
+            <td class="issue-text"><span class="pill pill-red">Empty grid</span><br>Heading "LATEST COLLECTION" with nothing below — no shimmer, no spinner</td>
+            <td class="issue-text">N/A — context-level</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Home.jsx</span><br>BestSeller</td>
+            <td>Reads <code>products</code> from context</td>
+            <td>On mount</td>
+            <td class="issue-text"><span class="pill pill-red">Empty grid</span><br>Heading "BEST SELLERS" with nothing below — empty grid until products load</td>
+            <td class="issue-text">N/A — context-level</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ====== TABLE 3: Button actions ====== -->
+  <div class="section">
+    <div class="section-label">Table 3</div>
+    <h2>Button Actions — API Calls on Click</h2>
+    <p class="section-desc">User-initiated actions: what happens while the backend is processing (2-3s).</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th>Button / Action</th>
+            <th>API Call</th>
+            <th>During Loading</th>
+            <th>If API Fails</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="file-tag">Login.jsx</span></td>
+            <td>"Sign In" / "Create Account"</td>
+            <td><span class="api-endpoint">POST /api/user/login<br>POST /api/user/register</span></td>
+            <td class="issue-text"><span class="pill pill-green">✓ Spinner</span><br>Loading spinner on button + button disabled</td>
+            <td class="issue-text"><span class="pill pill-green">✓ Toast</span><br>toast.error with server message</td>
+            <td><span class="pill pill-green">Good</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">PlaceOrder.jsx</span></td>
+            <td>"Place Order"</td>
+            <td><span class="api-endpoint">POST /api/order/place<br>POST /api/order/razorpay</span></td>
+            <td class="issue-text"><span class="pill pill-red">⚠ Nothing</span><br>No spinner, no disable — user can click multiple times → duplicate orders</td>
+            <td class="issue-text"><span class="pill pill-green">✓ Toast</span><br>toast.error shown</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Account.jsx</span></td>
+            <td>Address "Save"</td>
+            <td><span class="api-endpoint">POST /api/user/address/add<br>POST /api/user/address/update</span></td>
+            <td class="issue-text"><span class="pill pill-green">✓ Spinner</span><br>Loader2 spinner + button disabled</td>
+            <td class="issue-text"><span class="pill pill-green">✓ Toast</span><br>toast.error with message</td>
+            <td><span class="pill pill-green">Good</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Account.jsx</span></td>
+            <td>Address "Delete" (confirm dialog)</td>
+            <td><span class="api-endpoint">POST /api/user/address/delete</span></td>
+            <td class="issue-text"><span class="pill pill-red">⚠ Nothing</span><br>No spinner on "Delete" button in confirm dialog — user can double-click, dialog stays open during API call</td>
+            <td class="issue-text"><span class="pill pill-green">✓ Toast</span><br>toast.error with message</td>
+            <td><span class="pill pill-red">Fix</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Product.jsx</span></td>
+            <td>"Submit Review"</td>
+            <td><span class="api-endpoint">POST /api/product/review</span></td>
+            <td class="issue-text"><span class="pill pill-green">✓ Text</span><br>"Submitting..." text + button disabled</td>
+            <td class="issue-text"><span class="pill pill-green">✓ Toast</span><br>toast.error("Failed to submit review")</td>
+            <td><span class="pill pill-green">Good</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">OrdersList.jsx</span></td>
+            <td>"Refresh" button</td>
+            <td><span class="api-endpoint">POST /api/order/userorders</span></td>
+            <td class="issue-text"><span class="pill pill-green">✓ Spinner</span><br>Spin animation + 30s cooldown + disabled</td>
+            <td class="issue-text"><span class="pill pill-green">✓ Toast</span><br>toast.error("Failed to refresh orders")</td>
+            <td><span class="pill pill-green">Good</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">ShopContext</span></td>
+            <td>"Add to Cart" (any page)</td>
+            <td><span class="api-endpoint">POST /api/cart/add</span></td>
+            <td class="issue-text"><span class="pill pill-amber">Optimistic</span><br>Item added to local state instantly — no visual delay</td>
+            <td class="issue-text"><span class="pill pill-amber">Toast</span><br>toast.error but optimistic update stays (not reverted)</td>
+            <td><span class="pill pill-amber">OK</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Cart.jsx</span></td>
+            <td>Quantity +/- buttons</td>
+            <td><span class="api-endpoint">POST /api/cart/update</span></td>
+            <td class="issue-text"><span class="pill pill-amber">Optimistic</span><br>Quantity updates instantly in UI — no delay visible</td>
+            <td class="issue-text"><span class="pill pill-amber">Toast</span><br>toast.error but quantity stays changed locally</td>
+            <td><span class="pill pill-amber">OK</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">Wishlist.jsx</span></td>
+            <td>Wishlist add / remove</td>
+            <td><span class="api-endpoint">POST /api/user/wishlist/add<br>POST /api/user/wishlist/remove</span></td>
+            <td class="issue-text"><span class="pill pill-amber">Optimistic</span><br>Instant toggle in UI, reverts on fail</td>
+            <td class="issue-text"><span class="pill pill-amber">Toast-worthy</span><br>Reverts state but no toast shown — only console.log</td>
+            <td><span class="pill pill-amber">OK</span></td>
+          </tr>
+          <tr>
+            <td><span class="file-tag">PlaceOrder.jsx</span><br><span class="file-tag">Account.jsx</span></td>
+            <td>Pincode lookup</td>
+            <td><span class="api-endpoint">GET postalpincode.in/pincode/</span></td>
+            <td class="issue-text"><span class="pill pill-green">✓ Spinner</span><br>Loader2 spinner next to pincode input</td>
+            <td class="issue-text"><span class="pill pill-green">✓ Silent OK</span><br>Fails silently — acceptable (optional enrichment)</td>
+            <td><span class="pill pill-green">Good</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ====== CHECKLIST ====== -->
+  <div class="section">
+    <h2>Action Checklist</h2>
+    <p class="section-desc">Grouped by priority. Check off items as you address them.</p>
+
+    <!-- P0 -->
+    <div class="checklist-group">
+      <div class="checklist-header">
+        <span class="pill pill-red">P0 — Critical</span>
+        Double-click / duplicate action risk
+      </div>
+      <ul class="checklist-items">
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>PlaceOrder "Place Order" button — add loading + disabled state</strong>
+            <small>No spinner, no disable. User can click multiple times and place duplicate orders. Add a <code>loading</code> state with spinner, disable the button during API call.</small>
+            <span class="where">PlaceOrder.jsx → handleSubmit + button</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>Account address "Delete" confirm button — add loading + disabled</strong>
+            <small>The confirm dialog's "Delete" button has no loading state. User can double-click. Add spinner + disable during <code>confirmDelete()</code>.</small>
+            <span class="where">Account.jsx → confirmDelete + delete dialog button</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- P1 -->
+    <div class="checklist-group">
+      <div class="checklist-header">
+        <span class="pill pill-amber">P1 — Important</span>
+        False empty-state flash (misleading UI)
+      </div>
+      <ul class="checklist-items">
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>Products loading — blank grid on Home, Collection, Wishlist</strong>
+            <small>products = [] on mount → LatestCollection, BestSeller, Collection all render empty grids. Add a loading state to ShopContext for products, show skeleton / spinner in consuming components.</small>
+            <span class="where">ShopContext.jsx → getProductsData + Home, Collection, Product pages</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>Cart loading — "Your cart is empty" flash</strong>
+            <small>cartItems = {} initially → Cart.jsx instantly shows empty state. Add a <code>cartLoading</code> flag, show spinner or skeleton instead of empty state while loading.</small>
+            <span class="where">ShopContext.jsx → getUserCart + Cart.jsx</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>Orders loading — "No orders yet" flash</strong>
+            <small>orders = [] initially → Orders page and Account Orders tab show "No orders yet" for 1-3s. Add loading state, show spinner while fetching.</small>
+            <span class="where">ShopContext.jsx → getUserOrders + Orders.jsx + Account.jsx</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>Addresses loading — "No saved addresses" flash + PlaceOrder form flash</strong>
+            <small>addresses = [] initially → Account shows "No saved addresses yet", PlaceOrder shows new-address form instead of saved addresses. Add loading state.</small>
+            <span class="where">ShopContext.jsx → fetchAddresses + Account.jsx + PlaceOrder.jsx</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>Wishlist loading — "Your wishlist is empty" flash</strong>
+            <small>wishlist = [] initially → Wishlist.jsx shows empty state before real data arrives.</small>
+            <span class="where">ShopContext.jsx → fetchWishlist + Wishlist.jsx</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>Profile loading — blank name/email inputs</strong>
+            <small>Account profile tab shows empty name + email strings for 1-3s while getProfile() runs. Show a skeleton or loading indicator on the profile section.</small>
+            <span class="where">Account.jsx → getProfile</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- P2 -->
+    <div class="checklist-group">
+      <div class="checklist-header">
+        <span class="pill pill-red">P2 — Moderate</span>
+        Silent failures — user gets no feedback
+      </div>
+      <ul class="checklist-items">
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>getProductsData fails silently</strong>
+            <small>If product list API fails, console.error only. Products stay empty, entire site looks broken. Add toast.error or a retry mechanism.</small>
+            <span class="where">ShopContext.jsx → getProductsData catch block</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>getUserOrders fails silently</strong>
+            <small>console.log only on error. User sees "No orders yet" even if they have orders. Add toast.error.</small>
+            <span class="where">ShopContext.jsx → getUserOrders catch block</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>fetchAddresses fails silently</strong>
+            <small>console.log only. Addresses never load, user sees "No saved addresses." Add toast.error.</small>
+            <span class="where">ShopContext.jsx → fetchAddresses catch block</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>fetchWishlist fails silently</strong>
+            <small>console.log only. Wishlist shows empty. Add toast.error.</small>
+            <span class="where">ShopContext.jsx → fetchWishlist catch block</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>getProfile fails silently</strong>
+            <small>console.log only. Profile stays blank with no way for user to know it failed.</small>
+            <span class="where">Account.jsx → getProfile catch block</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+          <div class="check-label">
+            <strong>addToCart does not revert on fail</strong>
+            <small>Optimistic update adds item locally but does not revert if API fails (unlike wishlist which does revert). Toast shows, but cart state is inconsistent with server until refresh.</small>
+            <span class="where">ShopContext.jsx → addToCart catch block</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Already good -->
+    <div class="checklist-group">
+      <div class="checklist-header">
+        <span class="pill pill-green">✓ Already Good</span>
+        No action needed
+      </div>
+      <ul class="checklist-items">
+        <li>
+          <div class="check-box checked" onclick="return false"></div>
+          <div class="check-label">Login submit — spinner + disabled + toast.error <span class="where">Login.jsx</span></div>
+        </li>
+        <li>
+          <div class="check-box checked" onclick="return false"></div>
+          <div class="check-label">Address save — Loader2 spinner + disabled + toast <span class="where">Account.jsx</span></div>
+        </li>
+        <li>
+          <div class="check-box checked" onclick="return false"></div>
+          <div class="check-label">Review submit — "Submitting..." + disabled + toast <span class="where">Product.jsx</span></div>
+        </li>
+        <li>
+          <div class="check-box checked" onclick="return false"></div>
+          <div class="check-label">Orders refresh — spin animation + 30s cooldown + disabled + toast <span class="where">OrdersList.jsx</span></div>
+        </li>
+        <li>
+          <div class="check-box checked" onclick="return false"></div>
+          <div class="check-label">Pincode lookup — Loader2 spinner + silent fail OK <span class="where">PlaceOrder.jsx, Account.jsx</span></div>
+        </li>
+        <li>
+          <div class="check-box checked" onclick="return false"></div>
+          <div class="check-label">Wishlist add/remove — optimistic + revert on fail <span class="where">ShopContext.jsx</span></div>
+        </li>
+        <li>
+          <div class="check-box checked" onclick="return false"></div>
+          <div class="check-label">Cart quantity +/- — optimistic update, instant feel <span class="where">Cart.jsx</span></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

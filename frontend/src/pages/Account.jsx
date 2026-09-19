@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { ShopContext } from "../context/ShopContext";
 import OrdersList from "../components/OrdersList";
 import Title from "../components/Title";
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import LoadingDots from "../components/LoadingDots";
 
 export default function Account() {
   const {
@@ -32,9 +33,14 @@ export default function Account() {
     addAddress,
     updateAddress,
     deleteAddress,
+    ordersLoading,
+    addressesLoading,
   } = useContext(ShopContext);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "profile",
+  );
   const [pageReady, setPageReady] = useState(false);
 
   const [profile, setProfile] = useState({
@@ -60,6 +66,8 @@ export default function Account() {
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [originalAddressForm, setOriginalAddressForm] = useState(null);
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const emptyAddressForm = {
     firstName: "",
@@ -98,6 +106,7 @@ export default function Account() {
   };
 
   const getProfile = async () => {
+    setProfileLoading(true);
     try {
       const response = await axios.post(
         backendUrl + "/api/user/profile",
@@ -112,7 +121,9 @@ export default function Account() {
         });
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to load profile. Please try again");
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -212,14 +223,19 @@ export default function Account() {
 
   const confirmDelete = async () => {
     if (pendingDelete) {
-      const result = await deleteAddress(pendingDelete.addressId);
-      if (result?.success) {
-        toast("Address deleted successfully");
-      } else {
-        toast.error(result?.message || "Failed to delete address");
+      setDeleting(true);
+      try {
+        const result = await deleteAddress(pendingDelete.addressId);
+        if (result?.success) {
+          toast("Address deleted successfully");
+        } else {
+          toast.error(result?.message || "Failed to delete address");
+        }
+        if (editingAddressId === pendingDelete.addressId) cancelEdit();
+        setPendingDelete(null);
+      } finally {
+        setDeleting(false);
       }
-      if (editingAddressId === pendingDelete.addressId) cancelEdit();
-      setPendingDelete(null);
     }
   };
 
@@ -314,36 +330,52 @@ export default function Account() {
                 Personal Information
               </h4>
 
-              <div className="space-y-5 max-w-lg">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                    <input
-                      value={profile.name}
-                      disabled
-                      className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
-                    />
-                  </div>
+              {profileLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
+              ) : (
+                <div className="space-y-5 max-w-lg">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1.5">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <User className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
+                      <input
+                        value={profile.name || ""}
+                        disabled
+                        className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
+                      />
+                      {!profile.name && (
+                        <div className="absolute inset-0 flex items-center pl-11 z-10">
+                          <LoadingDots className="text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      value={profile.email}
-                      disabled
-                      className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
-                    />
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1.5">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
+                      <input
+                        type="email"
+                        value={profile.email || ""}
+                        disabled
+                        className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
+                      />
+                      {!profile.email && (
+                        <div className="absolute inset-0 flex items-center pl-11 z-10">
+                          <LoadingDots className="text-gray-400" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -365,17 +397,26 @@ export default function Account() {
                 )}
               </div>
 
-              {addresses.length === 0 && editingAddressId === null && (
-                <div className="text-center py-12 text-gray-400">
-                  <MapPin className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                  <p className="text-sm">No saved addresses yet</p>
-                  <button
-                    onClick={startAddAddress}
-                    className="mt-4 text-sm font-medium text-black underline underline-offset-4"
-                  >
-                    Add your first address
-                  </button>
+              {addressesLoading &&
+              addresses.length === 0 &&
+              editingAddressId === null ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
+              ) : (
+                addresses.length === 0 &&
+                editingAddressId === null && (
+                  <div className="text-center py-12 text-gray-400">
+                    <MapPin className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                    <p className="text-sm">No saved addresses yet</p>
+                    <button
+                      onClick={startAddAddress}
+                      className="mt-4 text-sm font-medium text-black underline underline-offset-4"
+                    >
+                      Add your first address
+                    </button>
+                  </div>
+                )
               )}
 
               {addresses.length >= 5 && editingAddressId === null && (
@@ -528,9 +569,14 @@ export default function Account() {
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-xl hover:bg-red-600 transition-colors"
+                  disabled={deleting}
+                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Delete
+                  {deleting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Delete"
+                  )}
                 </button>
               </div>
             </div>

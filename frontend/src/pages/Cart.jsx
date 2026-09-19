@@ -10,11 +10,12 @@ import {
   ShoppingBag,
   ArrowRight,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 
 export default function Cart() {
-  const { products, currency, updateQuantity, getCartData, navigate } =
+  const { products, currency, updateQuantity, getCartData, navigate, cartLoading } =
     useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null);
@@ -41,6 +42,14 @@ export default function Cart() {
       requestAnimationFrame(() => setPageReady(true));
     });
   }, []);
+
+  if (cartLoading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      </div>
+    );
+  }
 
   if (cartData.length === 0) {
     return (

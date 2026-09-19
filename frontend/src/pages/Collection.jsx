@@ -6,7 +6,7 @@ import ProductItem from "../components/ProductItem";
 import { ToastContainer } from "react-toastify";
 
 export default function Collection() {
-  const { products, search, showSearch } = useContext(ShopContext);
+  const { products, search, showSearch, productsLoading } = useContext(ShopContext);
   const [showFilters, setShowFilters] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState(products);
   const openTimeout = useRef(null);
@@ -242,18 +242,30 @@ export default function Collection() {
         </div>
 
         {/* Map Products */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
-          {filteredProducts.map((item, index) => (
-            <ProductItem
-              key={index}
-              name={item.name}
-              price={item.price}
-              oldPrice={item.oldPrice}
-              id={item._id}
-              image={item.image}
-            />
-          ))}
-        </div>
+        {productsLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-gray-200 rounded-lg aspect-square" />
+                <div className="mt-3 h-4 bg-gray-200 rounded w-3/4" />
+                <div className="mt-2 h-4 bg-gray-200 rounded w-1/4" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
+            {filteredProducts.map((item, index) => (
+              <ProductItem
+                key={index}
+                name={item.name}
+                price={item.price}
+                oldPrice={item.oldPrice}
+                id={item._id}
+                image={item.image}
+              />
+            ))}
+          </div>
+        )}
       </div>
       <ToastContainer />
     </div>
