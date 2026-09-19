@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
 import { Link } from "react-router";
 import { ShopContext } from "../context/ShopContext";
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 import { ToastContainer } from "react-toastify";
 
 export default function Wishlist() {
-  const { products, wishlist, removeFromWishlist, token, navigate } =
+  const { products, wishlist, removeFromWishlist, token, navigate, wishlistLoading } =
     useContext(ShopContext);
 
   if (!token) {
@@ -35,7 +35,11 @@ export default function Wishlist() {
         <Title text1={"YOUR"} text2={"WISHLIST"} />
       </div>
 
-      {wishlistProducts.length === 0 ? (
+      {wishlistLoading ? (
+        <div className="min-h-[40vh] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        </div>
+      ) : wishlistProducts.length === 0 ? (
         <div className="min-h-[40vh] flex flex-col items-center justify-center gap-4">
           <Heart className="w-16 h-16 text-gray-300" />
           <p className="text-gray-500 text-lg">Your wishlist is empty</p>

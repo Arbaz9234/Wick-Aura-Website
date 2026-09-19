@@ -4,7 +4,7 @@ import Title from "./Title";
 import ProductItem from "./ProductItem";
 
 export default function BestSeller() {
-  const { products } = React.useContext(ShopContext);
+  const { products, productsLoading } = React.useContext(ShopContext);
   const [bestSeller, setBestSeller] = React.useState([]);
 
   useEffect(() => {
@@ -22,18 +22,30 @@ export default function BestSeller() {
         </p>
       </div>
       {/* Rendering Products */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-12">
-        {bestSeller.map((item, index) => (
-          <ProductItem
-            key={index}
-            id={item._id}
-            image={item.image}
-            name={item.name}
-            price={item.price}
-            oldPrice={item.oldPrice}
-          />
-        ))}
-      </div>
+      {productsLoading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-12">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="bg-gray-200 rounded-lg aspect-square" />
+              <div className="mt-3 h-4 bg-gray-200 rounded w-3/4" />
+              <div className="mt-2 h-4 bg-gray-200 rounded w-1/4" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-12">
+          {bestSeller.map((item, index) => (
+            <ProductItem
+              key={index}
+              id={item._id}
+              image={item.image}
+              name={item.name}
+              price={item.price}
+              oldPrice={item.oldPrice}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

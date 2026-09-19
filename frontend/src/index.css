@@ -103,6 +103,20 @@ input[type="checkbox"] {
   }
 }
 
+/* Sticky Navbar drop-in animation */
+@keyframes navbar-drop {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-navbar-drop {
+  animation: navbar-drop 300ms ease-out;
+}
+
 .swiper {
   width: 100%;
   height: 100%;

@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { ShopContext } from "../context/ShopContext";
-import { Package, ArrowRight, RefreshCw } from "lucide-react";
+import { Package, ArrowRight, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 
 export default function OrdersList({ onRefresh }) {
-  const { orders, currency } = useContext(ShopContext);
+  const { orders, currency, ordersLoading } = useContext(ShopContext);
   const [refreshing, setRefreshing] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const timerRef = useRef(null);
@@ -42,6 +42,14 @@ export default function OrdersList({ onRefresh }) {
   };
 
   const disabled = refreshing || cooldown > 0;
+
+  if (ordersLoading) {
+    return (
+      <div className="min-h-[40vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      </div>
+    );
+  }
 
   if (orders.length === 0) {
     return (

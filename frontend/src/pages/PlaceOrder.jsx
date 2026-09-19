@@ -20,6 +20,7 @@ export default function PlaceOrder() {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [placingOrder, setPlacingOrder] = useState(false);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -148,7 +149,12 @@ export default function PlaceOrder() {
       const missing = required.filter((f) => !form[f]?.trim());
       if (missing.length > 0) return;
     }
-    await placeOrder(form, paymentMethod, selectedAddressId);
+    setPlacingOrder(true);
+    try {
+      await placeOrder(form, paymentMethod, selectedAddressId);
+    } finally {
+      setPlacingOrder(false);
+    }
   };
 
   const inputClass =
@@ -390,10 +396,17 @@ export default function PlaceOrder() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+                disabled={placingOrder}
+                className="w-full bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Place Order
-                <ArrowRight className="w-4 h-4" />
+                {placingOrder ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    Place Order
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </div>
           </div>
