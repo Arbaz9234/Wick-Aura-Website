@@ -47,7 +47,7 @@ export default function Navbar() {
   const profileCloseTimer = useRef(null);
   const [showDropAnim, setShowDropAnim] = useState(false);
   const wasStickyRef = useRef(false);
-
+  const isPlaceOrderPage = location.pathname.includes("place-order");
   const firstName = userName ? userName.split(" ")[0] : "";
 
   // Determine the active address (user-selected > isDefault > first)
@@ -172,7 +172,9 @@ export default function Navbar() {
         {token && (
           <div className="hidden md:block relative" ref={addressTriggerRef}>
             <button
-              onClick={() => setShowAddressModal(!showAddressModal)}
+              onClick={() =>
+                !isPlaceOrderPage && setShowAddressModal(!showAddressModal)
+              }
               className="flex items-center gap-1.5 text-left group hover:bg-gray-50 rounded-lg px-2.5 py-1.5 transition-colors"
             >
               <MapPin className="w-[18px] h-[18px] text-gray-500 flex-shrink-0" />
@@ -186,9 +188,11 @@ export default function Navbar() {
                     : "Add address"}
                 </p>
               </div>
-              <ChevronDown
-                className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showAddressModal ? "rotate-180" : ""}`}
-              />
+              {!isPlaceOrderPage && (
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showAddressModal ? "rotate-180" : ""}`}
+                />
+              )}
             </button>
 
             {/* Address Selection Modal */}
@@ -280,7 +284,11 @@ export default function Navbar() {
           <p>COLLECTION</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
-        <NavLink to="/about" className="flex flex-col items-center gap-1">
+        <NavLink
+          to="/about"
+          className="flex flex-col items-center gap-1"
+          viewTransition
+        >
           <p>ABOUT</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
@@ -435,20 +443,32 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-100 py-4 flex flex-col sm:hidden z-50">
           {/* Deliver To (mobile) */}
-          {token && defaultAddress && (
-            <Link
-              to="/account?tab=addresses"
-              className="flex items-center gap-2 px-6 py-3 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              <MapPin className="w-4 h-4 text-gray-400" />
-              <div>
-                <p className="text-[10px] text-gray-500">Delivering to</p>
-                <p className="text-xs font-medium">
-                  {defaultAddress.city} {defaultAddress.pincode}
-                </p>
+          {token &&
+            defaultAddress &&
+            (isPlaceOrderPage ? (
+              <div className="flex items-center gap-2 px-6 py-3 text-sm text-gray-400 cursor-not-allowed opacity-60">
+                <MapPin className="w-4 h-4 text-gray-400" />
+                <div>
+                  <p className="text-[10px] text-gray-500">Delivering to</p>
+                  <p className="text-xs font-medium">
+                    {defaultAddress.city} {defaultAddress.pincode}
+                  </p>
+                </div>
               </div>
-            </Link>
-          )}
+            ) : (
+              <Link
+                to="/account?tab=addresses"
+                className="flex items-center gap-2 px-6 py-3 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <MapPin className="w-4 h-4 text-gray-400" />
+                <div>
+                  <p className="text-[10px] text-gray-500">Delivering to</p>
+                  <p className="text-xs font-medium">
+                    {defaultAddress.city} {defaultAddress.pincode}
+                  </p>
+                </div>
+              </Link>
+            ))}
 
           <div className="border-t border-gray-100 my-2" />
 
