@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useLocation } from "react-router";
 import { assets } from "../assets/assets";
 import ImageSwiper from "../components/ImageSwiper";
 import { Eye, EyeOff, Mail, Lock, User, Home } from "lucide-react";
@@ -52,6 +53,7 @@ const swiperImages = assets.loginImages.map((src, i) => ({
 
 export default function Login() {
   const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
+  const location = useLocation();
   const [mode, setMode] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [pageReady, setPageReady] = useState(false);
@@ -67,7 +69,8 @@ export default function Login() {
 
   useEffect(() => {
     if (token) {
-      navigate("/");
+      const redirectTo = location.state?.redirectTo || "/";
+      navigate(redirectTo, { replace: true });
     }
   }, [token]);
 

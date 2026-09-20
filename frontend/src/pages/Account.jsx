@@ -17,7 +17,6 @@ import {
   X,
   AlertTriangle,
 } from "lucide-react";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import LoadingDots from "../components/LoadingDots";
 
@@ -27,7 +26,6 @@ export default function Account() {
     setToken,
     orders,
     getUserOrders,
-    backendUrl,
     addresses,
     fetchAddresses,
     addAddress,
@@ -35,6 +33,8 @@ export default function Account() {
     deleteAddress,
     ordersLoading,
     addressesLoading,
+    userName,
+    userEmail,
   } = useContext(ShopContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -42,11 +42,6 @@ export default function Account() {
     searchParams.get("tab") || "profile",
   );
   const [pageReady, setPageReady] = useState(false);
-
-  const [profile, setProfile] = useState({
-    name: "",
-    email: "",
-  });
 
   // Address editing state
   const [editingAddressId, setEditingAddressId] = useState(null); // null = not editing, "new" = adding, addressId = editing
@@ -67,7 +62,6 @@ export default function Account() {
   const [originalAddressForm, setOriginalAddressForm] = useState(null);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [profileLoading, setProfileLoading] = useState(false);
 
   const emptyAddressForm = {
     firstName: "",
@@ -81,13 +75,6 @@ export default function Account() {
     state: "",
     isDefault: false,
   };
-
-  // Fetch orders when switching to orders tab
-  useEffect(() => {
-    if (activeTab === "orders" && token) {
-      getUserOrders(token);
-    }
-  }, [activeTab]);
 
   const handleRefreshOrders = async () => {
     if (token) return await getUserOrders(token);
@@ -105,34 +92,10 @@ export default function Account() {
     navigate("/login");
   };
 
-  const getProfile = async () => {
-    setProfileLoading(true);
-    try {
-      const response = await axios.post(
-        backendUrl + "/api/user/profile",
-        {},
-        { headers: { token } },
-      );
-
-      if (response.data.success) {
-        setProfile({
-          name: response.data?.user?.name || "",
-          email: response.data?.user?.email || "",
-        });
-      }
-    } catch (error) {
-      toast.error("Failed to load profile. Please try again");
-    } finally {
-      setProfileLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (!token) {
       navigate("/login", { replace: true });
-      return;
     }
-    getProfile();
   }, [token]);
 
   // Address form handlers
@@ -330,7 +293,7 @@ export default function Account() {
                 Personal Information
               </h4>
 
-              {profileLoading ? (
+              {!userName && !userEmail ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
@@ -343,11 +306,11 @@ export default function Account() {
                     <div className="relative">
                       <User className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
                       <input
-                        value={profile.name || ""}
+                        value={userName || ""}
                         disabled
                         className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
                       />
-                      {!profile.name && (
+                      {!userName && (
                         <div className="absolute inset-0 flex items-center pl-11 z-10">
                           <LoadingDots className="text-gray-400" />
                         </div>
@@ -363,11 +326,11 @@ export default function Account() {
                       <Mail className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
                       <input
                         type="email"
-                        value={profile.email || ""}
+                        value={userEmail || ""}
                         disabled
                         className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
                       />
-                      {!profile.email && (
+                      {!userEmail && (
                         <div className="absolute inset-0 flex items-center pl-11 z-10">
                           <LoadingDots className="text-gray-400" />
                         </div>

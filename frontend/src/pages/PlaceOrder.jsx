@@ -15,6 +15,7 @@ export default function PlaceOrder() {
     buyNowItem,
     setBuyNowItem,
     addresses,
+    selectedAddressId: contextSelectedAddressId, // renamed to avoid clashing with local state
   } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -66,10 +67,14 @@ export default function PlaceOrder() {
   // Pre-select default address when addresses load
   useEffect(() => {
     if (addresses.length > 0 && selectedAddressId === null) {
-      const defaultAddr = addresses.find((a) => a.isDefault) || addresses[0];
+      const fromContext = addresses.find(
+        (a) => a._id === contextSelectedAddressId,
+      );
+      const defaultAddr =
+        fromContext || addresses.find((a) => a.isDefault) || addresses[0];
       selectAddress(defaultAddr._id);
     }
-  }, [addresses]);
+  }, [addresses, contextSelectedAddressId]);
 
   const isNewAddress = selectedAddressId === "new";
 

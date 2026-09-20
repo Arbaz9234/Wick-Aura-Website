@@ -18,11 +18,13 @@ const ShopContextProvider = (props) => {
   const [addresses, setAddresses] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [productsLoading, setProductsLoading] = useState(true);
   const [cartLoading, setCartLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [addressesLoading, setAddressesLoading] = useState(true);
   const [wishlistLoading, setWishlistLoading] = useState(true);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const navigate = useNavigate();
   const addToCart = async (itemId, color, quantity = 1) => {
     if (!color || quantity < 1) {
@@ -348,6 +350,7 @@ const ShopContextProvider = (props) => {
       );
       if (response.data.success) {
         setUserName(response.data.user?.name || "");
+        setUserEmail(response.data.user?.email || "");
       }
     } catch (error) {
       // Non-critical — navbar just won't show the name
@@ -571,10 +574,12 @@ const ShopContextProvider = (props) => {
       setAddresses([]);
       setWishlist([]);
       setUserName("");
+      setUserEmail("");
       setCartLoading(false);
       setOrdersLoading(false);
       setAddressesLoading(false);
       setWishlistLoading(false);
+      setSelectedAddressId(null);
     }
   }, [token]);
 
@@ -617,6 +622,9 @@ const ShopContextProvider = (props) => {
     addressesLoading,
     wishlistLoading,
     userName,
+    userEmail,
+    selectedAddressId,
+    setSelectedAddressId,
   };
   return (
     <ShopContext.Provider value={value}>

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router";
-import { toast, ToastContainer, cssTransition } from "react-toastify";
+import { toast, ToastContainer, cssTransition, Bounce } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import {
@@ -212,14 +212,15 @@ export default function Product() {
 
   const handleAddToCart = () => {
     if (!selectedColor) {
-      toast.error("Please select a color");
+      toast.error("Please select a color", {
+        transition: Bounce,
+      });
       return;
     }
     addToCart(productData._id, selectedColor, quantity);
     setIsAdded(true);
     toast(`${productData.name} added to cart!`, {
       position: "bottom-right",
-      closeButton: false,
     });
 
     setTimeout(() => setIsAdded(false), 2000);

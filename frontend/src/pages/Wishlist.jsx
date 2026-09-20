@@ -19,6 +19,7 @@ export default function Wishlist() {
         </p>
         <Link
           to="/login"
+          state={{ redirectTo: "/wishlist" }}
           className="px-8 py-3 bg-black text-white text-sm uppercase tracking-wider rounded-xl hover:bg-gray-800 transition-colors"
         >
           Login

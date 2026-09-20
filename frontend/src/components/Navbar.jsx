@@ -28,6 +28,8 @@ export default function Navbar() {
     addresses,
     navigate,
     userName,
+    selectedAddressId,
+    setSelectedAddressId,
   } = useContext(ShopContext);
 
   const [showSearchIcon, setShowSearchIcon] = useState(false);
@@ -48,10 +50,13 @@ export default function Navbar() {
 
   const firstName = userName ? userName.split(" ")[0] : "";
 
-  // Determine the default address or most recent 3
-  const defaultAddress = addresses.find((a) => a.isDefault) || addresses[0];
+  // Determine the active address (user-selected > isDefault > first)
+  const activeAddress =
+    addresses.find((a) => a._id === selectedAddressId) ||
+    addresses.find((a) => a.isDefault) ||
+    addresses[0];
   const recentAddresses = addresses.slice(0, 3);
-
+  const defaultAddress = addresses.find((a) => a.isDefault);
   // Sticky navbar on scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -176,8 +181,8 @@ export default function Navbar() {
                   Delivering to
                 </p>
                 <p className="text-sm font-semibold text-gray-800 truncate max-w-[160px]">
-                  {defaultAddress
-                    ? `${defaultAddress.city} ${defaultAddress.pincode}`
+                  {activeAddress
+                    ? `${activeAddress.city} ${activeAddress.pincode}`
                     : "Add address"}
                 </p>
               </div>
@@ -219,9 +224,12 @@ export default function Navbar() {
                     recentAddresses.map((addr) => (
                       <button
                         key={addr._id}
-                        onClick={() => setShowAddressModal(false)}
+                        onClick={() => {
+                          setSelectedAddressId(addr._id);
+                          setShowAddressModal(false);
+                        }}
                         className={`w-full text-left p-3 rounded-lg border transition-colors text-xs ${
-                          addr.isDefault || addr._id === defaultAddress?._id
+                          addr._id === activeAddress?._id
                             ? "border-black bg-gray-50"
                             : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                         }`}
@@ -350,9 +358,7 @@ export default function Navbar() {
                   Orders
                 </button>
                 <button
-                  onClick={() =>
-                    handleProfileAction("/account?tab=addresses")
-                  }
+                  onClick={() => handleProfileAction("/account?tab=addresses")}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   <MapPin className="w-4 h-4 text-gray-400" />
@@ -386,6 +392,7 @@ export default function Navbar() {
         {/* ── Returns & Orders (desktop) ── */}
         <Link
           to={token ? "/orders" : "/login"}
+          state={!token ? { redirectTo: "/orders" } : undefined}
           className="hidden sm:flex flex-col items-center leading-tight hover:bg-gray-50 rounded-lg px-2.5 py-1.5 transition-colors"
         >
           <p className="text-[11px] text-gray-500">Returns</p>
