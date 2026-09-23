@@ -11,9 +11,11 @@ import Orders from "./pages/Orders";
 import Account from "./pages/Account";
 import Wishlist from "./pages/Wishlist";
 import Navbar from "./components/Navbar";
-import { Route, Routes, useLocation } from "react-router";
+import { Route, Routes, useLocation, useNavigationType } from "react-router";
 import Footer from "./components/Footer";
 import SearchBar from "./components/SearchBar";
+import { AnimatePresence } from "framer-motion";
+import PageTransition from "./components/PageTransition";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -24,8 +26,10 @@ function ScrollToTop() {
 }
 
 export default function App() {
-  const { pathname } = useLocation();
-  const isLoginPage = pathname === "/login";
+  const location = useLocation();
+  const navType = useNavigationType();
+  const isLoginPage = location.pathname === "/login";
+  const direction = navType === "POP" ? "backward" : "forward";
 
   return (
     <div
@@ -34,20 +38,24 @@ export default function App() {
       <ScrollToTop />
       {!isLoginPage && <Navbar />}
       {!isLoginPage && <SearchBar />}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/wick-and-aura" element={<Home />} />
-        <Route path="/collection" element={<Collection />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/product/:productId" element={<Product />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/place-order" element={<PlaceOrder />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-      </Routes>
+      <AnimatePresence mode="wait">
+        <PageTransition key={location.pathname} direction={direction}>
+          <Routes location={location}>
+            <Route path="/" element={<Home />} />
+            <Route path="/wick-and-aura" element={<Home />} />
+            <Route path="/collection" element={<Collection />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/product/:productId" element={<Product />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/place-order" element={<PlaceOrder />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+          </Routes>
+        </PageTransition>
+      </AnimatePresence>
       {!isLoginPage && <Footer />}
     </div>
   );

@@ -56,7 +56,7 @@ export default function Navbar() {
     addresses.find((a) => a.isDefault) ||
     addresses[0];
   const recentAddresses = addresses.slice(0, 3);
-  const defaultAddress = addresses.find((a) => a.isDefault);
+
   // Sticky navbar on scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -444,14 +444,14 @@ export default function Navbar() {
         <div className="absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-100 py-4 flex flex-col sm:hidden z-50">
           {/* Deliver To (mobile) */}
           {token &&
-            defaultAddress &&
+            activeAddress &&
             (isPlaceOrderPage ? (
               <div className="flex items-center gap-2 px-6 py-3 text-sm text-gray-400 cursor-not-allowed opacity-60">
                 <MapPin className="w-4 h-4 text-gray-400" />
                 <div>
                   <p className="text-[10px] text-gray-500">Delivering to</p>
                   <p className="text-xs font-medium">
-                    {defaultAddress.city} {defaultAddress.pincode}
+                    {activeAddress.city} {activeAddress.pincode}
                   </p>
                 </div>
               </div>
@@ -464,7 +464,7 @@ export default function Navbar() {
                 <div>
                   <p className="text-[10px] text-gray-500">Delivering to</p>
                   <p className="text-xs font-medium">
-                    {defaultAddress.city} {defaultAddress.pincode}
+                    {activeAddress.city} {activeAddress.pincode}
                   </p>
                 </div>
               </Link>
