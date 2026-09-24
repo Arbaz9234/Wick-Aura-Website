@@ -16,7 +16,8 @@ import Footer from "./components/Footer";
 import SearchBar from "./components/SearchBar";
 import { AnimatePresence } from "framer-motion";
 import PageTransition from "./components/PageTransition";
-
+import { ToastContainer } from "react-toastify";
+import favicon from "./assets/favicon.png";
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -57,6 +58,20 @@ export default function App() {
         </PageTransition>
       </AnimatePresence>
       {!isLoginPage && <Footer />}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        limit={3}
+        icon={<img src={favicon} alt="Wick & Aura Logo" />}
+      />
     </div>
   );
 }

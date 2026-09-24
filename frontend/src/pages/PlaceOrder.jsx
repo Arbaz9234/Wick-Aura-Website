@@ -4,7 +4,7 @@ import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import OrderSummary from "../components/OrderSummary";
 import { ArrowRight, Loader2, MapPin, Banknote, Plus } from "lucide-react";
-import { ToastContainer } from "react-toastify";
+
 
 export default function PlaceOrder() {
   const {
@@ -417,7 +417,6 @@ export default function PlaceOrder() {
           </div>
         </div>
       </form>
-      <ToastContainer />
     </>
   );
 }

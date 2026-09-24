@@ -29,7 +29,7 @@ export default function PageTransition({ children, direction = "forward" }) {
       animate={v.animate}
       exit={v.exit}
       transition={transition}
-      style={{ willChange: "transform, opacity", overflow: "hidden" }}
+      style={{ willChange: "transform, opacity" }}
     >
       {children}
     </motion.div>

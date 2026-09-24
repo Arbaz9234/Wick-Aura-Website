@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
@@ -629,7 +629,6 @@ const ShopContextProvider = (props) => {
   return (
     <ShopContext.Provider value={value}>
       {props.children}
-      <ToastContainer />
     </ShopContext.Provider>
   );
 };

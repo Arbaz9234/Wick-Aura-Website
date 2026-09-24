@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router";
-import { toast, ToastContainer, cssTransition, Bounce } from "react-toastify";
+import { toast } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import {
@@ -22,6 +22,7 @@ import {
   ImagePlus,
 } from "lucide-react";
 import RelatedProducts from "../components/RelatedProducts";
+import Portal from "../components/Portal";
 
 const COLOR_HEX = {
   Ivory: "#FFFFF0",
@@ -70,10 +71,6 @@ export default function Product() {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState({});
   const shareRef = useRef(null);
-  const Fade = cssTransition({
-    enter: "fadeIn",
-    exit: "fadeOut",
-  });
   useEffect(() => {
     const product = products.find((p) => p._id === productId);
     if (product) {
@@ -212,9 +209,7 @@ export default function Product() {
 
   const handleAddToCart = () => {
     if (!selectedColor) {
-      toast.error("Please select a color", {
-        transition: Bounce,
-      });
+      toast.error("Please select a color");
       return;
     }
     addToCart(productData._id, selectedColor, quantity);
@@ -836,6 +831,7 @@ export default function Product() {
       </div>
       {/* Review Modal */}
       {showReviewModal && (
+        <Portal>
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -961,6 +957,7 @@ export default function Product() {
             </button>
           </div>
         </div>
+        </Portal>
       )}
 
       <style>{`
@@ -969,12 +966,6 @@ export default function Product() {
           to { opacity: 1; transform: scale(1); }
         }
       `}</style>
-
-      <ToastContainer
-        transition={Fade}
-        collapseToast={false}
-        autoClose={1500}
-      />
     </div>
   ) : (
     <div className=" opacity-0"></div>

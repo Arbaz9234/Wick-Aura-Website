@@ -1,6 +1,6 @@
 import React from "react";
 import NewsletterInput from "./NewsletterInput";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 export default function NewsLetter() {
   const [email, setEmail] = React.useState("");
   const handleSubscription = (e) => {
@@ -37,7 +37,6 @@ export default function NewsLetter() {
           SUBSCRIBE
         </button>
       </form>
-      <ToastContainer />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import OrderSummary from "../components/OrderSummary";
+import Portal from "../components/Portal";
 import {
   Minus,
   Plus,
@@ -12,7 +13,7 @@ import {
   AlertTriangle,
   Loader2,
 } from "lucide-react";
-import { ToastContainer } from "react-toastify";
+
 
 export default function Cart() {
   const { products, currency, updateQuantity, getCartData, navigate, cartLoading } =
@@ -216,6 +217,7 @@ export default function Cart() {
 
       {/* Delete Confirmation Dialog */}
       {pendingDelete && (
+        <Portal>
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -254,8 +256,8 @@ export default function Cart() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
-      <ToastContainer />
     </div>
   );
 }
