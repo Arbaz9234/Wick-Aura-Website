@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Home from "./pages/Home";
+import Shop from "./pages/Shop";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Cart from "./pages/Cart";
@@ -26,17 +27,19 @@ function ScrollToTop() {
 export default function App() {
   const { pathname } = useLocation();
   const isLoginPage = pathname === "/login";
+  const isHomePage = pathname === "/" || pathname === "/wick-and-aura";
 
   return (
     <div
       className={isLoginPage ? "" : "px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]"}
     >
       <ScrollToTop />
-      {!isLoginPage && <Navbar />}
-      {!isLoginPage && <SearchBar />}
+      {!isLoginPage && !isHomePage && <Navbar />}
+      {!isLoginPage && !isHomePage && <SearchBar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/wick-and-aura" element={<Home />} />
+        <Route path="/shop" element={<Shop />} />
         <Route path="/collection" element={<Collection />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
