@@ -192,7 +192,7 @@ export default function Account() {
     setAddressSaving(false);
 
     if (result?.success) {
-      toast(
+      toast.success(
         editingAddressId === "new"
           ? "Address added successfully"
           : "Address updated successfully",
@@ -213,7 +213,7 @@ export default function Account() {
       try {
         const result = await deleteAddress(pendingDelete.addressId);
         if (result?.success) {
-          toast("Address deleted successfully");
+          toast.success("Address deleted successfully");
         } else {
           toast.error(result?.message || "Failed to delete address");
         }

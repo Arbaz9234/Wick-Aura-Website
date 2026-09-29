@@ -190,7 +190,7 @@ export default function Product() {
         { headers: { token } },
       );
       if (response.data.success) {
-        toast("Review submitted!");
+        toast.success("Review submitted!");
         setProductData(response.data.product);
         setShowReviewModal(false);
         setReviewRating(0);
@@ -214,7 +214,7 @@ export default function Product() {
     }
     addToCart(productData._id, selectedColor, quantity);
     setIsAdded(true);
-    toast(`${productData.name} added to cart!`, {
+    toast.success(`${productData.name} added to cart!`, {
       position: "bottom-right",
     });
 

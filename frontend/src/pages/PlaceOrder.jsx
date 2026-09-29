@@ -1,10 +1,10 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import OrderSummary from "../components/OrderSummary";
-import { ArrowRight, Loader2, MapPin, Banknote, Plus } from "lucide-react";
-
+import Portal from "../components/Portal";
+import { ArrowRight, Loader2, MapPin, Banknote, Plus, CircleX } from "lucide-react";
 
 export default function PlaceOrder() {
   const {
@@ -22,6 +22,9 @@ export default function PlaceOrder() {
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [placingOrder, setPlacingOrder] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const orderPlacedRef = useRef(false);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -38,6 +41,7 @@ export default function PlaceOrder() {
   const isBuyNow = !!buyNowItem;
 
   useEffect(() => {
+    if (orderPlacedRef.current) return;
     if (!token) {
       navigate("/login", { replace: true });
       return;
@@ -156,7 +160,23 @@ export default function PlaceOrder() {
     }
     setPlacingOrder(true);
     try {
-      await placeOrder(form, paymentMethod, selectedAddressId);
+      const result = await placeOrder(
+        form,
+        paymentMethod,
+        selectedAddressId,
+        (msg) => {
+          setPaymentError(msg);
+          setPlacingOrder(false);
+        },
+        () => {
+          orderPlacedRef.current = true;
+          setPlacingOrder(false);
+          setOrderPlaced(true);
+        },
+      );
+      if (result && !result.success) {
+        setPaymentError(result.message);
+      }
     } finally {
       setPlacingOrder(false);
     }
@@ -172,7 +192,7 @@ export default function PlaceOrder() {
         className={`pt-10 border-t border-gray-300 pb-16 transition-opacity duration-500 ${pageReady ? "opacity-100" : "opacity-0"}`}
       >
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 justify-between">
-          {/* Left — Delivery Information */}
+          {/* Left — Delivery & Payment */}
           <div className="w-full lg:w-1/2">
             <div className="text-xl sm:text-2xl mb-6">
               <Title text1={"DELIVERY"} text2={"INFORMATION"} />
@@ -349,74 +369,175 @@ export default function PlaceOrder() {
                 )}
               </div>
             )}
+
+            {/* Payment Method */}
+            <div className="bg-gray-50 rounded-2xl p-6 mt-6">
+              <h3 className="text-lg font-semibold text-black mb-5">
+                Payment Method
+              </h3>
+              <div className="space-y-3">
+                <label
+                  onClick={() => setPaymentMethod("razorpay")}
+                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "razorpay" ? "border-black" : "border-gray-300"}`}
+                  >
+                    {paymentMethod === "razorpay" && (
+                      <span className="w-2 h-2 rounded-full bg-black" />
+                    )}
+                  </span>
+                  <img
+                    src={assets.razorpayLogo}
+                    alt="Razorpay"
+                    className="h-6 object-contain"
+                  />
+                </label>
+                <label
+                  onClick={() => setPaymentMethod("cod")}
+                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "cod" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "cod" ? "border-black" : "border-gray-300"}`}
+                  >
+                    {paymentMethod === "cod" && (
+                      <span className="w-2 h-2 rounded-full bg-black" />
+                    )}
+                  </span>
+                  <Banknote className="w-5 h-5 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Cash on Delivery
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={placingOrder}
+              className="w-full mt-6 bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {placingOrder ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  Place Order
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </div>
-          {/* Right — Summary & Payment */}
+
+          {/* Right — Order Summary */}
           <div className="lg:w-[400px] flex-shrink-0">
-            <div className="lg:sticky lg:top-24 space-y-6">
+            <div className="lg:sticky lg:top-24">
               <OrderSummary
                 showItems
                 buyNowItem={buyNowItem}
                 setBuyNowItem={setBuyNowItem}
               />
-              {/* Payment Method */}
-              <div className="bg-gray-50 rounded-2xl p-6">
-                <h3 className="text-lg font-semibold text-black mb-5">
-                  Payment Method
-                </h3>
-                <div className="space-y-3">
-                  <label
-                    onClick={() => setPaymentMethod("razorpay")}
-                    className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
-                  >
-                    <span
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "razorpay" ? "border-black" : "border-gray-300"}`}
-                    >
-                      {paymentMethod === "razorpay" && (
-                        <span className="w-2 h-2 rounded-full bg-black" />
-                      )}
-                    </span>
-                    <img
-                      src={assets.razorpayLogo}
-                      alt="Razorpay"
-                      className="h-6 object-contain"
-                    />
-                  </label>
-                  <label
-                    onClick={() => setPaymentMethod("cod")}
-                    className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "cod" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
-                  >
-                    <span
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "cod" ? "border-black" : "border-gray-300"}`}
-                    >
-                      {paymentMethod === "cod" && (
-                        <span className="w-2 h-2 rounded-full bg-black" />
-                      )}
-                    </span>
-                    <Banknote className="w-5 h-5 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-700">
-                      Cash on Delivery
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={placingOrder}
-                className="w-full bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {placingOrder ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    Place Order
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
             </div>
           </div>
         </div>
       </form>
+
+      {/* Payment Failed Modal */}
+      {paymentError && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setPaymentError(null)}
+            />
+            <div className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-xl">
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                  <CircleX className="w-7 h-7 text-red-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    Payment Failed
+                  </h3>
+                  <p className="text-sm text-gray-500">{paymentError}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPaymentError(null)}
+                  className="w-full px-4 py-3 mt-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Order Placed Success Modal */}
+      {orderPlaced && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <div className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-xl">
+              <div className="flex flex-col items-center text-center gap-4">
+                {/* Animated Checkmark */}
+                <div className="w-20 h-20">
+                  <svg
+                    className="order-success-checkmark"
+                    viewBox="0 0 52 52"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="order-success-circle"
+                      cx="26"
+                      cy="26"
+                      r="24"
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="2.5"
+                    />
+                    <path
+                      className="order-success-tick"
+                      d="M15 27l6 6 16-16"
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    Order Placed!
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Your order has been placed successfully.
+                  </p>
+                </div>
+                <div className="flex gap-3 w-full mt-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/collection")}
+                    className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                  >
+                    Continue Shopping
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/orders")}
+                    className="flex-1 px-4 py-3 text-sm font-medium text-white bg-black rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                  >
+                    View Orders
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
     </>
   );
 }

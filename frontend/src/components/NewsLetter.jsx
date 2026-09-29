@@ -9,7 +9,7 @@ export default function NewsLetter() {
     if (email) {
       console.log("Submitted email:", email);
       setEmail("");
-      toast("You have been subscribed to the newsletter");
+      toast.success("You have been subscribed to the newsletter");
       // Send toast message for successfull
     }
   };

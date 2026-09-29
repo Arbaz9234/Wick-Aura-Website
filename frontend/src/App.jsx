@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Home from "./pages/Home";
+import Shop from "./pages/Shop";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Cart from "./pages/Cart";
@@ -30,6 +31,8 @@ export default function App() {
   const location = useLocation();
   const navType = useNavigationType();
   const isLoginPage = location.pathname === "/login";
+  const isHomePage =
+    location.pathname === "/" || location.pathname === "/wick-and-aura";
   const direction = navType === "POP" ? "backward" : "forward";
 
   return (
@@ -37,8 +40,8 @@ export default function App() {
       className={isLoginPage ? "" : "px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]"}
     >
       <ScrollToTop />
-      {!isLoginPage && <Navbar />}
-      {!isLoginPage && <SearchBar />}
+      {!isLoginPage && !isHomePage && <Navbar />}
+      {!isLoginPage && !isHomePage && <SearchBar />}
       <AnimatePresence mode="wait">
         <PageTransition key={location.pathname} direction={direction}>
           <Routes location={location}>

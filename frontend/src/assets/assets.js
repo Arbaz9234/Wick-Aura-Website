@@ -1,7 +1,5 @@
 import logo from "./Logo.png";
-import favicon from "./favicon.png";
 import logoHome from "./logo-homepage.svg";
-import menuIcon from "./menu-icon.svg";
 import bannerImage from "./banner-image.jpg";
 import loginImage1 from "./login-image-1.webp";
 import loginImage2 from "./login-image-2.webp";
@@ -16,9 +14,7 @@ import Circle from "./circle.svg?react";
 
 export const assets = {
   logo,
-  favicon,
   logoHome,
-  menuIcon,
   bannerImage,
   razorpayLogo,
   stripeLogo,
