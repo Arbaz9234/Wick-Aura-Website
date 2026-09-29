@@ -5,7 +5,7 @@ import ImageSwiper from "../components/ImageSwiper";
 import { Eye, EyeOff, Mail, Lock, User, Home } from "lucide-react";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const VALIDATORS = {
   name: [
@@ -340,7 +340,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 }

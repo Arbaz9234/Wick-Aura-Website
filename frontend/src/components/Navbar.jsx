@@ -313,10 +313,7 @@ export default function Navbar() {
           onMouseEnter={openProfileDropdown}
           onMouseLeave={closeProfileDropdown}
         >
-          <button
-            onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-            className="flex items-center gap-1.5 hover:bg-gray-50 rounded-lg px-2.5 py-1.5 transition-colors"
-          >
+          <button className="flex items-center gap-1.5 hover:bg-gray-50 rounded-lg px-2.5 py-1.5 transition-colors">
             <User className="w-5 h-5 text-gray-700" />
             <div className="leading-tight text-left hidden lg:block">
               <p className="text-[11px] text-gray-500">

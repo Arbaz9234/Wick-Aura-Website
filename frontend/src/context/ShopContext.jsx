@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
@@ -134,6 +134,8 @@ const ShopContextProvider = (props) => {
     deliveryInfo,
     paymentMethod,
     selectedAddressId = null,
+    onPaymentFail = null,
+    onPaymentSuccess = null,
   ) => {
     const isBuyNow = !!buyNowItem;
 
@@ -142,7 +144,7 @@ const ShopContextProvider = (props) => {
 
     if (isBuyNow) {
       const product = products.find((p) => p._id === buyNowItem._id);
-      if (!product) return;
+      if (!product) return { success: false, message: "Product not found" };
       orderItems = [
         {
           _id: buyNowItem._id,
@@ -156,7 +158,8 @@ const ShopContextProvider = (props) => {
       subtotal = product.price * buyNowItem.quantity;
     } else {
       const cartData = getCartData();
-      if (cartData.length === 0) return;
+      if (cartData.length === 0)
+        return { success: false, message: "Cart is empty" };
       orderItems = cartData.map((item) => {
         const product = products.find((p) => p._id === item._id);
         return {
@@ -194,11 +197,16 @@ const ShopContextProvider = (props) => {
               isBuyNow,
               deliveryInfo,
               selectedAddressId,
+              onPaymentFail,
+              onPaymentSuccess,
             );
+            return { success: true };
           } else {
-            toast.error(response.data.message);
+            return {
+              success: false,
+              message: response.data.message || "Failed to create payment",
+            };
           }
-          return;
         default:
           break;
       }
@@ -217,13 +225,24 @@ const ShopContextProvider = (props) => {
           setCartItems({});
         }
         await getUserOrders(token);
-        navigate("/orders");
+        if (onPaymentSuccess) {
+          onPaymentSuccess();
+        } else {
+          navigate("/orders");
+        }
+        return { success: true };
       } else {
-        toast.error(response.data.message);
+        return {
+          success: false,
+          message: response.data.message || "Failed to place order",
+        };
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message || "Failed to place order");
+      return {
+        success: false,
+        message: error.message || "Failed to place order",
+      };
     }
   };
   const initPay = (
@@ -231,6 +250,8 @@ const ShopContextProvider = (props) => {
     isBuyNow = false,
     deliveryInfo = null,
     selectedAddressId = null,
+    onPaymentFail = null,
+    onPaymentSuccess = null,
   ) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -240,6 +261,12 @@ const ShopContextProvider = (props) => {
       description: "Order Payment",
       order_id: order.id,
       receipt: order.receipt,
+      modal: {
+        ondismiss: () => {
+          if (onPaymentFail) onPaymentFail("Payment cancelled by user");
+          else toast.error("Payment cancelled by user");
+        },
+      },
       handler: async (response) => {
         try {
           const { data } = await axios.post(
@@ -263,18 +290,34 @@ const ShopContextProvider = (props) => {
               setCartItems({});
             }
             await getUserOrders(token);
-            navigate("/orders");
-            toast("Payment successful!");
+            if (onPaymentSuccess) {
+              onPaymentSuccess();
+            } else {
+              navigate("/orders");
+              toast.success("Payment successful!");
+            }
           } else {
-            toast.error(data.message || "Payment verification failed");
+            const msg = data.message || "Payment verification failed";
+            if (onPaymentFail) onPaymentFail(msg);
+            else toast.error(msg);
           }
         } catch (error) {
           console.log(error);
-          toast.error(error.message || "Payment verification failed");
+          const msg = error.message || "Payment verification failed";
+          if (onPaymentFail) onPaymentFail(msg);
+          else toast.error(msg);
         }
       },
     };
     const rzp = new window.Razorpay(options);
+    rzp.on("payment.failed", (response) => {
+      const msg =
+        response.error?.description ||
+        response.error?.reason ||
+        "Payment failed";
+      if (onPaymentFail) onPaymentFail(msg);
+      else toast.error(msg);
+    });
     rzp.open();
   };
 
@@ -629,7 +672,6 @@ const ShopContextProvider = (props) => {
   return (
     <ShopContext.Provider value={value}>
       {props.children}
-      <ToastContainer />
     </ShopContext.Provider>
   );
 };

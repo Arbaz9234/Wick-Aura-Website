@@ -48,22 +48,9 @@ input[type="submit"] {
 input[type="checkbox"] {
   @apply cursor-pointer;
 }
-/* Custom Subscribe button css */
-/* .custom-bg-transition {
-  transition: background-color 400ms;
-}
 
-.custom-bg-transition:hover {
-  transition-duration: 0s;
-}
-.group:not(:hover) .only-hover-transition {
-  transition: none !important;
-} */
-
-/* Toastify theme */
+/* Toastify theme — shared base */
 .Toastify__toast {
-  background-color: #fffbf3 !important;
-  color: #cf928a !important;
   text-align: left !important;
   font-family: "Outfit", sans-serif !important;
 }
@@ -74,8 +61,40 @@ input[type="checkbox"] {
 .Toastify__close-button {
   color: #000 !important;
 }
-.Toastify__progress-bar {
+
+/* Type 1 — Info / Default (pinkish brand) */
+.Toastify__toast--default {
+  background-color: #fffbf3 !important;
+  color: #cf928a !important;
+}
+.Toastify__toast--default .Toastify__progress-bar {
   background: #dd7282 !important;
+}
+
+/* Type 2 — Error (warm red) */
+.Toastify__toast--error {
+  background-color: #fff5f5 !important;
+  color: #c0392b !important;
+}
+.Toastify__toast--error .Toastify__progress-bar {
+  background: #e74c3c !important;
+}
+.Toastify__toast--error .Toastify__close-button > svg {
+  fill: #c0392b !important;
+  color: #c0392b !important;
+}
+
+/* Type 3 — Success (warm green) */
+.Toastify__toast--success {
+  background-color: #f5fbf7 !important;
+  color: #5a8a6a !important;
+}
+.Toastify__toast--success .Toastify__progress-bar {
+  background: #6dae7f !important;
+}
+.Toastify__toast--success .Toastify__close-button > svg {
+  fill: #5a8a6a !important;
+  color: #5a8a6a !important;
 }
 .fadeIn {
   animation: fadeIn 500ms ease forwards;
@@ -207,5 +226,35 @@ input[type="checkbox"] {
   30% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* Order Success Checkmark */
+.order-success-checkmark {
+  width: 100%;
+  height: 100%;
+}
+
+.order-success-circle {
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: order-circle-draw 0.6s ease forwards;
+}
+
+.order-success-tick {
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: order-tick-draw 0.4s 0.4s ease forwards;
+}
+
+@keyframes order-circle-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes order-tick-draw {
+  to {
+    stroke-dashoffset: 0;
   }
 }
