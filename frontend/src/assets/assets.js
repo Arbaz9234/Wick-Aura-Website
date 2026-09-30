@@ -11,6 +11,15 @@ import MailIcon from "./mail-icon.svg?react";
 import GrayFlower from "./gray-flower.svg?react";
 import ColoredFlower from "./colored-flower.svg?react";
 import Circle from "./circle.svg?react";
+import heroBanner from "./banner.webp";
+import bouquetCard from "./bouquet-card.webp";
+import jarCard from "./jar-card.webp";
+import miniCard from "./mini-card.webp";
+import soyTab1 from "./tab-1-soy.webp";
+import fragranceTab2 from "./tab-2-fragrance.webp";
+import handcraftedTab3 from "./tab-3-handcrafted.webp";
+import colorsTab4 from "./tab-4-colors.webp";
+import ctaBG from "./cta-bg.webp";
 
 export const assets = {
   logo,
@@ -24,6 +33,15 @@ export const assets = {
   GrayFlower,
   ColoredFlower,
   Circle,
+  heroBanner,
+  bouquetCard,
+  jarCard,
+  miniCard,
+  soyTab1,
+  fragranceTab2,
+  handcraftedTab3,
+  colorsTab4,
+  ctaBG,
 };
 
 export const products = [

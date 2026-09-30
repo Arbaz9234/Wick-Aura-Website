@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Leaf, Flame, Droplets, Heart, Palette, Wind } from "lucide-react";
-
+import { assets } from "../../assets/assets";
 const features = [
   {
     id: "soy-wax",
@@ -10,10 +10,9 @@ const features = [
     title: "100% Natural Soy Wax",
     description:
       "Our candles are made from premium, sustainably sourced soy wax — clean-burning with no harmful toxins. They produce 90% less soot than paraffin candles, so you can breathe easy while enjoying every scent.",
-    image:
-      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=700&q=80",
+    image: assets.soyTab1,
     stats: [
-      { label: "Burn Time", value: "40–60 hrs" },
+      { label: "Burn Time", value: "40-60 hrs" },
       { label: "Soot", value: "Near Zero" },
       { label: "Source", value: "Sustainable" },
     ],
@@ -25,8 +24,7 @@ const features = [
     title: "Curated Scent Profiles",
     description:
       "Each fragrance is developed by expert perfumers using a blend of essential oils and premium fragrance oils. From fresh florals to warm gourmands — every Wick & Aura candle tells a scent story.",
-    image:
-      "https://images.unsplash.com/photo-1599751449128-eb7249c3d6b1?w=700&q=80",
+    image: assets.fragranceTab2,
     stats: [
       { label: "Profiles", value: "12+" },
       { label: "Oils Used", value: "Essential" },
@@ -40,8 +38,7 @@ const features = [
     title: "Hand-Poured with Care",
     description:
       "Every candle is hand-poured in small batches to ensure consistency and quality. Our artisans shape, cure, and inspect each piece — no two candles are exactly alike, and that's the beauty of it.",
-    image:
-      "https://images.unsplash.com/photo-1599751449128-eb7249c3d6b1?w=700&q=80",
+    image: assets.handcraftedTab3,
     stats: [
       { label: "Batch Size", value: "Small" },
       { label: "Process", value: "Hand-poured" },
@@ -55,8 +52,7 @@ const features = [
     title: "A Palette for Every Mood",
     description:
       "Choose from our wide range of colors to match your décor, your mood, or the season. Each pigment is carefully chosen to complement the fragrance — because a candle should look as good as it smells.",
-    image:
-      "https://images.unsplash.com/photo-1608181831688-ba943e63506e?w=700&q=80",
+    image: assets.colorsTab4,
     stats: [
       { label: "Colors", value: "20+" },
       { label: "Dyes", value: "Non-toxic" },
@@ -76,7 +72,7 @@ export default function FeaturesSection() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-xs tracking-[0.25em] uppercase text-gray-500 mb-3"
+          className="text-sm tracking-[0.25em] uppercase text-gray-500 mb-3"
         >
           Why Wick & Aura
         </motion.p>
@@ -144,7 +140,10 @@ export default function FeaturesSection() {
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-4">
               {active.stats.map((stat) => (
-                <div key={stat.label} className="bg-gray-50 rounded-xl p-4 text-center">
+                <div
+                  key={stat.label}
+                  className="bg-gray-50 rounded-xl p-4 text-center"
+                >
                   <p className="text-lg font-bold text-gray-900">
                     {stat.value}
                   </p>

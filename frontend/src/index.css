@@ -11,6 +11,9 @@ a.active hr {
   font-weight: 400;
   font-style: normal;
 }
+.hero-trust-badges span {
+  color: #fff !important;
+}
 * {
   font-family: "Outfit", sans-serif;
 }

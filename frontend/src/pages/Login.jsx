@@ -293,7 +293,7 @@ export default function Login() {
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    className="text-xs text-gray-500 hover:text-black transition-colors"
+                    className="text-sm text-gray-500 hover:text-black transition-colors"
                   >
                     Forgot password?
                   </button>

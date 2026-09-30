@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
-
+import { assets } from "../../assets/assets";
 export default function CTASection() {
   return (
     <section className="py-16 sm:py-20">
@@ -11,14 +11,14 @@ export default function CTASection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-        className="relative overflow-hidden rounded-3xl bg-gray-950 text-white px-6 sm:px-12 lg:px-20 py-16 sm:py-20 text-center"
+        className="relative overflow-hidden rounded-3xl bg-cover bg-center text-white px-6 sm:px-12 lg:px-20 py-16 sm:py-20 text-center"
+        style={{
+          backgroundImage: `url(${assets.ctaBG})`,
+        }}
+        // style={{
+        //   backgroundImage: `linear-gradient(rgba(3, 7, 18, 0.58), rgba(3, 7, 18, 0.58)), url(${assets.ctaBG})`,
+        // }}
       >
-        {/* Decorative background glow */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-amber-500/5 rounded-full blur-3xl" />
-        </div>
-
         <div className="relative z-10 max-w-2xl mx-auto">
           <div className="flex items-center justify-center gap-2 mb-6">
             <Sparkles className="w-4 h-4 text-amber-300" />

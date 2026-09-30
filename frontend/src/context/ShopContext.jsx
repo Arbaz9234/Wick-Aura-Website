@@ -212,6 +212,12 @@ const ShopContextProvider = (props) => {
       }
 
       if (response.data.success) {
+        // Set the checkout success state before clearing the cart. PlaceOrder's
+        // empty-cart guard must not redirect while the success modal is opening.
+        if (onPaymentSuccess) {
+          onPaymentSuccess();
+        }
+
         // Auto-save new address silently
         if (selectedAddressId === "new" || selectedAddressId === null) {
           await addAddress(deliveryInfo).catch(() => {}); // Silent fail
@@ -225,9 +231,7 @@ const ShopContextProvider = (props) => {
           setCartItems({});
         }
         await getUserOrders(token);
-        if (onPaymentSuccess) {
-          onPaymentSuccess();
-        } else {
+        if (!onPaymentSuccess) {
           navigate("/orders");
         }
         return { success: true };

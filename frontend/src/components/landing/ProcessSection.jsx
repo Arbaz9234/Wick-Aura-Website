@@ -60,10 +60,10 @@ export default function ProcessSection() {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
                 <Icon className="w-5 h-5 text-gray-700" />
               </div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1.5">
+              <h4 className="text-base font-semibold text-gray-900 mb-1.5">
                 {policy.title}
               </h4>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <p className="text-sm text-gray-500 leading-relaxed">
                 {policy.description}
               </p>
             </motion.div>

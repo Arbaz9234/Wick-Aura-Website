@@ -2,14 +2,11 @@ import React, { useContext } from "react";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
 import { ShopContext } from "../../context/ShopContext";
-
+import { assets } from "../../assets/assets";
 const CATEGORY_IMAGES = {
-  "Bouquet Candles":
-    "https://images.unsplash.com/photo-1608181831688-ba943e63506e?w=600&q=80",
-  "Jar Candles":
-    "https://images.unsplash.com/photo-1602607718529-20f36c78804b?w=600&q=80",
-  "Mini & Bubble Candles":
-    "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=600&q=80",
+  "Bouquet Candles": assets.bouquetCard,
+  "Jar Candles": assets.jarCard,
+  "Mini & Bubble Candles": assets.miniCard,
 };
 
 const categories = [
@@ -59,7 +56,7 @@ export default function CategoryShowcase() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-xs tracking-[0.25em] uppercase text-gray-500 mb-3"
+          className="text-sm tracking-[0.25em] uppercase text-gray-500 mb-3"
         >
           Our Collections
         </motion.p>

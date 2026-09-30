@@ -74,7 +74,7 @@ export default function TestimonialsSection() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-xs tracking-[0.25em] uppercase text-gray-500 mb-3"
+          className="text-sm tracking-[0.25em] uppercase text-gray-500 mb-3"
         >
           Testimonials
         </motion.p>

@@ -4,16 +4,15 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { assets } from "../../assets/assets";
 
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1602607718529-20f36c78804b?w=1400&q=80";
+const HERO_IMAGE = assets.heroBanner;
+// const HERO_IMAGE = "https://images.unsplash.com/photo-1602607718529-20f36c78804b?w=1400&q=80";
 
 export default function HeroSection() {
   return (
-    <section className="relative w-screen -ml-4 sm:-ml-[5vw] md:-ml-[7vw] lg:-ml-[9vw] overflow-hidden">
+    <section className="relative w-[calc(100%+2rem)] min-h-[85vh] -ml-4 sm:w-[calc(100%+10vw)] sm:-ml-[5vw] md:w-[calc(100%+14vw)] md:-ml-[7vw] lg:w-[calc(100%+18vw)] lg:-ml-[9vw] overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img src={HERO_IMAGE} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
       </div>
 
       {/* Logo */}
@@ -61,7 +60,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-gray-300 text-base sm:text-lg leading-relaxed mb-10 max-w-lg"
+            className="text-white/90 text-base sm:text-lg leading-relaxed mb-10 max-w-lg"
           >
             Each Wick & Aura candle is hand-poured with premium soy wax and
             curated fragrances — designed to transform your space into a sensory
@@ -87,13 +86,13 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="flex items-center gap-6 mt-14 text-gray-400 text-xs tracking-wide"
+            className="hero-trust-badges flex items-center gap-6 mt-14 text-xs font-semibold tracking-wide"
           >
-            <span>100% Soy Wax</span>
-            <span className="w-1 h-1 rounded-full bg-gray-500" />
-            <span>Hand-poured</span>
-            <span className="w-1 h-1 rounded-full bg-gray-500" />
-            <span>Eco-friendly</span>
+            <span className="text-sm">100% Soy Wax</span>
+            <span className="w-1 h-1 rounded-full bg-amber-200" />
+            <span className="text-sm">Hand-poured</span>
+            <span className="w-1 h-1 rounded-full bg-amber-200" />
+            <span className="text-sm">Eco-friendly</span>
           </motion.div>
         </div>
       </div>
