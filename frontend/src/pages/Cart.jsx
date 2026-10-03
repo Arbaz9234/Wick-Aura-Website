@@ -16,12 +16,19 @@ import {
 
 
 export default function Cart() {
-  const { products, currency, updateQuantity, getCartData, navigate, cartLoading } =
+  const { products, currency, updateQuantity, getCartData, navigate, cartLoading, token } =
     useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null);
 
   const cartData = getCartData();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!token) {
+      navigate("/login", { replace: true, state: { redirectTo: "/cart" } });
+    }
+  }, [token]);
 
   const handleQuantityChange = (itemId, color, newQty, productName) => {
     if (newQty <= 0) {

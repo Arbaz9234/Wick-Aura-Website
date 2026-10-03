@@ -7,7 +7,14 @@ export default function Footer() {
     <div>
       <div className="flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-sm">
         <div>
-          <img src={assets.logoHome} alt="logo" className="mb-5 w-32" />
+          <picture>
+            <source media="(max-width: 639px)" srcSet={assets.logoMobile} />
+            <img
+              src={assets.logoHome}
+              alt="logo"
+              className="mb-5 w-40 sm:w-32"
+            />
+          </picture>
           <p className="w-full md:w-2/3 text-gray-600">
             Wick & Aura crafts hand-poured soy candles designed to bring warmth,
             fragrance, and a little calm into everyday life. Made in small

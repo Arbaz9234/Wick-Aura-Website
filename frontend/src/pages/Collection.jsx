@@ -4,17 +4,49 @@ import { ChevronDown } from "lucide-react";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 
-
 export default function Collection() {
-  const { products, search, showSearch, productsLoading } = useContext(ShopContext);
+  const { products, search, showSearch, productsLoading } =
+    useContext(ShopContext);
   const [showFilters, setShowFilters] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState(products);
   const openTimeout = useRef(null);
   const closeTimeout = useRef(null);
+  const sortDropdownRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [sort, setSort] = useState("Relevance");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const closeSortDropdown = () => {
+      clearTimeout(openTimeout.current);
+      clearTimeout(closeTimeout.current);
+      setIsOpen(false);
+    };
+    const closeOnOutsideTap = (event) => {
+      if (!sortDropdownRef.current?.contains(event.target)) {
+        closeSortDropdown();
+      }
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideTap);
+    window.addEventListener("scroll", closeSortDropdown, { passive: true });
+
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideTap);
+      window.removeEventListener("scroll", closeSortDropdown);
+    };
+  }, [isOpen]);
+
+  useEffect(
+    () => () => {
+      clearTimeout(openTimeout.current);
+      clearTimeout(closeTimeout.current);
+    },
+    [],
+  );
 
   const toggleFilter = (value, setState) => {
     setState((prev) =>
@@ -65,7 +97,7 @@ export default function Collection() {
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t border-gray-300">
       {/* Filter Options */}
-      <div className="min-w-60">
+      <div className="min-w-50 lg:min-w-60">
         <p
           className="my-2 text-xl flex items-center cursor-pointer gap-2"
           onClick={() => setShowFilters(!showFilters)}
@@ -182,10 +214,15 @@ export default function Collection() {
       {/* Right Side */}
       {/* Products */}
       <div className="flex-1">
-        <div className="flex justify-between text-base sm:text-2xl mb-4">
-          <Title text1={"OUR"} text2={"COLLECTIONS"} />
+        <div className="flex justify-between mb-4">
+          <Title
+            text1={"OUR"}
+            text2={"COLLECTIONS"}
+            className="md:text-2xl lg:text-3xl"
+          />
           {/* Product Sort */}
           <div
+            ref={sortDropdownRef}
             className="sort-dropdown relative"
             onMouseEnter={() => {
               clearTimeout(closeTimeout.current);

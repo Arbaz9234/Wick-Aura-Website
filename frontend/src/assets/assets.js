@@ -1,5 +1,5 @@
-import logo from "./Logo.png";
 import logoHome from "./logo-homepage.svg";
+import logoMobile from "./logo-mobile.svg";
 import bannerImage from "./banner-image.jpg";
 import loginImage1 from "./login-image-1.webp";
 import loginImage2 from "./login-image-2.webp";
@@ -23,8 +23,8 @@ import colorsTab4 from "./tab-4-colors.webp";
 import ctaBG from "./cta-bg.webp";
 
 export const assets = {
-  logo,
   logoHome,
+  logoMobile,
   bannerImage,
   razorpayLogo,
   stripeLogo,
