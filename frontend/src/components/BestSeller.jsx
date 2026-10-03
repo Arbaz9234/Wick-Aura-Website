@@ -14,9 +14,9 @@ export default function BestSeller() {
   }, [products]);
   return (
     <div className="my-10">
-      <div className="text-center py-8 text-3xl">
+      <div className="text-left sm:text-center py-8 text-3xl">
         <Title text1={"BEST"} text2={"SELLERS"} />
-        <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
+        <p className="w-full sm:w-3/4 m-0 sm:m-auto text-sm sm:text-sm md:text-base text-gray-600">
           The fragrances our customers keep coming back for... tried, loved, and
           lit again and again."
         </p>

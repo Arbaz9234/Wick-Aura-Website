@@ -19,7 +19,7 @@ export default function NewsletterInput({ value, onChange }) {
         className={[
           "peer w-full min-h-[56px] px-3 pt-5 pb-2",
           "bg-transparent outline-none border-none",
-          "text-base font-normal",
+          "md:text-sm lg:text-base font-normal ",
           "placeholder-transparent",
         ].join(" ")}
       />

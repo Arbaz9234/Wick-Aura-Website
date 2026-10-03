@@ -160,11 +160,20 @@ export default function Navbar() {
     >
       {/* ── Left Group: Logo + Deliver To ── */}
       <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-        <NavLink to="/" className="flex-shrink-0">
+        <NavLink
+          to="/home"
+          className="flex-shrink-0"
+          onClick={(e) => {
+            if (location.pathname === "/home") {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+        >
           <img
             src={assets.logoHome}
             alt="Wick & Aura Logo"
-            className="w-28 sm:w-36"
+            className="w-28 sm:w-34"
           />
         </NavLink>
 
@@ -179,7 +188,7 @@ export default function Navbar() {
             >
               <MapPin className="w-[18px] h-[18px] text-gray-500 flex-shrink-0" />
               <div className="leading-tight">
-                <p className="text-[11px] text-gray-500 tracking-wide">
+                <p className="text-[12px] text-gray-500 tracking-wide">
                   Delivering to
                 </p>
                 <p className="text-sm font-semibold text-gray-800 truncate max-w-[160px]">
@@ -213,7 +222,7 @@ export default function Navbar() {
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-1">
+                  <p className="text-[12px] text-gray-500 mt-1">
                     Select a delivery address
                   </p>
                 </div>
@@ -276,7 +285,7 @@ export default function Navbar() {
 
       {/* ── Center Group: Nav Links (absolutely centered on desktop) ── */}
       <ul className="hidden sm:flex items-center gap-5 text-sm absolute left-1/2 -translate-x-1/2">
-        <NavLink to="/" className="flex flex-col items-center gap-1">
+        <NavLink to="/home" className="flex flex-col items-center gap-1">
           <p>HOME</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
@@ -316,7 +325,7 @@ export default function Navbar() {
           <button className="flex items-center gap-1.5 hover:bg-gray-50 rounded-lg px-2.5 py-1.5 transition-colors">
             <User className="w-5 h-5 text-gray-700" />
             <div className="leading-tight text-left hidden lg:block">
-              <p className="text-[11px] text-gray-500">
+              <p className="text-[12px] text-gray-500">
                 {token ? `Hello, ${firstName || "User"}` : "Hello, Sign in"}
               </p>
               <p className="text-sm font-semibold text-gray-800 flex items-center gap-0.5">
@@ -398,9 +407,9 @@ export default function Navbar() {
         <Link
           to={token ? "/orders" : "/login"}
           state={!token ? { redirectTo: "/orders" } : undefined}
-          className="hidden sm:flex flex-col items-center leading-tight hover:bg-gray-50 rounded-lg px-2.5 py-1.5 transition-colors"
+          className="hidden sm:flex flex-col items-start leading-tight hover:bg-gray-50 rounded-lg px-2.5 py-1.5 transition-colors"
         >
-          <p className="text-[11px] text-gray-500">Returns</p>
+          <p className="text-[12px] text-gray-500">Returns</p>
           <p className="text-sm font-semibold text-gray-800">& Orders</p>
         </Link>
 

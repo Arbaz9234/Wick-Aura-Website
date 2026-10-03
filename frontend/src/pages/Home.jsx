@@ -12,13 +12,15 @@ export default function Home() {
   return (
     <div>
       <HeroSection />
-      <CategoryShowcase />
-      <AboutSection />
-      <FeaturesSection />
-      {/* <TestimonialsSection /> */}
-      <ProcessSection />
-      <CTASection />
-      <NewsletterSection />
+      <main className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+        <CategoryShowcase />
+        <AboutSection />
+        <FeaturesSection />
+        {/* <TestimonialsSection /> */}
+        <ProcessSection />
+        <CTASection />
+        <NewsletterSection />
+      </main>
     </div>
   );
 }

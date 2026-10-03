@@ -18,12 +18,12 @@ export default function NewsLetter() {
       <p className="text-2xl font-medium text-gray-800">
         Subscribe now & get 10% off your next purchase
       </p>
-      <p className="text-gray-600 mt-3">
+      <p className="text-gray-600 mt-3 w-3/4 sm:w-full m-auto">
         Be the first to know about new scents, seasonal collections, and
         exclusive offers.
       </p>
       <form
-        className="w-full sm:w-1/2 flex items-stretch mx-auto my-6 sm:flex-row flex-col gap-4"
+        className="w-full sm:w-3/4 lg:w-1/2 flex items-stretch mx-auto my-6 sm:flex-row flex-col gap-4"
         onSubmit={handleSubscription}
       >
         <NewsletterInput

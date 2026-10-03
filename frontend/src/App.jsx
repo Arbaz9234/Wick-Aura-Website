@@ -37,7 +37,11 @@ export default function App() {
 
   return (
     <div
-      className={isLoginPage ? "" : "px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]"}
+      className={
+        isLoginPage || isHomePage
+          ? ""
+          : "px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]"
+      }
     >
       <ScrollToTop />
       {!isLoginPage && !isHomePage && <Navbar />}
@@ -46,6 +50,7 @@ export default function App() {
         <PageTransition key={location.pathname} direction={direction}>
           <Routes location={location}>
             <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Shop />} />
             <Route path="/wick-and-aura" element={<Home />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/about" element={<About />} />
@@ -60,7 +65,15 @@ export default function App() {
           </Routes>
         </PageTransition>
       </AnimatePresence>
-      {!isLoginPage && <Footer />}
+      {!isLoginPage && (
+        <div
+          className={
+            isHomePage ? "px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]" : ""
+          }
+        >
+          <Footer />
+        </div>
+      )}
       <ToastContainer
         position="top-right"
         autoClose={2000}

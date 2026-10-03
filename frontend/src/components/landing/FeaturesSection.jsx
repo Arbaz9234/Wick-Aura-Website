@@ -138,16 +138,16 @@ export default function FeaturesSection() {
             </p>
 
             {/* Stats row */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
               {active.stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="bg-gray-50 rounded-xl p-4 text-center"
+                  className="min-w-0 rounded-xl bg-gray-50 p-1.5 text-center sm:p-4"
                 >
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-sm font-bold leading-tight text-gray-900 sm:text-lg">
                     {stat.value}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1 tracking-wide uppercase">
+                  <p className="mt-1 whitespace-normal text-[8px] tracking-normal text-gray-500 uppercase sm:text-xs sm:tracking-wide">
                     {stat.label}
                   </p>
                 </div>

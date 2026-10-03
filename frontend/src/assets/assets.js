@@ -11,7 +11,8 @@ import MailIcon from "./mail-icon.svg?react";
 import GrayFlower from "./gray-flower.svg?react";
 import ColoredFlower from "./colored-flower.svg?react";
 import Circle from "./circle.svg?react";
-import heroBanner from "./banner.webp";
+import heroBG from "./hero-bg.webp";
+import bannerimg from "./candle-final.webp";
 import bouquetCard from "./bouquet-card.webp";
 import jarCard from "./jar-card.webp";
 import miniCard from "./mini-card.webp";
@@ -33,7 +34,8 @@ export const assets = {
   GrayFlower,
   ColoredFlower,
   Circle,
-  heroBanner,
+  heroBG,
+  bannerimg,
   bouquetCard,
   jarCard,
   miniCard,

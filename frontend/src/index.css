@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap");
 @import "tailwindcss";
+@theme {
+  --breakpoint-3xl: 1921px;
+}
 .Toastify__toast {
   font-family: "Outfit", sans-serif !important;
 }
@@ -20,23 +23,31 @@ a.active hr {
 /* Text */
 @layer base {
   h1 {
-    @apply text-3xl sm:py-3 lg:text-[3.2rem] leading-relaxed text-black;
+    @apply text-3xl sm:py-3 lg:text-[3.2rem] 3xl:text-[4rem] leading-relaxed text-black;
   }
   h2 {
-    @apply text-3xl font-medium leading-relaxed text-gray-500;
+    @apply text-2xl sm:text-3xl 3xl:text-[2.5rem] font-medium leading-relaxed text-gray-500;
   }
   h3 {
-    @apply text-[1.875rem] font-medium leading-[150%] text-black mb-4;
+    @apply text-[1.875rem] 2xl:text-[2.25rem] 3xl:text-[2.5rem] font-medium leading-[150%] text-black mb-4;
   }
   h4,
   h5 {
-    @apply text-[1.5rem] font-medium leading-[150%] text-black mb-3;
+    @apply text-[1.5rem] 2xl:text-[1.875rem] 3xl:text-[2.25rem] font-medium leading-[150%] text-black mb-3;
   }
   p,
   span {
     @apply text-[#1d1d20] font-normal m-0;
   }
+  p {
+    @apply 3xl:!text-2xl;
+  }
 }
+b,
+strong {
+  @apply font-bold;
+}
+
 b,
 strong {
   @apply font-bold;

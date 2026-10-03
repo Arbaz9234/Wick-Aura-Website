@@ -82,14 +82,14 @@ export default function CategoryShowcase() {
           <motion.div key={cat.name} variants={cardVariants}>
             <Link
               to={`/collection?category=${encodeURIComponent(cat.query)}`}
-              className="group block relative overflow-hidden rounded-2xl aspect-[3/4] sm:aspect-[4/5]"
+              className="group block relative overflow-hidden rounded-2xl aspect-[20/21] sm:aspect-[3/4]"
             >
               <img
                 src={CATEGORY_IMAGES[cat.query]}
                 alt={cat.name}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
                 <h3 className="text-white text-xl sm:text-2xl font-semibold mb-1">
                   {cat.name}

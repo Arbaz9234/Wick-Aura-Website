@@ -18,10 +18,10 @@ export default function Footer() {
         <div>
           <p className="text-xl font-medium mb-5">COMPANY</p>
 
-          <ul className="flex flex-col gap-2 text-gray-600">
+          <ul className="flex flex-col gap-2 text-gray-600 3xl:text-2xl">
             <li>
               <Link
-                to="/"
+                to="/home"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="group relative inline-block w-fit transition-colors duration-300 hover:text-gray-900"
               >
@@ -64,7 +64,7 @@ export default function Footer() {
         <div>
           <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
 
-          <ul className="flex flex-col gap-3 text-gray-600">
+          <ul className="flex flex-col gap-3 text-gray-600 3xl:text-2xl">
             {/* WhatsApp */}
             {/* <li>
               <a
