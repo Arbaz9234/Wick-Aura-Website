@@ -267,7 +267,7 @@ export default function Product() {
       </nav>
 
       {/* Main Product Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         {/* Image Gallery */}
         <div className="flex flex-col gap-4">
           {/* Main Image */}
@@ -486,21 +486,21 @@ export default function Product() {
           </div>
 
           {/* Quantity & Add to Cart */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <div className="flex flex-col gap-4 mb-4 sm:flex-row md:gap-3 lg:gap-4">
             {/* Quantity Selector */}
-            <div className="flex items-center h-14 rounded-xl border-2 border-gray-200">
+            <div className="flex items-center h-14 rounded-xl border-2 border-gray-200 md:h-12 lg:h-14">
               <button
                 onClick={() => handleQuantityChange(-1)}
-                className="w-14 h-full flex items-center justify-center text-gray-600 hover:text-black transition-colors"
+                className="w-14 h-full flex items-center justify-center text-gray-600 hover:text-black transition-colors md:w-10 lg:w-14"
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="w-14 text-center font-semibold text-lg">
+              <span className="w-14 text-center font-semibold text-lg md:w-10 lg:w-14">
                 {quantity}
               </span>
               <button
                 onClick={() => handleQuantityChange(1)}
-                className="w-14 h-full flex items-center justify-center text-gray-600 hover:text-black transition-colors"
+                className="w-14 h-full flex items-center justify-center text-gray-600 hover:text-black transition-colors md:w-10 lg:w-14"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -509,7 +509,7 @@ export default function Product() {
             {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
-              className={`outline-none flex-1 h-14 rounded-xl font-semibold text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2
+              className={`outline-none flex-1 h-14 rounded-xl font-semibold text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 md:h-12 md:px-2 md:text-xs md:tracking-normal md:whitespace-nowrap lg:h-14 lg:gap-2 lg:px-0 lg:text-sm lg:tracking-wider
                  ${
                    isAdded
                      ? "bg-green-600 text-white !cursor-default"
@@ -524,7 +524,7 @@ export default function Product() {
                 </>
               ) : (
                 <>
-                  <ShoppingBag className="w-5 h-5" />
+                  <ShoppingBag className="h-5 w-5 md:h-4 md:w-4 lg:h-5 lg:w-5" />
                   Add to Cart
                 </>
               )}
@@ -534,7 +534,7 @@ export default function Product() {
           {/* Buy Now */}
           <button
             onClick={handleBuyNow}
-            className="w-full h-14 rounded-xl font-semibold text-sm uppercase tracking-wider border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] mb-6"
+            className="w-full h-14 rounded-xl font-semibold text-sm uppercase tracking-wider border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] mb-6 md:h-12 md:px-3 lg:h-14 lg:px-0"
           >
             <Zap className="w-5 h-5" />
             Buy Now
@@ -832,131 +832,131 @@ export default function Product() {
       {/* Review Modal */}
       {showReviewModal && (
         <Portal>
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setShowReviewModal(false)}
-          />
-          <div
-            className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-xl"
-            style={{ animation: "scaleIn 0.2s ease-out" }}
-          >
-            {/* Close button */}
-            <button
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
               onClick={() => setShowReviewModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors cursor-pointer"
+            />
+            <div
+              className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-xl"
+              style={{ animation: "scaleIn 0.2s ease-out" }}
             >
-              <X className="w-5 h-5" />
-            </button>
+              {/* Close button */}
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
 
-            <h3 className="text-lg font-semibold text-black mb-6">
-              Write a Review
-            </h3>
+              <h3 className="text-lg font-semibold text-black mb-6">
+                Write a Review
+              </h3>
 
-            {/* Star rating */}
-            <div className="mb-5">
-              <label className="text-sm font-medium text-gray-700 block mb-2">
-                Rating
-              </label>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    onClick={() => setReviewRating(star)}
-                    className={`w-7 h-7 cursor-pointer transition-colors ${
-                      star <= reviewRating
-                        ? "fill-amber-400 text-amber-400"
-                        : "text-gray-300 hover:text-amber-200"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Title */}
-            <div className="mb-5">
-              <label className="text-sm font-medium text-gray-700 block mb-1">
-                Title your review
-              </label>
-              <input
-                maxLength={50}
-                value={reviewTitle}
-                onChange={(e) => setReviewTitle(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-gray-400 transition-colors"
-                placeholder="Summarize your experience"
-              />
-              <p className="text-xs text-gray-400 text-right mt-1">
-                {reviewTitle.length}/50
-              </p>
-            </div>
-
-            {/* Description */}
-            <div className="mb-5">
-              <label className="text-sm font-medium text-gray-700 block mb-1">
-                Your review
-              </label>
-              <textarea
-                maxLength={200}
-                rows={3}
-                value={reviewText}
-                onChange={(e) => setReviewText(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:border-gray-400 transition-colors"
-                placeholder="What did you like or dislike?"
-              />
-              <p className="text-xs text-gray-400 text-right mt-1">
-                {reviewText.length}/200
-              </p>
-            </div>
-
-            {/* Image/video upload */}
-            <div className="mb-6">
-              <label className="text-sm font-medium text-gray-700 block mb-2">
-                Share a photo or video
-              </label>
-              <div className="flex gap-2 flex-wrap">
-                {reviewImagePreviews.map((src, i) => (
-                  <div
-                    key={i}
-                    className="relative w-16 h-16 rounded-lg overflow-hidden"
-                  >
-                    <img
-                      src={src}
-                      alt=""
-                      className="w-full h-full object-cover"
+              {/* Star rating */}
+              <div className="mb-5">
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Rating
+                </label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      onClick={() => setReviewRating(star)}
+                      className={`w-7 h-7 cursor-pointer transition-colors ${
+                        star <= reviewRating
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-gray-300 hover:text-amber-200"
+                      }`}
                     />
-                    <button
-                      onClick={() => removeReviewImage(i)}
-                      className="absolute top-0 right-0 bg-black/60 text-white rounded-bl-lg p-0.5 cursor-pointer"
+                  ))}
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className="mb-5">
+                <label className="text-sm font-medium text-gray-700 block mb-1">
+                  Title your review
+                </label>
+                <input
+                  maxLength={50}
+                  value={reviewTitle}
+                  onChange={(e) => setReviewTitle(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-gray-400 transition-colors"
+                  placeholder="Summarize your experience"
+                />
+                <p className="text-xs text-gray-400 text-right mt-1">
+                  {reviewTitle.length}/50
+                </p>
+              </div>
+
+              {/* Description */}
+              <div className="mb-5">
+                <label className="text-sm font-medium text-gray-700 block mb-1">
+                  Your review
+                </label>
+                <textarea
+                  maxLength={200}
+                  rows={3}
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:border-gray-400 transition-colors"
+                  placeholder="What did you like or dislike?"
+                />
+                <p className="text-xs text-gray-400 text-right mt-1">
+                  {reviewText.length}/200
+                </p>
+              </div>
+
+              {/* Image/video upload */}
+              <div className="mb-6">
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Share a photo or video
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {reviewImagePreviews.map((src, i) => (
+                    <div
+                      key={i}
+                      className="relative w-16 h-16 rounded-lg overflow-hidden"
                     >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-                {reviewImages.length < 5 && (
-                  <label className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
-                    <ImagePlus className="w-5 h-5 text-gray-400" />
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*,video/*"
-                      onChange={handleReviewImageUpload}
-                      multiple
-                    />
-                  </label>
-                )}
+                      <img
+                        src={src}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => removeReviewImage(i)}
+                        className="absolute top-0 right-0 bg-black/60 text-white rounded-bl-lg p-0.5 cursor-pointer"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {reviewImages.length < 5 && (
+                    <label className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
+                      <ImagePlus className="w-5 h-5 text-gray-400" />
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*,video/*"
+                        onChange={handleReviewImageUpload}
+                        multiple
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Submit button */}
-            <button
-              onClick={handleSubmitReview}
-              disabled={submittingReview}
-              className="w-full py-3 bg-black text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {submittingReview ? "Submitting..." : "Submit Review"}
-            </button>
+              {/* Submit button */}
+              <button
+                onClick={handleSubmitReview}
+                disabled={submittingReview}
+                className="w-full py-3 bg-black text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {submittingReview ? "Submitting..." : "Submit Review"}
+              </button>
+            </div>
           </div>
-        </div>
         </Portal>
       )}
 

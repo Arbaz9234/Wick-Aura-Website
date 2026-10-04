@@ -3,11 +3,11 @@ import { ShopContext } from "../context/ShopContext";
 import { ChevronDown } from "lucide-react";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import FilterSortModal from "../components/FilterSortModal";
 
 export default function Collection() {
   const { products, search, showSearch, productsLoading } =
     useContext(ShopContext);
-  const [showFilters, setShowFilters] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState(products);
   const openTimeout = useRef(null);
   const closeTimeout = useRef(null);
@@ -55,17 +55,26 @@ export default function Collection() {
         : [...prev, value],
     );
   };
+  const sortProducts = (productList, sortValue) => {
+    const sorted = [...productList];
+    if (sortValue === "Low to High") {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (sortValue === "High to Low") {
+      sorted.sort((a, b) => b.price - a.price);
+    }
+    return sorted;
+  };
+
   const handleSort = (value) => {
     setSort(value);
     setIsOpen(false);
+    setFilteredProducts(sortProducts(filteredProducts, value));
+  };
 
-    let sortedProducts = [...filteredProducts];
-    if (value === "Low to High") {
-      sortedProducts.sort((a, b) => a.price - b.price);
-    } else if (value === "High to Low") {
-      sortedProducts.sort((a, b) => b.price - a.price);
-    }
-    setFilteredProducts(sortedProducts);
+  const applyMobileFilters = (categories, types, sortValue) => {
+    setSelectedCategories(categories);
+    setSelectedTypes(types);
+    setSort(sortValue);
   };
 
   const applyFilters = () => {
@@ -87,32 +96,20 @@ export default function Collection() {
         selectedTypes.includes(product.subCategory),
       );
     }
-    setFilteredProducts(updatedProducts);
+    setFilteredProducts(sortProducts(updatedProducts, sort));
   };
 
   useEffect(() => {
     applyFilters();
-  }, [products, selectedCategories, selectedTypes, search, showSearch]);
+  }, [products, selectedCategories, selectedTypes, search, showSearch, sort]);
 
   return (
-    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t border-gray-300">
-      {/* Filter Options */}
-      <div className="min-w-50 lg:min-w-60">
-        <p
-          className="my-2 text-xl flex items-center cursor-pointer gap-2"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          FILTERS
-          <ChevronDown
-            className={`w-4 h-4 transition-transform sm:hidden ${
-              showFilters ? "rotate-180" : ""
-            }`}
-          />
-        </p>
+    <div className="flex flex-col lg:flex-row gap-1 lg:gap-10 pt-10 border-t border-gray-300">
+      {/* Filter Options — desktop only */}
+      <div className="min-w-50 lg:min-w-60 hidden lg:block">
+        <p className="my-2 text-xl flex items-center gap-2">FILTERS</p>
         {/* Category Filter */}
-        <div
-          className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilters ? "" : "hidden"} sm:block`}
-        >
+        <div className="border border-gray-300 pl-5 py-3 mt-6">
           <p className="mb-3 text-sm font-medium">CATEGORIES</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className="flex gap-2">
@@ -162,9 +159,7 @@ export default function Collection() {
           </div>
         </div>
         {/* Sub Category Filter */}
-        <div
-          className={`border border-gray-300 pl-5 py-3 my-5 ${showFilters ? "" : "hidden"} sm:block`}
-        >
+        <div className="border border-gray-300 pl-5 py-3 my-5">
           <p className="mb-3 text-sm font-medium">SCENT TYPE</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className="flex gap-2">
@@ -214,66 +209,90 @@ export default function Collection() {
       {/* Right Side */}
       {/* Products */}
       <div className="flex-1">
-        <div className="flex justify-between mb-4">
-          <Title
-            text1={"OUR"}
-            text2={"COLLECTIONS"}
-            className="md:text-2xl lg:text-3xl"
-          />
-          {/* Product Sort */}
-          <div
-            ref={sortDropdownRef}
-            className="sort-dropdown relative"
-            onMouseEnter={() => {
-              clearTimeout(closeTimeout.current);
+        {/* Title — full width on small screens */}
+        <div className="mb-2 sm:mb-0 sm:hidden">
+          <Title text1={"OUR"} text2={"COLLECTIONS"} />
+        </div>
 
-              openTimeout.current = setTimeout(() => {
-                setIsOpen(true);
-              }, 300);
-            }}
-            onMouseLeave={() => {
-              clearTimeout(openTimeout.current);
+        <div className="flex justify-between items-center mb-4">
+          {/* Title — inline on sm+ */}
+          <div className="hidden sm:block">
+            <Title text1={"OUR"} text2={"COLLECTIONS"} />
+          </div>
 
-              closeTimeout.current = setTimeout(() => {
-                setIsOpen(false);
-              }, 300);
-            }}
-          >
-            <button
-              onClick={() => {
-                if (!isOpen) {
-                  setIsOpen(true);
-                }
+          <div className="flex items-center justify-between w-full sm:w-auto sm:justify-end gap-3">
+            {/* Mobile Filter & Sort Modal */}
+            <FilterSortModal
+              selectedCategories={selectedCategories}
+              selectedTypes={selectedTypes}
+              sort={sort}
+              onApply={applyMobileFilters}
+              onClear={() => {
+                setSelectedCategories([]);
+                setSelectedTypes([]);
+                setSort("Relevance");
               }}
-              className="flex items-center justify-between min-w-[180px] border border-gray-300 rounded-md px-4 py-2 text-sm bg-white hover:border-gray-400 transition-colors"
-            >
-              <span>Sort By: {sort}</span>
-
-              <ChevronDown
-                size={16}
-                className={`transition-transform duration-200 ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
+              productCount={filteredProducts.length}
+            />
+            {/* Product count — mobile only, right-aligned */}
+            <span className="text-sm text-gray-500 sm:hidden">
+              {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}
+            </span>
+            {/* Desktop Product Sort */}
             <div
-              className={`absolute right-0 mt-2 w-full min-w-[180px] bg-white border border-gray-200 rounded-md shadow-lg z-50 transition-all duration-200 ${
-                isOpen
-                  ? "opacity-100 visible translate-y-0"
-                  : "opacity-0 invisible -translate-y-2"
-              }`}
+              ref={sortDropdownRef}
+              className="sort-dropdown relative hidden lg:block"
+              onMouseEnter={() => {
+                clearTimeout(closeTimeout.current);
+
+                openTimeout.current = setTimeout(() => {
+                  setIsOpen(true);
+                }, 300);
+              }}
+              onMouseLeave={() => {
+                clearTimeout(openTimeout.current);
+
+                closeTimeout.current = setTimeout(() => {
+                  setIsOpen(false);
+                }, 300);
+              }}
             >
-              {["Relevance", "Low to High", "High to Low"].map((option) => (
-                <button
-                  key={option}
-                  onClick={() => handleSort(option)}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors
+              <button
+                onClick={() => {
+                  if (!isOpen) {
+                    setIsOpen(true);
+                  }
+                }}
+                className="flex items-center justify-between min-w-[180px] border border-gray-300 rounded-md px-4 py-2 text-sm bg-white hover:border-gray-400 transition-colors"
+              >
+                <span>Sort By: {sort}</span>
+
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform duration-200 ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <div
+                className={`absolute right-0 mt-2 w-full min-w-[180px] bg-white border border-gray-200 rounded-md shadow-lg z-50 transition-all duration-200 ${
+                  isOpen
+                    ? "opacity-100 visible translate-y-0"
+                    : "opacity-0 invisible -translate-y-2"
+                }`}
+              >
+                {["Relevance", "Low to High", "High to Low"].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => handleSort(option)}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors
           ${sort === option ? "bg-gray-100 font-medium" : "hover:bg-gray-50"}`}
-                >
-                  {option}
-                </button>
-              ))}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
