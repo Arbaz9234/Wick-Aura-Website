@@ -250,7 +250,7 @@ export default function Product() {
   }
 
   return productData ? (
-    <div className="max-w-7xl mx-auto pt-6 pb-16 transition-opacity duration-500 opacity-100">
+    <div className="max-w-7xl mx-auto pt-6 transition-opacity duration-500 opacity-100">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
         <Link to="/" className="hover:text-black transition-colors">
@@ -269,9 +269,9 @@ export default function Product() {
       {/* Main Product Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         {/* Image Gallery */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 min-[490px]:max-[767px]:grid min-[490px]:max-[767px]:grid-cols-[5rem_minmax(0,1fr)] min-[490px]:max-[767px]:items-start min-[490px]:max-[767px]:gap-3 md:flex md:flex-col md:gap-4">
           {/* Main Image */}
-          <div className="relative aspect-square bg-gray-50 rounded-2xl overflow-hidden group">
+          <div className="relative aspect-square min-w-0 overflow-hidden rounded-2xl bg-gray-50 group min-[490px]:max-[767px]:col-start-2 min-[490px]:max-[767px]:row-start-1">
             {isImageLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                 <div className="w-12 h-12 border-4 border-gray-200 border-t-black rounded-full animate-spin" />
@@ -362,7 +362,7 @@ export default function Product() {
 
           {/* Thumbnails */}
           {productData.image.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="flex gap-3 overflow-x-auto pb-2 min-[490px]:max-[767px]:col-start-1 min-[490px]:max-[767px]:row-start-1 min-[490px]:max-[767px]:max-h-[min(100vw,500px)] min-[490px]:max-[767px]:flex-col min-[490px]:max-[767px]:overflow-x-hidden min-[490px]:max-[767px]:overflow-y-auto min-[490px]:max-[767px]:pb-0 md:max-h-none md:flex-row md:overflow-x-auto md:overflow-y-hidden md:pb-2">
               {productData.image.map((img, index) => (
                 <button
                   key={index}
@@ -486,21 +486,21 @@ export default function Product() {
           </div>
 
           {/* Quantity & Add to Cart */}
-          <div className="flex flex-col gap-4 mb-4 sm:flex-row md:gap-3 lg:gap-4">
+          <div className="flex gap-4 mb-4 max-[489px]:gap-3 md:gap-3 lg:gap-4">
             {/* Quantity Selector */}
-            <div className="flex items-center h-14 rounded-xl border-2 border-gray-200 md:h-12 lg:h-14">
+            <div className="flex items-center h-14 rounded-xl border-2 border-gray-200 max-[489px]:h-12 md:h-12 lg:h-14">
               <button
                 onClick={() => handleQuantityChange(-1)}
-                className="w-14 h-full flex items-center justify-center text-gray-600 hover:text-black transition-colors md:w-10 lg:w-14"
+                className="w-14 h-full flex items-center justify-center text-gray-600 hover:text-black transition-colors max-[489px]:w-10 md:w-10 lg:w-14"
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="w-14 text-center font-semibold text-lg md:w-10 lg:w-14">
+              <span className="w-14 text-center font-semibold text-lg max-[489px]:w-10 max-[489px]:text-base md:w-10 lg:w-14">
                 {quantity}
               </span>
               <button
                 onClick={() => handleQuantityChange(1)}
-                className="w-14 h-full flex items-center justify-center text-gray-600 hover:text-black transition-colors md:w-10 lg:w-14"
+                className="w-14 h-full flex items-center justify-center text-gray-600 hover:text-black transition-colors max-[489px]:w-10 md:w-10 lg:w-14"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -509,7 +509,7 @@ export default function Product() {
             {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
-              className={`outline-none flex-1 h-14 rounded-xl font-semibold text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 md:h-12 md:px-2 md:text-xs md:tracking-normal md:whitespace-nowrap lg:h-14 lg:gap-2 lg:px-0 lg:text-sm lg:tracking-wider
+              className={`outline-none flex-1 h-14 rounded-xl font-semibold text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 max-[489px]:h-12 max-[489px]:gap-1 max-[489px]:px-2 max-[489px]:text-xs max-[489px]:tracking-normal max-[489px]:whitespace-nowrap md:h-12 md:px-2 md:text-xs md:tracking-normal md:whitespace-nowrap lg:h-14 lg:gap-2 lg:px-0 lg:text-sm lg:tracking-wider
                  ${
                    isAdded
                      ? "bg-green-600 text-white !cursor-default"
@@ -519,12 +519,12 @@ export default function Product() {
             >
               {isAdded ? (
                 <>
-                  <Check className="w-5 h-5" />
+                  <Check className="w-5 h-5 max-[489px]:h-4 max-[489px]:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5" />
                   Added to Cart
                 </>
               ) : (
                 <>
-                  <ShoppingBag className="h-5 w-5 md:h-4 md:w-4 lg:h-5 lg:w-5" />
+                  <ShoppingBag className="h-5 w-5 max-[489px]:h-4 max-[489px]:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5" />
                   Add to Cart
                 </>
               )}
@@ -534,9 +534,9 @@ export default function Product() {
           {/* Buy Now */}
           <button
             onClick={handleBuyNow}
-            className="w-full h-14 rounded-xl font-semibold text-sm uppercase tracking-wider border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] mb-6 md:h-12 md:px-3 lg:h-14 lg:px-0"
+            className="w-full h-14 rounded-xl font-semibold text-sm uppercase tracking-wider border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] mb-6 max-[489px]:h-12 max-[489px]:px-3 max-[489px]:text-xs max-[489px]:tracking-normal md:h-12 md:px-3 lg:h-14 lg:px-0"
           >
-            <Zap className="w-5 h-5" />
+            <Zap className="w-5 h-5 max-[489px]:h-4 max-[489px]:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5" />
             Buy Now
           </button>
 
@@ -594,7 +594,7 @@ export default function Product() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-4 text-sm font-medium transition-all relative ${
+              className={`px-4 py-2 sm:px-6 sm:py-4  text-sm font-medium transition-all relative ${
                 activeTab === tab.id
                   ? "text-black"
                   : "text-gray-500 hover:text-gray-700"
@@ -788,7 +788,7 @@ export default function Product() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-6 bg-gray-50 rounded-xl">
                   <Truck className="w-6 h-6 text-black mb-3" />
-                  <h4 className="font-medium text-black mb-1">
+                  <h4 className="max-sm:text-[18px] font-medium text-black mb-1">
                     Standard Delivery
                   </h4>
                   <p className="text-sm text-gray-600">
@@ -797,14 +797,16 @@ export default function Product() {
                 </div>
                 <div className="p-6 bg-gray-50 rounded-xl">
                   <RefreshCw className="w-6 h-6 text-black mb-3" />
-                  <h4 className="font-medium text-black mb-1">Easy Returns</h4>
+                  <h4 className="max-sm:text-[18px] font-medium text-black mb-1">
+                    Easy Returns
+                  </h4>
                   <p className="text-sm text-gray-600">
                     7-day return policy for unused items in original packaging
                   </p>
                 </div>
                 <div className="p-6 bg-gray-50 rounded-xl">
                   <ShieldCheck className="w-6 h-6 text-black mb-3" />
-                  <h4 className="font-medium text-black mb-1">
+                  <h4 className="max-sm:text-[18px] font-medium text-black mb-1">
                     Secure Packaging
                   </h4>
                   <p className="text-sm text-gray-600">
@@ -813,7 +815,9 @@ export default function Product() {
                 </div>
                 <div className="p-6 bg-gray-50 rounded-xl">
                   <Heart className="w-6 h-6 text-black mb-3" />
-                  <h4 className="font-medium text-black mb-1">Gift Options</h4>
+                  <h4 className="max-sm:text-[18px] font-medium text-black mb-1">
+                    Gift Options
+                  </h4>
                   <p className="text-sm text-gray-600">
                     Add a personalized note and gift wrap at checkout
                   </p>
