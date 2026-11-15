@@ -17,6 +17,7 @@ import {
   Loader2,
   X,
   AlertTriangle,
+  Shield,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import LoadingDots from "../components/LoadingDots";
@@ -36,6 +37,8 @@ export default function Account() {
     addressesLoading,
     userName,
     userEmail,
+    twoFactorEnabled,
+    toggle2FA,
   } = useContext(ShopContext);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -366,6 +369,41 @@ export default function Account() {
                   </div>
                 </div>
               )}
+
+              {/* Security Section */}
+              <div className="mt-8 pt-8 border-t border-gray-100">
+                <h4 className="text-lg font-medium text-gray-900 mb-6 flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Security
+                </h4>
+                <div className="flex items-center justify-between max-w-lg">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Two-Factor Authentication
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Require OTP verification on every login
+                    </p>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const res = await toggle2FA();
+                      if (res.success) {
+                        toast.success(
+                          res.twoFactorEnabled ? "2FA enabled" : "2FA disabled",
+                        );
+                      } else {
+                        toast.error(res.message || "Failed to toggle 2FA");
+                      }
+                    }}
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${twoFactorEnabled ? "bg-black" : "bg-gray-300"}`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${twoFactorEnabled ? "translate-x-5" : "translate-x-0"}`}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 

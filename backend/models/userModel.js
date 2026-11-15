@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    otp: { type: String, default: null },
+    otpExpiry: { type: Date, default: null },
+    twoFactorEnabled: { type: Boolean, default: false },
+    isEmailVerified: { type: Boolean, default: false },
   },
   { minimize: false, versionKey: false },
 );

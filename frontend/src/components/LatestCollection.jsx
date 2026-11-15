@@ -2,9 +2,11 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import ProductItem from "./ProductItem";
+import { RefreshCw } from "lucide-react";
 
 export default function LatestCollection() {
-  const { products, productsLoading } = useContext(ShopContext);
+  const { products, productsLoading, productsError, getProductsData } =
+    useContext(ShopContext);
   const [latestProducts, setLatestProducts] = React.useState([]);
 
   React.useEffect(() => {
@@ -31,6 +33,23 @@ export default function LatestCollection() {
               <div className="mt-2 h-4 bg-gray-200 rounded w-1/4" />
             </div>
           ))}
+        </div>
+      ) : latestProducts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <p className="text-sm">
+            {productsError
+              ? "Couldn't load products. Please check your connection."
+              : "No products available right now."}
+          </p>
+          {productsError && (
+            <button
+              onClick={getProductsData}
+              className="mt-3 flex items-center gap-2 text-sm text-gray-600 hover:text-black transition-colors cursor-pointer"
+            >
+              <RefreshCw size={14} />
+              Retry
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-12">

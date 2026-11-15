@@ -7,6 +7,7 @@ import userRouter from "./routes/userRoute.js";
 import productRouter from "./routes/productRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
+import subscriptionRouter from "./routes/subscriptionRoute.js";
 
 // App config
 
@@ -24,6 +25,7 @@ app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/subscription", subscriptionRouter);
 
 app.get("/", (req, res) => res.status(200).send("API is running..."));
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

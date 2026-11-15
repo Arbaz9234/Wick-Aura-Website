@@ -19,13 +19,17 @@ const ShopContextProvider = (props) => {
   const [wishlist, setWishlist] = useState([]);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState(false);
   const [cartLoading, setCartLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [addressesLoading, setAddressesLoading] = useState(true);
   const [wishlistLoading, setWishlistLoading] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [subscribed, setSubscribed] = useState(false);
   const navigate = useNavigate();
+
   const addToCart = async (itemId, color, quantity = 1) => {
     if (!color || quantity < 1) {
       return;
@@ -61,6 +65,7 @@ const ShopContextProvider = (props) => {
       }
     }
   };
+
   const getCartCount = () => {
     let totalCount = 0;
     for (const items in cartItems) {
@@ -279,6 +284,12 @@ const ShopContextProvider = (props) => {
             { headers: { token } },
           );
           if (data.success) {
+            // Open the success modal before clearing cart state. PlaceOrder's
+            // empty-cart guard must be disabled as soon as payment is verified.
+            if (onPaymentSuccess) {
+              onPaymentSuccess();
+            }
+
             // Auto-save new address silently
             if (
               deliveryInfo &&
@@ -294,9 +305,7 @@ const ShopContextProvider = (props) => {
               setCartItems({});
             }
             await getUserOrders(token);
-            if (onPaymentSuccess) {
-              onPaymentSuccess();
-            } else {
+            if (!onPaymentSuccess) {
               navigate("/orders");
               toast.success("Payment successful!");
             }
@@ -327,19 +336,19 @@ const ShopContextProvider = (props) => {
 
   const getProductsData = async () => {
     setProductsLoading(true);
+    setProductsError(false);
     try {
       const response = await axios.get(backendUrl + "/api/product/list");
       if (response.status === 200) {
         setProducts(response.data.products);
-      } else {
-        toast.error("Failed to load products. Please refresh the page");
       }
     } catch (error) {
-      toast.error("Failed to load products. Please refresh the page");
+      setProductsError(true);
     } finally {
       setProductsLoading(false);
     }
   };
+
   useEffect(() => {
     getProductsData();
   }, []);
@@ -357,7 +366,6 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Failed to load cart. Please try again");
     } finally {
       setCartLoading(false);
     }
@@ -378,7 +386,6 @@ const ShopContextProvider = (props) => {
         return { success: false, message: response.data.message };
       }
     } catch (error) {
-      toast.error("Failed to load orders. Please try again");
       return {
         success: false,
         message: error.message || "Failed to fetch orders",
@@ -398,6 +405,7 @@ const ShopContextProvider = (props) => {
       if (response.data.success) {
         setUserName(response.data.user?.name || "");
         setUserEmail(response.data.user?.email || "");
+        setTwoFactorEnabled(response.data.user?.twoFactorEnabled || false);
       }
     } catch (error) {
       // Non-critical — navbar just won't show the name
@@ -419,7 +427,6 @@ const ShopContextProvider = (props) => {
         return { success: false, message: response.data.message };
       }
     } catch (error) {
-      toast.error("Failed to load addresses. Please try again");
       return {
         success: false,
         message: error.message || "Failed to fetch addresses",
@@ -507,7 +514,6 @@ const ShopContextProvider = (props) => {
         setWishlist(response.data.wishlist);
       }
     } catch (error) {
-      toast.error("Failed to load wishlist. Please try again");
     } finally {
       setWishlistLoading(false);
     }
@@ -575,6 +581,30 @@ const ShopContextProvider = (props) => {
     return wishlist.includes(productId);
   };
 
+  const toggle2FA = async () => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/toggle-2fa",
+        {},
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setTwoFactorEnabled(response.data.twoFactorEnabled);
+        return {
+          success: true,
+          twoFactorEnabled: response.data.twoFactorEnabled,
+        };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message || "Failed to toggle 2FA",
+      };
+    }
+  };
+
   useEffect(() => {
     const syncUserData = async (t) => {
       // Merge guest cart if user had items before logging in
@@ -622,6 +652,7 @@ const ShopContextProvider = (props) => {
       setWishlist([]);
       setUserName("");
       setUserEmail("");
+      setTwoFactorEnabled(false);
       setCartLoading(false);
       setOrdersLoading(false);
       setAddressesLoading(false);
@@ -630,6 +661,31 @@ const ShopContextProvider = (props) => {
     }
   }, [token]);
 
+  useEffect(() => {
+    const fetchSubscriptionStatus = async () => {
+      try {
+        if (!token || !userEmail) {
+          setSubscribed(false);
+          return;
+        }
+
+        const response = await axios.get(
+          `${backendUrl}/api/subscription/status`,
+          {
+            params: { email: userEmail },
+          },
+        );
+
+        if (response.data.success) {
+          setSubscribed(response.data.isSubscribed);
+        }
+      } catch (error) {
+        console.error("Error fetching subscription status:", error);
+      }
+    };
+
+    fetchSubscriptionStatus();
+  }, [token, userEmail]);
   const value = {
     products,
     currency,
@@ -664,19 +720,22 @@ const ShopContextProvider = (props) => {
     removeFromWishlist,
     isInWishlist,
     productsLoading,
+    productsError,
+    getProductsData,
     cartLoading,
     ordersLoading,
     addressesLoading,
     wishlistLoading,
     userName,
     userEmail,
+    twoFactorEnabled,
+    toggle2FA,
     selectedAddressId,
     setSelectedAddressId,
+    subscribed,
   };
   return (
-    <ShopContext.Provider value={value}>
-      {props.children}
-    </ShopContext.Provider>
+    <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
   );
 };
 export default ShopContextProvider;

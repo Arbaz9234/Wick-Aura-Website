@@ -301,7 +301,7 @@ export default function Navbar() {
           </NavLink>
 
           {/* Deliver To (desktop) — hidden in pill mode to keep it compact */}
-          {token && !isPill && (
+          {token && !isPill && addresses.length > 0 && (
             <div className="hidden md:block relative" ref={addressTriggerRef}>
               <button
                 onClick={() =>
@@ -603,9 +603,8 @@ export default function Navbar() {
             }`}
           >
             {/* Deliver To (mobile) */}
-            {token &&
-              activeAddress &&
-              (isPlaceOrderPage ? (
+            {token && addresses.length > 0 && activeAddress && (
+              isPlaceOrderPage ? (
                 <div className="flex items-center gap-2 px-6 py-3 text-sm text-gray-400 cursor-not-allowed opacity-60">
                   <MapPin className="w-4 h-4 text-gray-400" />
                   <div>
@@ -628,7 +627,8 @@ export default function Navbar() {
                     </p>
                   </div>
                 </Link>
-              ))}
+              )
+            )}
 
             <div className="border-t border-gray-100 my-2" />
 

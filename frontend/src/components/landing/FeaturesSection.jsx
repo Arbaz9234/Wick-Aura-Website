@@ -88,14 +88,40 @@ export default function FeaturesSection() {
       </div>
 
       {/* Tab buttons */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-12">
+      <motion.div
+        className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-12"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: 0.25,
+            },
+          },
+        }}
+      >
         {features.map((f) => {
           const Icon = f.icon;
           const isActive = activeTab === f.id;
+
           return (
-            <button
+            <motion.button
               key={f.id}
               onClick={() => setActiveTab(f.id)}
+              variants={{
+                hidden: {
+                  opacity: 0,
+                },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    duration: 0.4,
+                    ease: [0.25, 0.1, 0.25, 1],
+                  },
+                },
+              }}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 isActive
                   ? "bg-black text-white shadow-lg shadow-black/10"
@@ -104,10 +130,10 @@ export default function FeaturesSection() {
             >
               <Icon className="w-4 h-4" />
               {f.label}
-            </button>
+            </motion.button>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Tab content */}
       <AnimatePresence mode="wait">

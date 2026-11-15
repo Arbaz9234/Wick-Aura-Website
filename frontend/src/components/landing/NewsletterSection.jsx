@@ -1,26 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { Send, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
+import { ShopContext } from "../../context/ShopContext";
+import axios from "axios";
 
 export default function NewsletterSection() {
+  const { backendUrl } = useContext(ShopContext);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
 
-    // Simulate subscription
-    setSubmitted(true);
-    toast.success("Welcome to the Wick & Aura family!", {
-      autoClose: 3000,
-    });
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) return;
 
-    setTimeout(() => {
-      setSubmitted(false);
-      setEmail("");
-    }, 4000);
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/subscription/subscribe`,
+        { email: trimmedEmail },
+      );
+
+      if (response.data.success) {
+        setSubmitted(true);
+
+        toast.success(
+          response.data.message || "Welcome to the Wick & Aura family!",
+          { autoClose: 3000 },
+        );
+
+        setTimeout(() => {
+          setSubmitted(false);
+          setEmail("");
+        }, 4000);
+      } else {
+        toast.error(
+          response.data.message || "Subscription failed. Please try again.",
+        );
+      }
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to subscribe right now. Please try again later.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,7 +89,9 @@ export default function NewsletterSection() {
             disabled={submitted}
             className="inline-flex items-center justify-center gap-2 bg-black text-white px-7 py-3.5 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {submitted ? (
+            {loading ? (
+              <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : submitted ? (
               <>
                 <CheckCircle className="w-4 h-4" />
                 Subscribed!

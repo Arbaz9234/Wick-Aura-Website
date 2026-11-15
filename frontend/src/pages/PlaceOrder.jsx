@@ -4,6 +4,7 @@ import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import OrderSummary from "../components/OrderSummary";
 import Portal from "../components/Portal";
+import AddressPickerModal from "../components/AddressPickerModal";
 import { ArrowRight, Loader2, MapPin, Banknote, Plus, CircleX } from "lucide-react";
 
 export default function PlaceOrder() {
@@ -15,6 +16,7 @@ export default function PlaceOrder() {
     buyNowItem,
     setBuyNowItem,
     addresses,
+    addAddress,
     selectedAddressId: contextSelectedAddressId, // renamed to avoid clashing with local state
   } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
@@ -22,6 +24,7 @@ export default function PlaceOrder() {
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [placingOrder, setPlacingOrder] = useState(false);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const orderPlacedRef = useRef(false);
@@ -197,178 +200,232 @@ export default function PlaceOrder() {
             <div className="text-xl sm:text-2xl mb-6">
               <Title text1={"DELIVERY"} text2={"INFORMATION"} />
             </div>
-            {/* Saved Address Picker */}
-            {addresses.length > 0 && (
-              <div className="mb-6 space-y-3">
-                {addresses.map((addr) => (
-                  <label
-                    key={addr._id}
-                    onClick={() => selectAddress(addr._id)}
-                    className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
-                  >
-                    <span
-                      className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${selectedAddressId === addr._id ? "border-black" : "border-gray-300"}`}
-                    >
-                      {selectedAddressId === addr._id && (
-                        <span className="w-2 h-2 rounded-full bg-black" />
-                      )}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-800">
-                          {addr.firstName} {addr.lastName}
-                        </span>
-                        {addr.isDefault && (
-                          <span className="text-[10px] font-semibold uppercase tracking-wider bg-black text-white px-2 py-0.5 rounded-full">
-                            Default
-                          </span>
-                        )}
+            {/* Mobile — compact address card */}
+            {(() => {
+              const selectedAddr = addresses.find((a) => a._id === selectedAddressId);
+              return (
+                <div className="lg:hidden mb-6">
+                  {selectedAddr ? (
+                    <div className="flex items-start justify-between p-4 rounded-xl border border-gray-200 bg-white">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-gray-800">
+                            Delivering to {selectedAddr.firstName}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {[selectedAddr.address1, selectedAddr.city].filter(Boolean).join(", ")} — {selectedAddr.pincode}
+                          </p>
+                          <p className="text-xs text-gray-400">{selectedAddr.mobile}</p>
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {[addr.address1, addr.address2, addr.landmark]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {addr.city}, {addr.state} — {addr.pincode}
-                      </p>
-                      <p className="text-xs text-gray-400">{addr.mobile}</p>
+                      <button
+                        type="button"
+                        onClick={() => setAddressModalOpen(true)}
+                        className="text-xs font-semibold text-black underline underline-offset-2 flex-shrink-0 ml-4"
+                      >
+                        Change
+                      </button>
                     </div>
-                  </label>
-                ))}
-                <button
-                  type="button"
-                  onClick={() =>
-                    selectAddress(
-                      isNewAddress
-                        ? (addresses.find((a) => a.isDefault) || addresses[0])
-                            ?._id || "new"
-                        : "new",
-                    )
-                  }
-                  className={`flex items-center gap-3 w-full p-4 rounded-xl border transition-all ${isNewAddress ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
-                >
-                  <Plus
-                    className={`w-4 h-4 transition-transform ${isNewAddress ? "rotate-45 text-gray-800" : "text-gray-600"}`}
-                  />
-                  <span
-                    className={`text-sm font-medium ${isNewAddress ? "text-gray-800" : "text-gray-600"}`}
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setAddressModalOpen(true)}
+                      className="flex items-center gap-3 w-full p-4 rounded-xl border border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                    >
+                      <Plus className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm font-medium text-gray-600">
+                        Add delivery address
+                      </span>
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Desktop — Saved Address Picker */}
+            <div className="hidden lg:block">
+              {addresses.length > 0 && (
+                <div className="mb-6 space-y-3">
+                  {addresses.map((addr) => (
+                    <label
+                      key={addr._id}
+                      onClick={() => selectAddress(addr._id)}
+                      className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+                    >
+                      <span
+                        className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${selectedAddressId === addr._id ? "border-black" : "border-gray-300"}`}
+                      >
+                        {selectedAddressId === addr._id && (
+                          <span className="w-2 h-2 rounded-full bg-black" />
+                        )}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-800">
+                            {addr.firstName} {addr.lastName}
+                          </span>
+                          {addr.isDefault && (
+                            <span className="text-[10px] font-semibold uppercase tracking-wider bg-black text-white px-2 py-0.5 rounded-full">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {[addr.address1, addr.address2, addr.landmark]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {addr.city}, {addr.state} — {addr.pincode}
+                        </p>
+                        <p className="text-xs text-gray-400">{addr.mobile}</p>
+                      </div>
+                    </label>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      selectAddress(
+                        isNewAddress
+                          ? (addresses.find((a) => a.isDefault) || addresses[0])
+                              ?._id || "new"
+                          : "new",
+                      )
+                    }
+                    className={`flex items-center gap-3 w-full p-4 rounded-xl border transition-all ${isNewAddress ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
                   >
-                    Add New Address
-                  </span>
-                </button>
-              </div>
-            )}
-            {(isNewAddress || addresses.length === 0) && (
-              <div className="space-y-4 mt-6">
-                <div className="flex gap-4">
-                  <input
-                    name="firstName"
-                    value={form.firstName}
-                    onChange={handleChange}
-                    className={inputClass}
-                    placeholder="First name"
-                    required
-                  />
-                  <input
-                    name="lastName"
-                    value={form.lastName}
-                    onChange={handleChange}
-                    className={inputClass}
-                    placeholder="Last name"
-                    required
-                  />
+                    <Plus
+                      className={`w-4 h-4 transition-transform ${isNewAddress ? "rotate-45 text-gray-800" : "text-gray-600"}`}
+                    />
+                    <span
+                      className={`text-sm font-medium ${isNewAddress ? "text-gray-800" : "text-gray-600"}`}
+                    >
+                      Add New Address
+                    </span>
+                  </button>
                 </div>
-                <input
-                  name="address1"
-                  value={form.address1}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="Address line 1"
-                  required
-                />
-                <input
-                  name="address2"
-                  value={form.address2}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="Address line 2"
-                />
-                <div className="flex gap-4">
-                  <input
-                    name="landmark"
-                    value={form.landmark}
-                    onChange={handleChange}
-                    className={inputClass}
-                    placeholder="Landmark (optional)"
-                  />
-                  <input
-                    name="mobile"
-                    value={form.mobile}
-                    onChange={(e) => {
-                      const val = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 11);
-                      setForm((prev) => ({ ...prev, mobile: val }));
-                    }}
-                    className={inputClass}
-                    placeholder="Mobile number"
-                    type="tel"
-                    inputMode="numeric"
-                    required
-                  />
-                </div>
-                <div className="flex gap-4">
-                  <div className="relative w-full">
+              )}
+              {(isNewAddress || addresses.length === 0) && (
+                <div className="space-y-4 mt-6">
+                  <div className="flex gap-4">
                     <input
-                      name="pincode"
-                      value={form.pincode}
+                      name="firstName"
+                      value={form.firstName}
+                      onChange={handleChange}
+                      className={inputClass}
+                      placeholder="First name"
+                      required
+                    />
+                    <input
+                      name="lastName"
+                      value={form.lastName}
+                      onChange={handleChange}
+                      className={inputClass}
+                      placeholder="Last name"
+                      required
+                    />
+                  </div>
+                  <input
+                    name="address1"
+                    value={form.address1}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="Address line 1"
+                    required
+                  />
+                  <input
+                    name="address2"
+                    value={form.address2}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="Address line 2"
+                  />
+                  <div className="flex gap-4">
+                    <input
+                      name="landmark"
+                      value={form.landmark}
+                      onChange={handleChange}
+                      className={inputClass}
+                      placeholder="Landmark (optional)"
+                    />
+                    <input
+                      name="mobile"
+                      value={form.mobile}
                       onChange={(e) => {
                         const val = e.target.value
                           .replace(/\D/g, "")
-                          .slice(0, 6);
-                        setForm((prev) => ({
-                          ...prev,
-                          pincode: val,
-                          ...(val.length < 6 ? { city: "", state: "" } : {}),
-                        }));
+                          .slice(0, 11);
+                        setForm((prev) => ({ ...prev, mobile: val }));
                       }}
                       className={inputClass}
-                      placeholder="Pincode"
+                      placeholder="Mobile number"
+                      type="tel"
                       inputMode="numeric"
                       required
                     />
-                    {pincodeLoading && (
-                      <Loader2 className="w-4 h-4 text-gray-400 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
-                    )}
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="relative w-full">
+                      <input
+                        name="pincode"
+                        value={form.pincode}
+                        onChange={(e) => {
+                          const val = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 6);
+                          setForm((prev) => ({
+                            ...prev,
+                            pincode: val,
+                            ...(val.length < 6 ? { city: "", state: "" } : {}),
+                          }));
+                        }}
+                        className={inputClass}
+                        placeholder="Pincode"
+                        inputMode="numeric"
+                        required
+                      />
+                      {pincodeLoading && (
+                        <Loader2 className="w-4 h-4 text-gray-400 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+                      )}
+                    </div>
+                    <input
+                      name="city"
+                      value={form.city}
+                      onChange={handleChange}
+                      className={inputClass}
+                      placeholder="City"
+                      required
+                    />
                   </div>
                   <input
-                    name="city"
-                    value={form.city}
+                    name="state"
+                    value={form.state}
                     onChange={handleChange}
                     className={inputClass}
-                    placeholder="City"
+                    placeholder="State"
                     required
                   />
+                  {form.city && form.state && (
+                    <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2.5">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span>
+                        Delivering to {form.city}, {form.state}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <input
-                  name="state"
-                  value={form.state}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="State"
-                  required
-                />
-                {form.city && form.state && (
-                  <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2.5">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span>
-                      Delivering to {form.city}, {form.state}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Mobile — Order Summary (between address and payment) */}
+            <div className="lg:hidden mb-6">
+              <OrderSummary
+                showItems
+                buyNowItem={buyNowItem}
+                setBuyNowItem={setBuyNowItem}
+              />
+            </div>
 
             {/* Payment Method */}
             <div className="bg-gray-50 rounded-2xl p-6 mt-6">
@@ -428,8 +485,8 @@ export default function PlaceOrder() {
             </button>
           </div>
 
-          {/* Right — Order Summary */}
-          <div className="lg:w-[400px] flex-shrink-0">
+          {/* Right — Order Summary (desktop only) */}
+          <div className="hidden lg:block lg:w-[400px] flex-shrink-0">
             <div className="lg:sticky lg:top-24">
               <OrderSummary
                 showItems
@@ -440,6 +497,23 @@ export default function PlaceOrder() {
           </div>
         </div>
       </form>
+
+      {/* Address Picker Modal (mobile/tablet) */}
+      <AddressPickerModal
+        isOpen={addressModalOpen}
+        onClose={() => setAddressModalOpen(false)}
+        addresses={addresses}
+        selectedAddressId={selectedAddressId}
+        onSelect={(id) => selectAddress(id)}
+        onSaveNew={async (formData) => {
+          const result = await addAddress(formData);
+          if (result?.success && result.addresses?.length > 0) {
+            const newAddr = result.addresses[result.addresses.length - 1];
+            selectAddress(newAddr._id);
+          }
+        }}
+        inputClass={inputClass}
+      />
 
       {/* Payment Failed Modal */}
       {paymentError && (

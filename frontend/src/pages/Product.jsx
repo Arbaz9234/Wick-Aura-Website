@@ -397,7 +397,7 @@ export default function Product() {
           </h1>
 
           {/* Rating */}
-          <div className="flex items-center gap-2 mb-4">
+          {/* <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => {
                 const avg =
@@ -420,7 +420,7 @@ export default function Product() {
             <span className="text-sm text-gray-500">
               {productData.reviews?.length || 0} Reviews
             </span>
-          </div>
+          </div> */}
 
           {/* Price */}
           <div className="flex items-baseline gap-3 mb-6">

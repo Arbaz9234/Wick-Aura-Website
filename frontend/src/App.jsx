@@ -17,7 +17,7 @@ import Footer from "./components/Footer";
 import SearchBar from "./components/SearchBar";
 import { AnimatePresence } from "framer-motion";
 import PageTransition from "./components/PageTransition";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import favicon from "./assets/favicon.png";
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -85,7 +85,8 @@ export default function App() {
         draggable
         pauseOnHover
         theme="light"
-        limit={3}
+        limit={1}
+        onClose={() => toast.clearWaitingQueue()}
         icon={<img src={favicon} alt="Wick & Aura Logo" />}
       />
     </div>
