@@ -1,16 +1,69 @@
-# React + Vite
+# Wick & Aura — Admin Panel
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Admin dashboard for managing products and orders.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+| Package | Purpose |
+|---|---|
+| React 19 | UI framework |
+| Vite | Build tool & dev server |
+| Tailwind CSS v4 | Utility-first styling |
+| React Router | Client-side routing |
+| Axios | HTTP client |
+| React Toastify | Toast notifications |
+| Lucide React | Icon library |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+admin/
+├── index.html
+├── vite.config.js
+├── src/
+│   ├── App.jsx              # Routes, auth gate, layout
+│   ├── main.jsx             # Entry point
+│   ├── index.css            # Tailwind + global styles
+│   ├── assets/              # Static assets
+│   ├── pages/
+│   │   ├── AddProduct.jsx   # Create new products with image upload
+│   │   ├── ListProducts.jsx # View & delete products
+│   │   └── Orders.jsx       # View orders & update status
+│   └── components/
+│       ├── Login.jsx        # Admin login form
+│       ├── Navbar.jsx       # Top navigation bar
+│       ├── Sidebar.jsx      # Side navigation
+│       └── ImagePreview.jsx # Image preview component
+```
+
+---
+
+## Routes
+
+| Path | Page | Description |
+|---|---|---|
+| `/add` | AddProduct | Create products with multi-image upload |
+| `/list` | ListProducts | View, search & delete products |
+| `/orders` | Orders | View all orders, update delivery status |
+
+---
+
+## Auth
+
+Token-based admin authentication. Unauthenticated users see the login screen. Uses the `/api/user/admin` endpoint from the backend.
+
+---
+
+## Scripts
+
+```bash
+npm install       # Install dependencies
+npm run dev       # Start dev server
+npm run build     # Production build
+npm run preview   # Preview production build
+npm run lint      # Run ESLint
+```
