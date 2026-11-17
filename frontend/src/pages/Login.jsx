@@ -128,8 +128,8 @@ export default function Login() {
   const [pageReady, setPageReady] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    email: "arbaz9234@gmail.com",
-    password: "Arbaz9234",
+    email: "",
+    password: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});

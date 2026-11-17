@@ -5,7 +5,6 @@ import loginImage1 from "./login-image-1.webp";
 import loginImage2 from "./login-image-2.webp";
 import loginImage3 from "./login-image-3.webp";
 import razorpayLogo from "./razorpay_logo.png";
-import stripeLogo from "./stripe_logo.png";
 import InstagramIcon from "./instagram-icon.svg?react";
 import MailIcon from "./mail-icon.svg?react";
 import GrayFlower from "./gray-flower.svg?react";
@@ -27,7 +26,6 @@ export const assets = {
   logoMobile,
   bannerImage,
   razorpayLogo,
-  stripeLogo,
   loginImages: [loginImage1, loginImage2, loginImage3],
   InstagramIcon,
   MailIcon,
