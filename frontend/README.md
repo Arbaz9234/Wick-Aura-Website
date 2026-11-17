@@ -1,12 +1,52 @@
-# React + Vite
+# Wick & Aura — Customer Storefront
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React SPA for browsing products, managing cart/wishlist, checkout, and user account.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
 
-## Expanding the ESLint configuration
+| Package         | Purpose                       |
+| --------------- | ----------------------------- |
+| React 19        | UI framework                  |
+| Vite            | Build tool & dev server       |
+| Tailwind CSS v4 | Utility-first styling         |
+| React Router    | Client-side routing           |
+| Framer Motion   | Animations & page transitions |
+| Axios           | HTTP client                   |
+| React Toastify  | Toast notifications           |
+| Lucide React    | Icon library                  |
+| Swiper          | Image carousels               |
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Routes
+
+| Path                  | Page       | Description                            |
+| --------------------- | ---------- | -------------------------------------- |
+| `/`                   | Home       | Landing page                           |
+| `/home`               | Shop       | Product storefront                     |
+| `/collection`         | Collection | Browse, filter & sort products         |
+| `/product/:productId` | Product    | Product details & color selection      |
+| `/cart`               | Cart       | Shopping cart                          |
+| `/place-order`        | PlaceOrder | Checkout with address picker & payment |
+| `/orders`             | Orders     | Order history                          |
+| `/login`              | Login      | Auth with OTP & forgot password flows  |
+| `/account`            | Account    | Profile, addresses, 2FA toggle         |
+| `/wishlist`           | Wishlist   | Saved products                         |
+| `/about`              | About      | About the brand                        |
+| `/contact`            | Contact    | Contact information                    |
+
+---
+
+## Key Features
+
+- **OTP Authentication** — email verification on signup, optional 2FA on login
+- **Forgot Password** — OTP-based password reset with animated stepper
+- **Guest Cart** — works without login, merges on authentication
+- **Mobile-first** — responsive layouts with dedicated mobile components
+- **Page Transitions** — Framer Motion animated route transitions
+- **Optimistic Updates** — wishlist toggles update instantly
+- **Loading & Error States** — skeleton/retry UI on data-driven sections
+
+---

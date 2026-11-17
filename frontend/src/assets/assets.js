@@ -1,33 +1,47 @@
-import logo from "./Logo.png";
-import favicon from "./favicon.png";
 import logoHome from "./logo-homepage.svg";
-import menuIcon from "./menu-icon.svg";
+import logoMobile from "./logo-mobile.svg";
 import bannerImage from "./banner-image.jpg";
 import loginImage1 from "./login-image-1.webp";
 import loginImage2 from "./login-image-2.webp";
 import loginImage3 from "./login-image-3.webp";
 import razorpayLogo from "./razorpay_logo.png";
-import stripeLogo from "./stripe_logo.png";
 import InstagramIcon from "./instagram-icon.svg?react";
 import MailIcon from "./mail-icon.svg?react";
 import GrayFlower from "./gray-flower.svg?react";
 import ColoredFlower from "./colored-flower.svg?react";
 import Circle from "./circle.svg?react";
+import heroBG from "./hero-bg.webp";
+import bannerimg from "./candle-final.webp";
+import bouquetCard from "./bouquet-card.webp";
+import jarCard from "./jar-card.webp";
+import miniCard from "./mini-card.webp";
+import soyTab1 from "./tab-1-soy.webp";
+import fragranceTab2 from "./tab-2-fragrance.webp";
+import handcraftedTab3 from "./tab-3-handcrafted.webp";
+import colorsTab4 from "./tab-4-colors.webp";
+import ctaBG from "./cta-bg.webp";
 
 export const assets = {
-  logo,
-  favicon,
   logoHome,
-  menuIcon,
+  logoMobile,
   bannerImage,
   razorpayLogo,
-  stripeLogo,
   loginImages: [loginImage1, loginImage2, loginImage3],
   InstagramIcon,
   MailIcon,
   GrayFlower,
   ColoredFlower,
   Circle,
+  heroBG,
+  bannerimg,
+  bouquetCard,
+  jarCard,
+  miniCard,
+  soyTab1,
+  fragranceTab2,
+  handcraftedTab3,
+  colorsTab4,
+  ctaBG,
 };
 
 export const products = [

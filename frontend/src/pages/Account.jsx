@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { ShopContext } from "../context/ShopContext";
 import OrdersList from "../components/OrdersList";
 import Title from "../components/Title";
+import Portal from "../components/Portal";
 import {
   ShoppingBag,
   User,
@@ -16,9 +17,9 @@ import {
   Loader2,
   X,
   AlertTriangle,
+  Shield,
 } from "lucide-react";
-import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import LoadingDots from "../components/LoadingDots";
 
 export default function Account() {
@@ -27,7 +28,6 @@ export default function Account() {
     setToken,
     orders,
     getUserOrders,
-    backendUrl,
     addresses,
     fetchAddresses,
     addAddress,
@@ -35,18 +35,25 @@ export default function Account() {
     deleteAddress,
     ordersLoading,
     addressesLoading,
+    userName,
+    userEmail,
+    twoFactorEnabled,
+    toggle2FA,
   } = useContext(ShopContext);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") || "profile",
   );
-  const [pageReady, setPageReady] = useState(false);
 
-  const [profile, setProfile] = useState({
-    name: "",
-    email: "",
-  });
+  useEffect(() => {
+    if (searchParams.has("tab")) {
+      searchParams.delete("tab");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []);
+  const [pageReady, setPageReady] = useState(false);
 
   // Address editing state
   const [editingAddressId, setEditingAddressId] = useState(null); // null = not editing, "new" = adding, addressId = editing
@@ -65,9 +72,9 @@ export default function Account() {
   const [addressSaving, setAddressSaving] = useState(false);
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [originalAddressForm, setOriginalAddressForm] = useState(null);
+  const [addressErrors, setAddressErrors] = useState({});
   const [pendingDelete, setPendingDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [profileLoading, setProfileLoading] = useState(false);
 
   const emptyAddressForm = {
     firstName: "",
@@ -81,13 +88,6 @@ export default function Account() {
     state: "",
     isDefault: false,
   };
-
-  // Fetch orders when switching to orders tab
-  useEffect(() => {
-    if (activeTab === "orders" && token) {
-      getUserOrders(token);
-    }
-  }, [activeTab]);
 
   const handleRefreshOrders = async () => {
     if (token) return await getUserOrders(token);
@@ -105,34 +105,10 @@ export default function Account() {
     navigate("/login");
   };
 
-  const getProfile = async () => {
-    setProfileLoading(true);
-    try {
-      const response = await axios.post(
-        backendUrl + "/api/user/profile",
-        {},
-        { headers: { token } },
-      );
-
-      if (response.data.success) {
-        setProfile({
-          name: response.data?.user?.name || "",
-          email: response.data?.user?.email || "",
-        });
-      }
-    } catch (error) {
-      toast.error("Failed to load profile. Please try again");
-    } finally {
-      setProfileLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (!token) {
       navigate("/login", { replace: true });
-      return;
     }
-    getProfile();
   }, [token]);
 
   // Address form handlers
@@ -163,6 +139,7 @@ export default function Account() {
     setEditingAddressId(null);
     setAddressForm(emptyAddressForm);
     setOriginalAddressForm(null);
+    setAddressErrors({});
   };
 
   const handleAddressChange = (e) => {
@@ -171,6 +148,13 @@ export default function Account() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    if (addressErrors[name]) {
+      setAddressErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
   };
 
   const handleAddressSave = async () => {
@@ -184,7 +168,12 @@ export default function Account() {
       "state",
     ];
     const missing = required.filter((f) => !addressForm[f]?.trim());
-    if (missing.length > 0) return;
+    if (missing.length > 0) {
+      const errors = {};
+      missing.forEach((f) => (errors[f] = "This field is required"));
+      setAddressErrors(errors);
+      return;
+    }
 
     if (editingAddressId !== "new" && originalAddressForm) {
       const hasChanges = Object.keys(addressForm).some(
@@ -206,7 +195,7 @@ export default function Account() {
     setAddressSaving(false);
 
     if (result?.success) {
-      toast(
+      toast.success(
         editingAddressId === "new"
           ? "Address added successfully"
           : "Address updated successfully",
@@ -227,7 +216,7 @@ export default function Account() {
       try {
         const result = await deleteAddress(pendingDelete.addressId);
         if (result?.success) {
-          toast("Address deleted successfully");
+          toast.success("Address deleted successfully");
         } else {
           toast.error(result?.message || "Failed to delete address");
         }
@@ -274,8 +263,12 @@ export default function Account() {
     { key: "orders", label: "Orders", icon: ShoppingBag },
   ];
 
-  const inputClass =
-    "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none transition-colors placeholder:text-gray-400 focus:border-black bg-white";
+  const inputClass = (field) =>
+    `w-full px-4 py-3 text-sm border rounded-xl outline-none transition-colors placeholder:text-gray-400 bg-white ${
+      addressErrors[field]
+        ? "border-red-300 focus:border-red-500"
+        : "border-gray-200 focus:border-black"
+    }`;
 
   return (
     <div
@@ -330,7 +323,7 @@ export default function Account() {
                 Personal Information
               </h4>
 
-              {profileLoading ? (
+              {!userName && !userEmail ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
@@ -343,11 +336,11 @@ export default function Account() {
                     <div className="relative">
                       <User className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
                       <input
-                        value={profile.name || ""}
+                        value={userName || ""}
                         disabled
                         className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
                       />
-                      {!profile.name && (
+                      {!userName && (
                         <div className="absolute inset-0 flex items-center pl-11 z-10">
                           <LoadingDots className="text-gray-400" />
                         </div>
@@ -363,11 +356,11 @@ export default function Account() {
                       <Mail className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
                       <input
                         type="email"
-                        value={profile.email || ""}
+                        value={userEmail || ""}
                         disabled
                         className="w-full px-4 py-3 pl-11 text-sm border border-gray-200 rounded-xl outline-none bg-gray-50 text-gray-700 cursor-not-allowed"
                       />
-                      {!profile.email && (
+                      {!userEmail && (
                         <div className="absolute inset-0 flex items-center pl-11 z-10">
                           <LoadingDots className="text-gray-400" />
                         </div>
@@ -376,6 +369,41 @@ export default function Account() {
                   </div>
                 </div>
               )}
+
+              {/* Security Section */}
+              <div className="mt-8 pt-8 border-t border-gray-100">
+                <h4 className="text-lg font-medium text-gray-900 mb-6 flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Security
+                </h4>
+                <div className="flex items-center justify-between max-w-lg">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Two-Factor Authentication
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Require OTP verification on every login
+                    </p>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const res = await toggle2FA();
+                      if (res.success) {
+                        toast.success(
+                          res.twoFactorEnabled ? "2FA enabled" : "2FA disabled",
+                        );
+                      } else {
+                        toast.error(res.message || "Failed to toggle 2FA");
+                      }
+                    }}
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${twoFactorEnabled ? "bg-black" : "bg-gray-300"}`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${twoFactorEnabled ? "translate-x-5" : "translate-x-0"}`}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -537,64 +565,54 @@ export default function Account() {
 
       {/* Delete Confirmation Dialog */}
       {pendingDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setPendingDelete(null)}
-          />
-          <div className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-xl">
-            <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
-                <AlertTriangle className="w-7 h-7 text-red-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Delete Address?
-                </h3>
-                <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-                  <span className="font-medium text-gray-700">
-                    {pendingDelete.addressName.endsWith("s")
-                      ? `${pendingDelete.addressName}'`
-                      : `${pendingDelete.addressName}'s`}
-                  </span>{" "}
-                  address will be permanently deleted.
-                </p>
-              </div>
-              <div className="flex gap-3 w-full mt-2">
-                <button
-                  onClick={() => setPendingDelete(null)}
-                  className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Keep Address
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  disabled={deleting}
-                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {deleting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Delete"
-                  )}
-                </button>
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setPendingDelete(null)}
+            />
+            <div className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-xl">
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                  <AlertTriangle className="w-7 h-7 text-red-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Delete Address?
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                    <span className="font-medium text-gray-700">
+                      {pendingDelete.addressName.endsWith("s")
+                        ? `${pendingDelete.addressName}'`
+                        : `${pendingDelete.addressName}'s`}
+                    </span>{" "}
+                    address will be permanently deleted.
+                  </p>
+                </div>
+                <div className="flex gap-3 w-full mt-2">
+                  <button
+                    onClick={() => setPendingDelete(null)}
+                    className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                  >
+                    Keep Address
+                  </button>
+                  <button
+                    onClick={confirmDelete}
+                    disabled={deleting}
+                    className="flex-1 px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {deleting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Delete"
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </div>
   );
 
@@ -602,38 +620,59 @@ export default function Account() {
     return (
       <div className="space-y-4">
         <div className="flex gap-4">
-          <input
-            name="firstName"
-            value={addressForm.firstName}
-            onChange={handleAddressChange}
-            className={inputClass}
-            placeholder="First name"
-            required
-          />
-          <input
-            name="lastName"
-            value={addressForm.lastName}
-            onChange={handleAddressChange}
-            className={inputClass}
-            placeholder="Last name"
-            required
-          />
+          <div className="w-full">
+            <input
+              name="firstName"
+              value={addressForm.firstName}
+              onChange={handleAddressChange}
+              className={inputClass("firstName")}
+              placeholder="First name"
+              required
+            />
+            {addressErrors.firstName && (
+              <p className="text-xs text-red-500 mt-1">
+                {addressErrors.firstName}
+              </p>
+            )}
+          </div>
+          <div className="w-full">
+            <input
+              name="lastName"
+              value={addressForm.lastName}
+              onChange={handleAddressChange}
+              className={inputClass("lastName")}
+              placeholder="Last name"
+              required
+            />
+            {addressErrors.lastName && (
+              <p className="text-xs text-red-500 mt-1">
+                {addressErrors.lastName}
+              </p>
+            )}
+          </div>
         </div>
 
-        <input
-          name="address1"
-          value={addressForm.address1}
-          onChange={handleAddressChange}
-          className={inputClass}
-          placeholder="Address line 1"
-          required
-        />
+        <div>
+          <input
+            name="address1"
+            value={addressForm.address1}
+            onChange={handleAddressChange}
+            className={inputClass("address1")}
+            placeholder="Address line 1"
+            required
+          />
+          {addressErrors.address1 && (
+            <p className="text-xs text-red-500 mt-1">
+              {addressErrors.address1}
+            </p>
+          )}
+        </div>
 
         <input
           name="address2"
           value={addressForm.address2}
           onChange={handleAddressChange}
-          className={inputClass}
+          className={inputClass("address2")}
           placeholder="Address line 2"
         />
 
@@ -642,22 +681,36 @@ export default function Account() {
             name="landmark"
             value={addressForm.landmark}
             onChange={handleAddressChange}
-            className={inputClass}
+            className={inputClass("landmark")}
             placeholder="Landmark (optional)"
           />
-          <input
-            name="mobile"
-            value={addressForm.mobile}
-            onChange={(e) => {
-              const val = e.target.value.replace(/\D/g, "").slice(0, 11);
-              setAddressForm((prev) => ({ ...prev, mobile: val }));
-            }}
-            className={inputClass}
-            placeholder="Mobile number"
-            type="tel"
-            inputMode="numeric"
-            required
-          />
+          <div className="w-full">
+            <input
+              name="mobile"
+              value={addressForm.mobile}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, 11);
+                setAddressForm((prev) => ({ ...prev, mobile: val }));
+                if (addressErrors.mobile) {
+                  setAddressErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.mobile;
+                    return next;
+                  });
+                }
+              }}
+              className={inputClass("mobile")}
+              placeholder="Mobile number"
+              type="tel"
+              inputMode="numeric"
+              required
+            />
+            {addressErrors.mobile && (
+              <p className="text-xs text-red-500 mt-1">
+                {addressErrors.mobile}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-4">
@@ -672,8 +725,15 @@ export default function Account() {
                   pincode: val,
                   ...(val.length < 6 ? { city: "", state: "" } : {}),
                 }));
+                if (addressErrors.pincode) {
+                  setAddressErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.pincode;
+                    return next;
+                  });
+                }
               }}
-              className={inputClass}
+              className={inputClass("pincode")}
               placeholder="Pincode"
               inputMode="numeric"
               required
@@ -681,25 +741,40 @@ export default function Account() {
             {pincodeLoading && (
               <Loader2 className="w-4 h-4 text-gray-400 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
             )}
+            {addressErrors.pincode && (
+              <p className="text-xs text-red-500 mt-1">
+                {addressErrors.pincode}
+              </p>
+            )}
           </div>
-          <input
-            name="city"
-            value={addressForm.city}
-            onChange={handleAddressChange}
-            className={inputClass}
-            placeholder="City"
-            required
-          />
+          <div className="w-full">
+            <input
+              name="city"
+              value={addressForm.city}
+              onChange={handleAddressChange}
+              className={inputClass("city")}
+              placeholder="City"
+              required
+            />
+            {addressErrors.city && (
+              <p className="text-xs text-red-500 mt-1">{addressErrors.city}</p>
+            )}
+          </div>
         </div>
 
-        <input
-          name="state"
-          value={addressForm.state}
-          onChange={handleAddressChange}
-          className={inputClass}
-          placeholder="State"
-          required
-        />
+        <div>
+          <input
+            name="state"
+            value={addressForm.state}
+            onChange={handleAddressChange}
+            className={inputClass("state")}
+            placeholder="State"
+            required
+          />
+          {addressErrors.state && (
+            <p className="text-xs text-red-500 mt-1">{addressErrors.state}</p>
+          )}
+        </div>
 
         <div className="flex items-center gap-2">
           <input
@@ -711,7 +786,7 @@ export default function Account() {
             disabled={
               addresses.length === 0 ||
               addresses.length === 1 ||
-              (editingAddressId !== "new" && addressForm.isDefault)
+              (editingAddressId !== "new" && originalAddressForm?.isDefault)
             }
             className="w-4 h-4 accent-black disabled:opacity-50 disabled:cursor-not-allowed"
           />
@@ -720,7 +795,7 @@ export default function Account() {
             className={`text-sm ${
               addresses.length === 0 ||
               addresses.length === 1 ||
-              (editingAddressId !== "new" && addressForm.isDefault)
+              (editingAddressId !== "new" && originalAddressForm?.isDefault)
                 ? "text-gray-400"
                 : "text-gray-600"
             }`}

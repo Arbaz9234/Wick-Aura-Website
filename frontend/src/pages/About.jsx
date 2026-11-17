@@ -2,7 +2,6 @@ import React from "react";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
 import NewsLetter from "../components/NewsLetter";
-import { ToastContainer } from "react-toastify";
 
 export default function About() {
   return (
@@ -68,7 +67,6 @@ export default function About() {
       </div>
 
       <NewsLetter />
-      <ToastContainer />
     </div>
   );
 }

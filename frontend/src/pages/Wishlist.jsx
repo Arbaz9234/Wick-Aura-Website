@@ -4,7 +4,7 @@ import { ShopContext } from "../context/ShopContext";
 import { Heart, Loader2 } from "lucide-react";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
-import { ToastContainer } from "react-toastify";
+
 
 export default function Wishlist() {
   const { products, wishlist, removeFromWishlist, token, navigate, wishlistLoading } =
@@ -19,6 +19,7 @@ export default function Wishlist() {
         </p>
         <Link
           to="/login"
+          state={{ redirectTo: "/wishlist" }}
           className="px-8 py-3 bg-black text-white text-sm uppercase tracking-wider rounded-xl hover:bg-gray-800 transition-colors"
         >
           Login
@@ -72,7 +73,6 @@ export default function Wishlist() {
           ))}
         </div>
       )}
-      <ToastContainer />
     </div>
   );
 }

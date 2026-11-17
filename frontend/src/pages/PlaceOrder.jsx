@@ -1,10 +1,11 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import OrderSummary from "../components/OrderSummary";
-import { ArrowRight, Loader2, MapPin, Banknote, Plus } from "lucide-react";
-import { ToastContainer } from "react-toastify";
+import Portal from "../components/Portal";
+import AddressPickerModal from "../components/AddressPickerModal";
+import { ArrowRight, Loader2, MapPin, Banknote, Plus, CircleX } from "lucide-react";
 
 export default function PlaceOrder() {
   const {
@@ -15,12 +16,18 @@ export default function PlaceOrder() {
     buyNowItem,
     setBuyNowItem,
     addresses,
+    addAddress,
+    selectedAddressId: contextSelectedAddressId, // renamed to avoid clashing with local state
   } = useContext(ShopContext);
   const [pageReady, setPageReady] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [placingOrder, setPlacingOrder] = useState(false);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const orderPlacedRef = useRef(false);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -37,6 +44,7 @@ export default function PlaceOrder() {
   const isBuyNow = !!buyNowItem;
 
   useEffect(() => {
+    if (orderPlacedRef.current) return;
     if (!token) {
       navigate("/login", { replace: true });
       return;
@@ -66,10 +74,14 @@ export default function PlaceOrder() {
   // Pre-select default address when addresses load
   useEffect(() => {
     if (addresses.length > 0 && selectedAddressId === null) {
-      const defaultAddr = addresses.find((a) => a.isDefault) || addresses[0];
+      const fromContext = addresses.find(
+        (a) => a._id === contextSelectedAddressId,
+      );
+      const defaultAddr =
+        fromContext || addresses.find((a) => a.isDefault) || addresses[0];
       selectAddress(defaultAddr._id);
     }
-  }, [addresses]);
+  }, [addresses, contextSelectedAddressId]);
 
   const isNewAddress = selectedAddressId === "new";
 
@@ -151,7 +163,23 @@ export default function PlaceOrder() {
     }
     setPlacingOrder(true);
     try {
-      await placeOrder(form, paymentMethod, selectedAddressId);
+      const result = await placeOrder(
+        form,
+        paymentMethod,
+        selectedAddressId,
+        (msg) => {
+          setPaymentError(msg);
+          setPlacingOrder(false);
+        },
+        () => {
+          orderPlacedRef.current = true;
+          setPlacingOrder(false);
+          setOrderPlaced(true);
+        },
+      );
+      if (result && !result.success) {
+        setPaymentError(result.message);
+      }
     } finally {
       setPlacingOrder(false);
     }
@@ -167,252 +195,423 @@ export default function PlaceOrder() {
         className={`pt-10 border-t border-gray-300 pb-16 transition-opacity duration-500 ${pageReady ? "opacity-100" : "opacity-0"}`}
       >
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 justify-between">
-          {/* Left — Delivery Information */}
+          {/* Left — Delivery & Payment */}
           <div className="w-full lg:w-1/2">
             <div className="text-xl sm:text-2xl mb-6">
               <Title text1={"DELIVERY"} text2={"INFORMATION"} />
             </div>
-            {/* Saved Address Picker */}
-            {addresses.length > 0 && (
-              <div className="mb-6 space-y-3">
-                {addresses.map((addr) => (
-                  <label
-                    key={addr._id}
-                    onClick={() => selectAddress(addr._id)}
-                    className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
-                  >
-                    <span
-                      className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${selectedAddressId === addr._id ? "border-black" : "border-gray-300"}`}
-                    >
-                      {selectedAddressId === addr._id && (
-                        <span className="w-2 h-2 rounded-full bg-black" />
-                      )}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-800">
-                          {addr.firstName} {addr.lastName}
-                        </span>
-                        {addr.isDefault && (
-                          <span className="text-[10px] font-semibold uppercase tracking-wider bg-black text-white px-2 py-0.5 rounded-full">
-                            Default
-                          </span>
-                        )}
+            {/* Mobile — compact address card */}
+            {(() => {
+              const selectedAddr = addresses.find((a) => a._id === selectedAddressId);
+              return (
+                <div className="lg:hidden mb-6">
+                  {selectedAddr ? (
+                    <div className="flex items-start justify-between p-4 rounded-xl border border-gray-200 bg-white">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-gray-800">
+                            Delivering to {selectedAddr.firstName}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {[selectedAddr.address1, selectedAddr.city].filter(Boolean).join(", ")} — {selectedAddr.pincode}
+                          </p>
+                          <p className="text-xs text-gray-400">{selectedAddr.mobile}</p>
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {[addr.address1, addr.address2, addr.landmark]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {addr.city}, {addr.state} — {addr.pincode}
-                      </p>
-                      <p className="text-xs text-gray-400">{addr.mobile}</p>
+                      <button
+                        type="button"
+                        onClick={() => setAddressModalOpen(true)}
+                        className="text-xs font-semibold text-black underline underline-offset-2 flex-shrink-0 ml-4"
+                      >
+                        Change
+                      </button>
                     </div>
-                  </label>
-                ))}
-                <button
-                  type="button"
-                  onClick={() =>
-                    selectAddress(
-                      isNewAddress
-                        ? (addresses.find((a) => a.isDefault) || addresses[0])
-                            ?._id || "new"
-                        : "new",
-                    )
-                  }
-                  className={`flex items-center gap-3 w-full p-4 rounded-xl border transition-all ${isNewAddress ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
-                >
-                  <Plus
-                    className={`w-4 h-4 transition-transform ${isNewAddress ? "rotate-45 text-gray-800" : "text-gray-600"}`}
-                  />
-                  <span
-                    className={`text-sm font-medium ${isNewAddress ? "text-gray-800" : "text-gray-600"}`}
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setAddressModalOpen(true)}
+                      className="flex items-center gap-3 w-full p-4 rounded-xl border border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                    >
+                      <Plus className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm font-medium text-gray-600">
+                        Add delivery address
+                      </span>
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Desktop — Saved Address Picker */}
+            <div className="hidden lg:block">
+              {addresses.length > 0 && (
+                <div className="mb-6 space-y-3">
+                  {addresses.map((addr) => (
+                    <label
+                      key={addr._id}
+                      onClick={() => selectAddress(addr._id)}
+                      className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+                    >
+                      <span
+                        className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${selectedAddressId === addr._id ? "border-black" : "border-gray-300"}`}
+                      >
+                        {selectedAddressId === addr._id && (
+                          <span className="w-2 h-2 rounded-full bg-black" />
+                        )}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-800">
+                            {addr.firstName} {addr.lastName}
+                          </span>
+                          {addr.isDefault && (
+                            <span className="text-[10px] font-semibold uppercase tracking-wider bg-black text-white px-2 py-0.5 rounded-full">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {[addr.address1, addr.address2, addr.landmark]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {addr.city}, {addr.state} — {addr.pincode}
+                        </p>
+                        <p className="text-xs text-gray-400">{addr.mobile}</p>
+                      </div>
+                    </label>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      selectAddress(
+                        isNewAddress
+                          ? (addresses.find((a) => a.isDefault) || addresses[0])
+                              ?._id || "new"
+                          : "new",
+                      )
+                    }
+                    className={`flex items-center gap-3 w-full p-4 rounded-xl border transition-all ${isNewAddress ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
                   >
-                    Add New Address
-                  </span>
-                </button>
-              </div>
-            )}
-            {(isNewAddress || addresses.length === 0) && (
-              <div className="space-y-4 mt-6">
-                <div className="flex gap-4">
-                  <input
-                    name="firstName"
-                    value={form.firstName}
-                    onChange={handleChange}
-                    className={inputClass}
-                    placeholder="First name"
-                    required
-                  />
-                  <input
-                    name="lastName"
-                    value={form.lastName}
-                    onChange={handleChange}
-                    className={inputClass}
-                    placeholder="Last name"
-                    required
-                  />
+                    <Plus
+                      className={`w-4 h-4 transition-transform ${isNewAddress ? "rotate-45 text-gray-800" : "text-gray-600"}`}
+                    />
+                    <span
+                      className={`text-sm font-medium ${isNewAddress ? "text-gray-800" : "text-gray-600"}`}
+                    >
+                      Add New Address
+                    </span>
+                  </button>
                 </div>
-                <input
-                  name="address1"
-                  value={form.address1}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="Address line 1"
-                  required
-                />
-                <input
-                  name="address2"
-                  value={form.address2}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="Address line 2"
-                />
-                <div className="flex gap-4">
-                  <input
-                    name="landmark"
-                    value={form.landmark}
-                    onChange={handleChange}
-                    className={inputClass}
-                    placeholder="Landmark (optional)"
-                  />
-                  <input
-                    name="mobile"
-                    value={form.mobile}
-                    onChange={(e) => {
-                      const val = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 11);
-                      setForm((prev) => ({ ...prev, mobile: val }));
-                    }}
-                    className={inputClass}
-                    placeholder="Mobile number"
-                    type="tel"
-                    inputMode="numeric"
-                    required
-                  />
-                </div>
-                <div className="flex gap-4">
-                  <div className="relative w-full">
+              )}
+              {(isNewAddress || addresses.length === 0) && (
+                <div className="space-y-4 mt-6">
+                  <div className="flex gap-4">
                     <input
-                      name="pincode"
-                      value={form.pincode}
+                      name="firstName"
+                      value={form.firstName}
+                      onChange={handleChange}
+                      className={inputClass}
+                      placeholder="First name"
+                      required
+                    />
+                    <input
+                      name="lastName"
+                      value={form.lastName}
+                      onChange={handleChange}
+                      className={inputClass}
+                      placeholder="Last name"
+                      required
+                    />
+                  </div>
+                  <input
+                    name="address1"
+                    value={form.address1}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="Address line 1"
+                    required
+                  />
+                  <input
+                    name="address2"
+                    value={form.address2}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="Address line 2"
+                  />
+                  <div className="flex gap-4">
+                    <input
+                      name="landmark"
+                      value={form.landmark}
+                      onChange={handleChange}
+                      className={inputClass}
+                      placeholder="Landmark (optional)"
+                    />
+                    <input
+                      name="mobile"
+                      value={form.mobile}
                       onChange={(e) => {
                         const val = e.target.value
                           .replace(/\D/g, "")
-                          .slice(0, 6);
-                        setForm((prev) => ({
-                          ...prev,
-                          pincode: val,
-                          ...(val.length < 6 ? { city: "", state: "" } : {}),
-                        }));
+                          .slice(0, 11);
+                        setForm((prev) => ({ ...prev, mobile: val }));
                       }}
                       className={inputClass}
-                      placeholder="Pincode"
+                      placeholder="Mobile number"
+                      type="tel"
                       inputMode="numeric"
                       required
                     />
-                    {pincodeLoading && (
-                      <Loader2 className="w-4 h-4 text-gray-400 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
-                    )}
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="relative w-full">
+                      <input
+                        name="pincode"
+                        value={form.pincode}
+                        onChange={(e) => {
+                          const val = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 6);
+                          setForm((prev) => ({
+                            ...prev,
+                            pincode: val,
+                            ...(val.length < 6 ? { city: "", state: "" } : {}),
+                          }));
+                        }}
+                        className={inputClass}
+                        placeholder="Pincode"
+                        inputMode="numeric"
+                        required
+                      />
+                      {pincodeLoading && (
+                        <Loader2 className="w-4 h-4 text-gray-400 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+                      )}
+                    </div>
+                    <input
+                      name="city"
+                      value={form.city}
+                      onChange={handleChange}
+                      className={inputClass}
+                      placeholder="City"
+                      required
+                    />
                   </div>
                   <input
-                    name="city"
-                    value={form.city}
+                    name="state"
+                    value={form.state}
                     onChange={handleChange}
                     className={inputClass}
-                    placeholder="City"
+                    placeholder="State"
                     required
                   />
+                  {form.city && form.state && (
+                    <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2.5">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span>
+                        Delivering to {form.city}, {form.state}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <input
-                  name="state"
-                  value={form.state}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="State"
-                  required
-                />
-                {form.city && form.state && (
-                  <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2.5">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span>
-                      Delivering to {form.city}, {form.state}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          {/* Right — Summary & Payment */}
-          <div className="lg:w-[400px] flex-shrink-0">
-            <div className="lg:sticky lg:top-24 space-y-6">
+              )}
+            </div>
+
+            {/* Mobile — Order Summary (between address and payment) */}
+            <div className="lg:hidden mb-6">
               <OrderSummary
                 showItems
                 buyNowItem={buyNowItem}
                 setBuyNowItem={setBuyNowItem}
               />
-              {/* Payment Method */}
-              <div className="bg-gray-50 rounded-2xl p-6">
-                <h3 className="text-lg font-semibold text-black mb-5">
-                  Payment Method
-                </h3>
-                <div className="space-y-3">
-                  <label
-                    onClick={() => setPaymentMethod("razorpay")}
-                    className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+            </div>
+
+            {/* Payment Method */}
+            <div className="bg-gray-50 rounded-2xl p-6 mt-6">
+              <h3 className="text-lg font-semibold text-black mb-5">
+                Payment Method
+              </h3>
+              <div className="space-y-3">
+                <label
+                  onClick={() => setPaymentMethod("razorpay")}
+                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "razorpay" ? "border-black" : "border-gray-300"}`}
                   >
-                    <span
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "razorpay" ? "border-black" : "border-gray-300"}`}
-                    >
-                      {paymentMethod === "razorpay" && (
-                        <span className="w-2 h-2 rounded-full bg-black" />
-                      )}
-                    </span>
-                    <img
-                      src={assets.razorpayLogo}
-                      alt="Razorpay"
-                      className="h-6 object-contain"
-                    />
-                  </label>
-                  <label
-                    onClick={() => setPaymentMethod("cod")}
-                    className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "cod" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+                    {paymentMethod === "razorpay" && (
+                      <span className="w-2 h-2 rounded-full bg-black" />
+                    )}
+                  </span>
+                  <img
+                    src={assets.razorpayLogo}
+                    alt="Razorpay"
+                    className="h-6 object-contain"
+                  />
+                </label>
+                <label
+                  onClick={() => setPaymentMethod("cod")}
+                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === "cod" ? "border-black bg-white shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "cod" ? "border-black" : "border-gray-300"}`}
                   >
-                    <span
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${paymentMethod === "cod" ? "border-black" : "border-gray-300"}`}
-                    >
-                      {paymentMethod === "cod" && (
-                        <span className="w-2 h-2 rounded-full bg-black" />
-                      )}
-                    </span>
-                    <Banknote className="w-5 h-5 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-700">
-                      Cash on Delivery
-                    </span>
-                  </label>
-                </div>
+                    {paymentMethod === "cod" && (
+                      <span className="w-2 h-2 rounded-full bg-black" />
+                    )}
+                  </span>
+                  <Banknote className="w-5 h-5 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Cash on Delivery
+                  </span>
+                </label>
               </div>
-              <button
-                type="submit"
-                disabled={placingOrder}
-                className="w-full bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {placingOrder ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    Place Order
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={placingOrder}
+              className="w-full mt-6 bg-black text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {placingOrder ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  Place Order
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Right — Order Summary (desktop only) */}
+          <div className="hidden lg:block lg:w-[400px] flex-shrink-0">
+            <div className="lg:sticky lg:top-24">
+              <OrderSummary
+                showItems
+                buyNowItem={buyNowItem}
+                setBuyNowItem={setBuyNowItem}
+              />
             </div>
           </div>
         </div>
       </form>
-      <ToastContainer />
+
+      {/* Address Picker Modal (mobile/tablet) */}
+      <AddressPickerModal
+        isOpen={addressModalOpen}
+        onClose={() => setAddressModalOpen(false)}
+        addresses={addresses}
+        selectedAddressId={selectedAddressId}
+        onSelect={(id) => selectAddress(id)}
+        onSaveNew={async (formData) => {
+          const result = await addAddress(formData);
+          if (result?.success && result.addresses?.length > 0) {
+            const newAddr = result.addresses[result.addresses.length - 1];
+            selectAddress(newAddr._id);
+          }
+        }}
+        inputClass={inputClass}
+      />
+
+      {/* Payment Failed Modal */}
+      {paymentError && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setPaymentError(null)}
+            />
+            <div className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-xl">
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                  <CircleX className="w-7 h-7 text-red-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    Payment Failed
+                  </h3>
+                  <p className="text-sm text-gray-500">{paymentError}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPaymentError(null)}
+                  className="w-full px-4 py-3 mt-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Order Placed Success Modal */}
+      {orderPlaced && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <div className="relative bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-xl">
+              <div className="flex flex-col items-center text-center gap-4">
+                {/* Animated Checkmark */}
+                <div className="w-20 h-20">
+                  <svg
+                    className="order-success-checkmark"
+                    viewBox="0 0 52 52"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="order-success-circle"
+                      cx="26"
+                      cy="26"
+                      r="24"
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="2.5"
+                    />
+                    <path
+                      className="order-success-tick"
+                      d="M15 27l6 6 16-16"
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    Order Placed!
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Your order has been placed successfully.
+                  </p>
+                </div>
+                <div className="flex gap-3 w-full mt-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/collection")}
+                    className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                  >
+                    Continue Shopping
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/orders")}
+                    className="flex-1 px-4 py-3 text-sm font-medium text-white bg-black rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                  >
+                    View Orders
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
     </>
   );
 }

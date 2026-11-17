@@ -1,102 +1,92 @@
-# Wick & Aura - Candle E-Commerce Website
+    # Wick & Aura — Candle E-Commerce Platform
 
-A full-stack e-commerce web application for a candle selling business. Built with a modern React frontend and backend (coming soon).
+    Full-stack MERN e-commerce app for a candle business: a customer storefront, a REST API, and a separate admin panel. Includes OTP-based auth with optional 2FA, Razorpay payments, and server-synced cart/wishlist.
 
-> **Note:** This project is actively under development. Some components currently use placeholder content from an earlier reference build and will be updated to fully reflect the Wick & Aura candle brand over time.
+    <!-- **Live demo:** `<add link>` · **Admin demo:** `<add link>` · **Demo credentials:** `<add if public>` -->
 
----
+    ![Storefront](./frontend/src/assets/docs/Home.png)
+    ![Product](./frontend/src/assets/docs/Product.png)
+    ![Cart](./frontend/src/assets/docs/Cart.png)
 
-## Project Structure
+    ---
 
-```
-wick-and-aura-website/
-├── frontend/          # React + Vite frontend application
-└── backend/           # Backend API (coming soon)
-```
+    ## Architecture
 
----
+    ```
+    wick-and-aura-website/
+    ├── frontend/   # Customer storefront  (React + Vite)
+    ├── admin/      # Admin panel          (React + Vite)
+    └── backend/    # REST API             (Express + MongoDB)
+    ```
 
-## Frontend
+    Both React apps talk to the same Express API. Admin routes are protected with a separate token-based admin login.
 
-### Tech Stack
+    ## Tech Stack
 
-- **Framework:** React 19
-- **Build Tool:** Vite
-- **Routing:** React Router DOM v7
-- **Styling:** Tailwind CSS v4, Emotion, MUI Joy
-- **Icons:** MUI Icons, Lucide React
-- **Notifications:** React Toastify
-- **Linting:** ESLint 9
+    | Layer            | Stack                                                                            |
+    | ---------------- | -------------------------------------------------------------------------------- |
+    | Frontend / Admin | React 19, Vite, Tailwind CSS v4, React Router, Context API, Axios, Framer Motion |
+    | Backend          | Node.js, Express 5, MongoDB + Mongoose, JWT, bcrypt, Multer                      |
+    | Integrations     | Razorpay (payments), Nodemailer (OTP emails), Cloudinary (image hosting)         |
 
-### Pages
+    ---
 
-| Route                 | Page        | Description                                                        |
-| --------------------- | ----------- | ------------------------------------------------------------------ |
-| `/`                   | Home        | Hero banner, latest collection, best sellers, policies, newsletter |
-| `/collection`         | Collection  | Browse all products                                                |
-| `/product/:productId` | Product     | Individual product details                                         |
-| `/cart`               | Cart        | Shopping cart                                                      |
-| `/place-order`        | Place Order | Checkout / order placement                                         |
-| `/orders`             | Orders      | Order history                                                      |
-| `/login`              | Login       | User authentication                                                |
-| `/about`              | About       | About the brand                                                    |
-| `/contact`            | Contact     | Contact information                                                |
-| `/insta`              | Candle Shop | Candle-themed showcase page                                        |
+    ## Key Features & Engineering Highlights
 
-### Key Components
+    **Authentication & security**
 
-- **Navbar** & **Footer** - Site-wide layout
-- **Banner** - Hero section
-- **LatestCollection** & **BestSeller** - Product showcase sections
-- **ProductItem** - Reusable product card
-- **OurPolicy** - Store policies display
-- **NewsLetter** - Email subscription block
-- **Title** - Reusable section heading
+    - Email/password signup with OTP email verification
+    - Optional per-user 2FA: login requires an OTP when enabled
+    - OTP-based forgot-password flow
+    - OTPs are hashed with bcrypt; resend is rate-limited (60s)
+    - JWT-protected routes; separate admin authentication
 
-### State Management
+    **Cart & checkout**
 
-Global state is managed via React Context (`ShopContext`) providing:
+    - Guest cart that merges into the user's server-side cart on login
+    - Color variants and quantity management
+    - Saved addresses with an address picker at checkout
+    - Cash on Delivery and Razorpay, with server-side payment verification
 
-- Product catalog
-- Currency setting (INR)
-- Delivery fee configuration
+    **Catalog & user account**
 
-### Getting Started
+    - Search, filter and sort by category, type and price
+    - Wishlist synced to the user's account
+    - Order history and status tracking
+    - Profile, address and security (2FA) management
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+    **Admin panel**
 
-The app will be available at `http://localhost:5173`.
+    - Add/delete products with image upload (Cloudinary)
+    - View all orders and update order status
 
----
+    **Frontend**
 
-## Backend
+    - Mobile-first responsive layouts
+    - Global state with React Context (products, cart, orders, wishlist, user)
+    - Loading and error states on data-driven sections
+    - Page transitions with Framer Motion
 
-Backend implementation is planned and will be added in the `backend/` directory. Details will be updated here as development progresses.
+    ---
 
----
+    ## API Overview
 
-## Development Roadmap
+    | Resource | Base path      | Notable endpoints                                                                                                                                                          |
+    | -------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | Products | `/api/product` | `list`, `single`, `add` (admin), `remove` (admin)                                                                                                                          |
+    | Users    | `/api/user`    | `register`, `login`, `verify-signup-otp`, `verify-login-otp`, `forgot-password`, `reset-password`, `resend-otp`, `toggle-2fa`, `profile`, `addresses`, `wishlist`, `admin` |
+    | Cart     | `/api/cart`    | `add`, `update`, `get`, `merge`                                                                                                                                            |
+    | Orders   | `/api/order`   | `place` (COD), `razorpay`, `verifyRazorpay`, `userorders`, `list` (admin), `status` (admin)                                                                                |
 
-- [x] Frontend project setup (React + Vite + Tailwind)
-- [x] Page routing and layout structure
-- [x] Homepage with hero, collections, and newsletter
-- [x] Product browsing and detail pages
-- [x] Cart and checkout UI
-- [x] Login page UI
-- [ ] Replace all placeholder content with Wick & Aura candle branding
-- [ ] Backend API development
-- [ ] Database integration
-- [ ] User authentication
-- [ ] Payment gateway integration
-- [ ] Order management system
-- [ ] Admin panel
+    **Data models:** `User` (profile, cart, addresses, wishlist, OTP fields, 2FA flag), `Product`, `Order`.
 
----
+    ---
 
-## License
+    ## Author
 
-This project is proprietary and not licensed for public use.
+    **Arbaz Tahir** — Frontend Developer · [GitHub](https://github.com/Arbaz9234) · [LinkedIn](https://www.linkedin.com/in/md-arbaz-tahir/) ·
+    <a href="#" onclick="navigator.clipboard.writeText('arbaz9234@gmail.com'); return false;">
+    Email
+    </a>
+
+    _Proprietary project, not licensed for public use._
